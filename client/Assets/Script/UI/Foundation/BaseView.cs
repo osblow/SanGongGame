@@ -17,12 +17,13 @@ namespace Osblow.App
 
         public virtual void OnEnter(BaseContext context)
         {
+            gameObject.SetActive(true);
             transform.SetAsLastSibling();
         }
 
         public virtual void OnExit(BaseContext context)
         {
-
+            gameObject.SetActive(false);
         }
 
         public virtual void OnPause(BaseContext context)

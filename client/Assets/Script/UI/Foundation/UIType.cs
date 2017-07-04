@@ -33,5 +33,9 @@ namespace Osblow.App
         public static readonly UIType LobbyView = new UIType("Prefab/UI/LobbyView");
         public static readonly UIType TableView = new UIType("Prefab/UI/TableView");
         public static readonly UIType CreateRoomView = new UIType("Prefab/UI/CreateRoomView");
+        public static readonly UIType InviteCodeDialog = new UIType("Prefab/UI/InviteCodeDialog");
+        public static readonly UIType EnterRoomView = new UIType("Prefab/UI/EnterRoomView");
+        public static readonly UIType LoadingView = new UIType("Prefab/UI/LoadingView");
+        public static readonly UIType GameResultView = new UIType("Prefab/UI/GameResultView");
     }
 }

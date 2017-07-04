@@ -12,6 +12,7 @@ namespace Osblow.App
         {
             Globals.SceneSingleton<UIManager>();
             Globals.SceneSingleton<ContextManager>();
+            Globals.SceneSingleton<StateMng>();
 
             StartCoroutine(StartGame());
         }
@@ -19,7 +20,7 @@ namespace Osblow.App
         IEnumerator StartGame()
         {
             yield return new WaitForEndOfFrame();
-            Globals.SceneSingleton<ContextManager>().Push(new LoginUIContext());
+            Globals.SceneSingleton<StateMng>().ChangeState(StateType.Login);
         }
 
         // Update is called once per frame

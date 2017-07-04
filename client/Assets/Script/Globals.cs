@@ -34,17 +34,16 @@ namespace Osblow.App
         }
 
 
-        // Use this for initialization
-        void Start()
-        {
 
-        }
 
-        // Update is called once per frame
-        void Update()
-        {
+        public Settings Settings = new Settings();
+    }
 
-        }
+    public class Settings
+    {
+        public string WebUrlBase = "http://bbox.sansanbbox.com:6080/";
+        public string SocketUrl = "112.74.89.125";
+        public int SocketPort = 9876;
     }
 }
 

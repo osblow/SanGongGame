@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-
+﻿
 namespace Osblow.App
 {
     public class LoginUIContext : BaseContext
@@ -25,7 +21,8 @@ namespace Osblow.App
         #endregion
         void Login()
         {
-            Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
+            //Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
+            HttpRequest.LoginRequest();
         }
 
 
