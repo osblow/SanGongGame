@@ -37,5 +37,10 @@ namespace Osblow.App
         public static readonly UIType EnterRoomView = new UIType("Prefab/UI/EnterRoomView");
         public static readonly UIType LoadingView = new UIType("Prefab/UI/LoadingView");
         public static readonly UIType GameResultView = new UIType("Prefab/UI/GameResultView");
+        public static readonly UIType HistoryView = new UIType("Prefab/UI/HistoryView");
+        public static readonly UIType MessageView = new UIType("Prefab/UI/MessageView");
+        public static readonly UIType ShareView = new UIType("Prefab/UI/ShareView");
+        public static readonly UIType SettingView = new UIType("Prefab/UI/SettingView");
+        public static readonly UIType PayView = new UIType("Prefab/UI/PayView");
     }
 }

@@ -6,12 +6,12 @@ using UnityEngine.UI;
 
 namespace Osblow.App
 {
-    public class GameResultUIContext : BaseContext
+    public class MessageUIContext : BaseContext
     {
-        public GameResultUIContext() : base(UIType.GameResultView) { }
+        public MessageUIContext() : base(UIType.MessageView) { }
     }
 
-    public class GameResultView : BaseView
+    public class MessageView : BaseView
     {
         #region 场景引用 
 
@@ -20,11 +20,10 @@ namespace Osblow.App
         #region 场景事件
         public void OnExitBtn()
         {
-            Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
-            Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
+            Globals.SceneSingleton<ContextManager>().Pop();
         }
         #endregion
-        
+
 
 
         public override void OnEnter(BaseContext context)

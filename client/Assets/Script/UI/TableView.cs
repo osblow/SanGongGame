@@ -207,6 +207,7 @@ namespace Osblow.App
         public override void OnExit(BaseContext context)
         {
             base.OnExit(context);
+            Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
         }
 
         public override void OnPause(BaseContext context)
