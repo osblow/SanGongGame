@@ -23,6 +23,19 @@ namespace Osblow.App
             OnCreateRoom();
         }
 
+        public void OnSelectPayMethod(int option)
+        {
+            if(option == 0)
+            {
+                // 房主掏钱
+            }else if(option == 1)
+            {
+                // AA
+            }
+
+
+        }
+
         public void OnSelectSanGond(int option)
         {
             if(option == 0) // 三公
@@ -55,6 +68,11 @@ namespace Osblow.App
         {
             m_baseScore = score;
             Debug.Log("底分：" + m_baseScore);
+        }
+
+        public void OnExitBtn()
+        {
+            Globals.SceneSingleton<ContextManager>().Pop();
         }
         #endregion
         void OnCreateRoom()

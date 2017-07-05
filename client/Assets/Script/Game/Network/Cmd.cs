@@ -41,5 +41,8 @@ namespace Osblow.Game
         public static short SynchroniseCardsResponse = 0x1033;
         public static short WinOrLoseResponse = 0x1034;
         public static short UserAllResult = 0x1035;
+        public static short StartGameRequest = 0x1036;
+        public static short StartGameResponse = 0x1037;
+        public static short ServerBetOverResponse = 0x1038;
     }
 }

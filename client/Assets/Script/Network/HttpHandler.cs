@@ -34,6 +34,13 @@ namespace Osblow.App
             Globals.SceneSingleton<ContextManager>().Push(context);
         }
 
+        public static void ExistRoomWebResponse(byte[] data)
+        {
+            ExistRoomWebResponse res = GetProtoInstance<ExistRoomWebResponse>(data);
+
+            bool isRoomExist = res.flag;
+        }
+
         public static T GetProtoInstance<T>(byte[] data)
         {
             T t = default(T);
