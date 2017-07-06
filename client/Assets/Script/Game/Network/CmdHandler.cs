@@ -21,6 +21,8 @@ public class CmdHandler
         {
             // success
             Debug.Log("table regist    success");
+
+            //Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
         }
         else
         {
@@ -51,6 +53,7 @@ public class CmdHandler
         uint code = res.code;
         if(code == 1) // 请求失败
         {
+            Debug.Log("进入房间失败");
             return;
         }
 
@@ -94,6 +97,10 @@ public class CmdHandler
         });
 
         Globals.SceneSingleton<DataMng>().SetData(DataType.Table, tableData);
+
+        Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
+
+        Debug.Log("成功进入房间， 房号： " + tableData.RoomId);
     }
 
     /// <summary>
@@ -121,6 +128,10 @@ public class CmdHandler
         }
 
         curTableData.Players.Add(playerData);
+
+        Osblow.Util.MsgMng.Dispatch(Osblow.Util.MsgType.OtherPlayerEnter, playerData.PlayerUUID);
+
+        Debug.Log("有玩家进入");
     }
 
     /// <summary>
@@ -132,6 +143,8 @@ public class CmdHandler
         ExitRoomToOtherResponse res = GetProtoInstance<ExitRoomToOtherResponse>(data);
 
         string thePlayerUUID = res.player_uuid;
+
+        Debug.Log("退出房间" + thePlayerUUID);
     }
 
     /// <summary>
@@ -143,11 +156,12 @@ public class CmdHandler
         ExitRoomResultResponse res = GetProtoInstance<ExitRoomResultResponse>(data);
         if (res.code == 0)
         {
-
+            Debug.Log("退出房间成功");
         }
         else
         {
             // 失败
+            Debug.Log("退出房间失败");
         }
     }
 
@@ -161,6 +175,8 @@ public class CmdHandler
 
         string theUUID = res.dismiss_uuid;
         uint expireTime = res.expire_seconds;
+
+        Debug.Log(theUUID + "解散了房间");
     }
 
     /// <summary>
@@ -173,6 +189,8 @@ public class CmdHandler
 
         string theUUID = res.play_uuid;
         bool isAgreeing = res.flag;
+
+        Debug.Log(theUUID + "投票" + isAgreeing);
     }
 
     /// <summary>
@@ -185,10 +203,12 @@ public class CmdHandler
         if(res.code == 0)
         {
             // 成功
+            Debug.Log("成功解散");
         }
         else
         {
             // 失败
+            Debug.Log("解散失败");
         }
     }
 
@@ -202,6 +222,8 @@ public class CmdHandler
 
         string theUUID = res.play_uuid;
         uint theSeat = res.seat;
+
+        Debug.Log(theUUID + "已准备");
     }
 
     /// <summary>
@@ -210,7 +232,7 @@ public class CmdHandler
     /// <param name="data"></param>
     public static void ReconnectResponse(byte[] data)
     {
-
+        Debug.Log("重连");
     }
 
     /// <summary>
@@ -224,6 +246,8 @@ public class CmdHandler
         string theUUID = res.player_uuid;
         uint theSeat = res.seat;
         bool isOnline = res.status;
+
+        Debug.Log(theUUID + "玩家上线" + isOnline);
     }
 
     /// <summary>
@@ -255,6 +279,8 @@ public class CmdHandler
         string theUUID = res.player_uuid;
         uint theSeat = res.seat;
         uint thePoint = res.bet_point;
+
+        Debug.Log(theUUID + "下注" + thePoint);
     }
 
     /// <summary>
@@ -270,6 +296,8 @@ public class CmdHandler
         }
 
         uint expireTime = res.expire_seconds;
+
+        Debug.Log("开始抢庄");
     }
 
     /// <summary>
@@ -283,6 +311,8 @@ public class CmdHandler
         res.card.ForEach((x) => { cards.Add(x.card); });
 
         uint expireTime = res.expire_seconds;
+
+        Debug.Log("先发两张，然后抢庄");
     }
 
     /// <summary>
@@ -295,6 +325,8 @@ public class CmdHandler
         string theUUID = res.player_uuid;
         uint theSeat = res.seat;
         uint betPoint = res.bet_point;
+
+        Debug.Log(theUUID + "再次下注" + betPoint);
     }
 
     /// <summary>
@@ -309,6 +341,8 @@ public class CmdHandler
         string ownerUUID = res.banker_uuid;
         uint ownerSeat = res.banker_seat;
         bool nextBet = res.is_bet;
+
+        Debug.Log("抢庄结果");
     }
 
     /// <summary>
@@ -327,6 +361,8 @@ public class CmdHandler
         uint cardResult = res.card_result;
 
         uint autoShowCardInterval = res.expire_seconds;
+
+        Debug.Log("结果" + cardResult);
     }
 
     /// <summary>
@@ -343,6 +379,8 @@ public class CmdHandler
         res.card.ForEach((x) => { { cards.Add(x.card); } });
 
         uint cardResult = res.card_face;
+
+        Debug.Log("亮牌" + cardResult);
     }
 
     /// <summary>
@@ -352,7 +390,8 @@ public class CmdHandler
     public static void WinOrLoseResponse(byte[] data)
     {
         WinOrLoseResponse res = GetProtoInstance<WinOrLoseResponse>(data);
-        
+
+        Debug.Log("比大小" + res.result);
     }
 
     /// <summary>
@@ -362,6 +401,8 @@ public class CmdHandler
     public static void UserAllResult(byte[] data)
     {
         UserAllResult res = GetProtoInstance<UserAllResult>(data);
+
+        Debug.Log("总结算" + res.allResult.Count);
     }
 
     public static T GetProtoInstance<T>(byte[] data)

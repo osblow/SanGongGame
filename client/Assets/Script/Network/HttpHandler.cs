@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System;
@@ -8,24 +9,25 @@ namespace Osblow.App
 {
     public class HttpHandler
     {
+        /// <summary>
+        /// 登录返回
+        /// </summary>
+        /// <param name="data"></param>
         public static void LoginResponse(byte[] data)
         {
             LoginResponse res = GetProtoInstance<LoginResponse>(data);
 
             UserData userData = new UserData();
-            if (res != null)
-            {
-                userData.uuid = res.uuid;
-                userData.user_nick_name = res.user_nick_name;
-                userData.user_head_img = res.user_head_img;
-                userData.account_id = res.account_id;
-                userData.login_ip = res.login_ip;
-                userData.play_count = res.play_count;
-                userData.register_time = res.register_time;
-                userData.is_enter_room = res.is_enter_room;
-                userData.evaluate_score = res.evaluate_score;
-                userData.user_diamond = res.user_diamond;
-            }
+            userData.uuid = res.uuid;
+            userData.user_nick_name = res.user_nick_name;
+            userData.user_head_img = res.user_head_img;
+            userData.account_id = res.account_id;
+            userData.login_ip = res.login_ip;
+            userData.play_count = res.play_count;
+            userData.register_time = res.register_time;
+            userData.is_enter_room = res.is_enter_room;
+            userData.evaluate_score = res.evaluate_score;
+            userData.user_diamond = res.user_diamond;
 
             Globals.SceneSingleton<DataMng>().SetData(DataType.Player, userData);
 
@@ -34,11 +36,36 @@ namespace Osblow.App
             Globals.SceneSingleton<ContextManager>().Push(context);
         }
 
+
+        /// <summary>
+        /// 查询房间返回
+        /// </summary>
+        /// <param name="data"></param>
         public static void ExistRoomWebResponse(byte[] data)
         {
             ExistRoomWebResponse res = GetProtoInstance<ExistRoomWebResponse>(data);
 
             bool isRoomExist = res.flag;
+
+            Debug.Log("房间存在" + isRoomExist);
+        }
+
+        /// <summary>
+        /// 创建房间返回
+        /// </summary>
+        /// <param name="data"></param>
+        public static void CreateRoomWebResponse(byte[] data)
+        {
+            CreateRoomWebResponse res = GetProtoInstance<CreateRoomWebResponse>(data);
+
+            if(res.code == 1)
+            {
+                UnityEngine.Debug.Log("创建房间失败");
+                return;
+            }
+
+            Debug.Log("创建房间成功");
+            Globals.SceneSingleton<DataMng>().GetData<RoomData>(DataType.Room).RoomId = res.room_id;
         }
 
         public static T GetProtoInstance<T>(byte[] data)

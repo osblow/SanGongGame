@@ -67,6 +67,8 @@ namespace Osblow.Game
             }
             index += 1;
 
+            Globals.SceneSingleton<ContextManager>().WebBlockUI(false);
+
             short cmd = BitConverter.ToInt16(data, index);
             Execute(cmd, data);
         }
@@ -111,6 +113,7 @@ namespace Osblow.Game
                 else
                 {
                     Debug.Log(Time.time);
+                    CmdRequest.ClientHeartBeatRequest();
                 }
             }
         }
@@ -148,6 +151,7 @@ namespace Osblow.Game
                 Receive();
 
                 Debug.Log("已连接，准备接收命令");
+                CmdRequest.ClientRegisterRequest();
             }
             catch (Exception e)
             {

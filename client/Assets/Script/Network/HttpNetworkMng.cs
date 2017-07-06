@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Osblow.App;
 
 public class HttpNetworkMng : MonoBehaviour 
 {
@@ -27,13 +28,21 @@ public class HttpNetworkMng : MonoBehaviour
 
     IEnumerator GetBytes(string url, WWWForm form, Action<byte[]> handler)
     {
+        Debug.Log("请求：" + url);
+
         m_isWaiting = true;
 
-        WWW www = new WWW(c_testUrl);
+        WWW www = new WWW(url);
         //WWW www = new WWW(url, form);
         yield return www;
         Debug.Log(www.bytes.Length);
         m_isWaiting = false;
+
+        Globals.SceneSingleton<ContextManager>().WebBlockUI(false);
+        if(www.bytes.Length <= 0)
+        {
+            yield break;
+        }
 
         if(handler != null)
         {

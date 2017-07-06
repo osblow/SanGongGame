@@ -22,6 +22,7 @@ namespace Osblow.App
         void Login()
         {
             //Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
+            Globals.SceneSingleton<ContextManager>().WebBlockUI(true);
             HttpRequest.LoginRequest();
         }
 

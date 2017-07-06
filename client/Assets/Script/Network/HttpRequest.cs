@@ -8,6 +8,9 @@ namespace Osblow.App
 {
     public class HttpRequest
     {
+        /// <summary>
+        /// 登录请求
+        /// </summary>
         public static void LoginRequest()
         {
             string url = Globals.Instance.Settings.WebUrlBase + "loginAction/login.do";
@@ -17,10 +20,48 @@ namespace Osblow.App
             ///////////
 
             WWWForm form = new WWWForm();
-            form.AddField("unionId", 0);
+            form.AddField("unionId", "0000000000");
+            form.headers["Content-Type"] = "application/x-www-form-urlencoded";
+            
             Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.LoginResponse);
         }
 
+        /// <summary>
+        /// 查询房间请求
+        /// </summary>
+        /// <param name="roomId"></param>
+        public static void ExistRoomRequest(string roomId)
+        {
+            string url = Globals.Instance.Settings.WebUrlBase + "roomAction/existRoomWebRequest.do";
+
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+
+            WWWForm form = new WWWForm();
+            form.AddField("uuid", playerdata.uuid);
+            form.AddField("roomId", roomId);
+            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.ExistRoomWebResponse);
+        }
+
+        /// <summary>
+        /// 创建房间请求
+        /// </summary>
+        public static void CreateRoomRequest()
+        {
+            string url = Globals.Instance.Settings.WebUrlBase + "roomAction/createRoomWebRequest.do";
+
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+            RoomData roomData = Globals.SceneSingleton<DataMng>().GetData<RoomData>(DataType.Room);
+
+            WWWForm form = new WWWForm();
+            form.AddField("uuid", playerdata.uuid);
+            form.AddField("roomRuleName", roomData.RoomRuleName);
+            form.AddField("roomAllCount", roomData.RoomTotalRound);
+            form.AddField("roomCostRule", roomData.RoomCostRule);
+            form.AddField("isJoin", roomData.IsJoin);
+            form.AddField("roomRuleType", roomData.RoomRuleType);
+            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.ExistRoomWebResponse);
+        }
         #region 不一定用得到
         /*
         static byte[] Serialize(ProtoBuf.IExtensible proto)

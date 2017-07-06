@@ -20,7 +20,7 @@ namespace Osblow.Game
             ClientRegisterRequest request = new com.sansanbbox.protobuf.ClientRegisterRequest();
             request.uuid = playerdata.uuid;
 
-            Serialize(request);
+            Serialize(Cmd.ClientRegisterRequest, request);
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Osblow.Game
             ClientHeartBeatRequest request = new com.sansanbbox.protobuf.ClientHeartBeatRequest();
             request.uuid = playerdata.uuid;
 
-            Serialize(request);
+            Serialize(Cmd.ClientHeartBeatRequest, request);
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Osblow.Game
             request.uuid = playerdata.uuid;
             request.room_id = 0;
 
-            Serialize(request);
+            Serialize(Cmd.EnterRoomRequest, request);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Osblow.Game
             ExitRoomRequest request = new com.sansanbbox.protobuf.ExitRoomRequest();
             request.uuid = playerdata.uuid;
 
-            Serialize(request);
+            Serialize(Cmd.ExitRoomRequest, request);
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Osblow.Game
             DismissRoomRequest request = new com.sansanbbox.protobuf.DismissRoomRequest();
             request.uuid = playerdata.uuid;
 
-            Serialize(request);
+            Serialize(Cmd.DismissRoomRequest, request);
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace Osblow.Game
             request.uuid = playerdata.uuid;
             request.flag = isAgreeing;
 
-            Serialize(request);
+            Serialize(Cmd.PlayerVoteDismissRoomRequest, request);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Osblow.Game
             ReadyRequest request = new com.sansanbbox.protobuf.ReadyRequest();
             request.uuid = playerdata.uuid;
 
-            Serialize(request);
+            Serialize(Cmd.ReadyRequest, request);
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace Osblow.Game
             ReconnectRequest request = new com.sansanbbox.protobuf.ReconnectRequest();
             request.uuid = playerdata.uuid;
 
-            Serialize(request);
+            Serialize(Cmd.ReconnectRequest, request);
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace Osblow.Game
             request.uuid = playerdata.uuid;
             request.bet_point = betPoint;
 
-            Serialize(request);
+            Serialize(Cmd.ClientBetRequest, request);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Osblow.Game
             request.uuid = playerdata.uuid;
             request.bet_point = betPoint;
 
-            Serialize(request);
+            Serialize(Cmd.ClientBetAgainRequest, request);
         }
 
         /// <summary>
@@ -164,10 +164,10 @@ namespace Osblow.Game
             ClientBankerRequest request = new com.sansanbbox.protobuf.ClientBankerRequest();
             request.uuid = playerdata.uuid;
 
-            Serialize(request);
+            Serialize(Cmd.ClientBankerRequest, request);
         }
 
-        static void Serialize(ProtoBuf.IExtensible proto)
+        static void Serialize(short cmd, ProtoBuf.IExtensible proto)
         {
             byte[] result;
             //涉及格式转换，需要用到流，将二进制序列化到流中
@@ -187,7 +187,6 @@ namespace Osblow.Game
             List<byte> data = new List<byte>();
 
             byte head = 0x00;
-            short cmd = 0x1001;
             short length = (short)result.Length;
             byte tail = 0x00;
 

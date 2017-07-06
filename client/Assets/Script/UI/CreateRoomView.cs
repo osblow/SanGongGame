@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Osblow.Game;
 
 
 namespace Osblow.App
@@ -82,9 +83,17 @@ namespace Osblow.App
             data.SanGong = m_isSanGong;
             data.BaseScore = m_baseScore;
 
-            TableUIContext context = new TableUIContext();
-            context.TableData = data;
-            Globals.SceneSingleton<ContextManager>().Push(context);
+            RoomData roomData = new RoomData();
+            roomData.RoomRuleName = "三公";
+            Globals.SceneSingleton<DataMng>().SetData(DataType.Room, roomData);
+
+            //TableUIContext context = new TableUIContext();
+            //context.TableData = data;
+            //Globals.SceneSingleton<ContextManager>().Push(context);
+
+            Globals.SceneSingleton<ContextManager>().WebBlockUI(true);
+            //Globals.SceneSingleton<SocketNetworkMng>();
+            HttpRequest.CreateRoomRequest();
         }
 
 

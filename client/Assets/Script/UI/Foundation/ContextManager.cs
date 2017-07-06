@@ -63,5 +63,28 @@ namespace Osblow.App
             }
             return null;
         }
+
+        public void WebBlockUI(bool isBlock)
+        {
+            BaseContext curContext = PeekOrNull();
+            if (isBlock)
+            {
+                if(curContext != null && curContext is LoadingUIContext)
+                {
+                    return;
+                }
+
+                Push(new LoadingUIContext());
+            }
+            else
+            {
+                if (curContext == null || !(curContext is LoadingUIContext))
+                {
+                    return;
+                }
+
+                Pop();
+            }
+        }
     }
 }

@@ -4,15 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using Osblow.Game;
-
+using Osblow.Util;
 
 namespace Osblow.App
 {
     public class TableUIContext : BaseContext
     {
         public TableUIContext() : base(UIType.TableView) { }
-
-        public TableData TableData;
     }
 
     public class TableView : BaseView
@@ -174,12 +172,12 @@ namespace Osblow.App
         public override void OnEnter(BaseContext context)
         {
             base.OnEnter(context);
-            TableUIContext theContext = context as TableUIContext;
-            if (null != theContext.TableData)
+            TableData tableData = Globals.SceneSingleton<DataMng>().GetData<TableData>(DataType.Table);
+            if (null != tableData)
             {
-                Mode.text = theContext.TableData.SanGong == 0 ? "三公" : "双公";
-                Owner.text = theContext.TableData.HasOwner == 0 ? "是" : "否";
-                BaseScore.text = theContext.TableData.BaseScore.ToString();
+                Mode.text = tableData.SanGong == 0 ? "三公" : "双公";
+                Owner.text = tableData.HasOwner == 0 ? "是" : "否";
+                BaseScore.text = tableData.BaseScore.ToString();
             }
             // cards panel
             for(int i = 0; i < UserPanels.Count; i++)
@@ -202,6 +200,8 @@ namespace Osblow.App
                     UserPanels[i].SetActive(false);
                 }
             }
+
+            MsgMng.AddListener(MsgType.OtherPlayerEnter, OnOtherPlayerEnter);
         }
 
         public override void OnExit(BaseContext context)
@@ -218,6 +218,90 @@ namespace Osblow.App
         public override void OnResume(BaseContext context)
         {
             base.OnResume(context);
+        }
+
+
+
+        void OnOtherPlayerEnter(Msg msg)
+        {
+            string theUUID = msg.Get<string>(0);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void OnGUI()
+        {
+            if (GUI.Button(new Rect(0, 0, 100, 50), "进入房间"))
+            {
+                CmdRequest.EnterRoomRequest();
+            }
+
+            if (GUI.Button(new Rect(0, 100, 100, 50), "退出房间"))
+            {
+                CmdRequest.ExitRoomRequest();
+            }
+
+            if (GUI.Button(new Rect(0, 200, 100, 50), "解散房间"))
+            {
+                CmdRequest.DismissRoomRequest();
+            }
+
+            if (GUI.Button(new Rect(0, 300, 100, 50), "投票"))
+            {
+                CmdRequest.PlayerVoteDismissRoomRequest(false);
+            }
+
+            if (GUI.Button(new Rect(0, 400, 100, 50), "准备"))
+            {
+                CmdRequest.ReadyRequest();
+            }
+
+            if (GUI.Button(new Rect(0, 500, 100, 50), "重连请求"))
+            {
+                CmdRequest.ReconnectRequest();
+            }
+
+            if (GUI.Button(new Rect(0, 600, 100, 50), "下注"))
+            {
+                CmdRequest.ClientBetRequest(10);
+            }
+
+            if (GUI.Button(new Rect(200, 0, 100, 50), "再次下注"))
+            {
+                CmdRequest.ClientBetAgainRequest(10);
+            }
+
+            if (GUI.Button(new Rect(200, 100, 100, 50), "抢庄"))
+            {
+                CmdRequest.ClientBankerRequest();
+            }
         }
     }
 }
