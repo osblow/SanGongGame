@@ -58,14 +58,19 @@ namespace Osblow.App
         {
             CreateRoomWebResponse res = GetProtoInstance<CreateRoomWebResponse>(data);
 
-            if(res.code == 1)
-            {
-                UnityEngine.Debug.Log("创建房间失败");
-                return;
-            }
+            //if(res.code == 1)
+            //{
+            //    UnityEngine.Debug.Log("创建房间失败");
+            //    return;
+            //}
 
-            Debug.Log("创建房间成功");
+            Debug.Log("创建房间成功， 房间号" + res.room_id);
             Globals.SceneSingleton<DataMng>().GetData<RoomData>(DataType.Room).RoomId = res.room_id;
+
+            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate () 
+            {
+                Globals.SceneSingleton<StateMng>().ChangeState(StateType.Game);
+            };
         }
 
         public static T GetProtoInstance<T>(byte[] data)

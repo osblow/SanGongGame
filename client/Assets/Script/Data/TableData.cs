@@ -26,6 +26,8 @@ namespace Osblow.App
         public string PayRule = ""; // AA 或 房主支付
         public List<BetPointData> BetPoints = null;
         public List<TablePlayerData> Players = null;
+
+
     }
 
     public class BetPointData: DataBase

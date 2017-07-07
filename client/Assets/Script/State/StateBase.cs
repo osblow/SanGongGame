@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 
 namespace Osblow.App
@@ -77,6 +78,17 @@ namespace Osblow.App
         }
 
         public GameState(StateMng parent) : base(parent) { }
+
+        public override void Begin(StateType lastState)
+        {
+            base.Begin(lastState);
+
+            Globals.SceneSingleton<Osblow.Game.SocketNetworkMng>();
+
+            GameObject obj = new GameObject("GameMode");
+            GameModeBase mode = obj.AddComponent<GameModeBase>();
+            mode.Init();
+        }
     }
 
     public class GameResultState : StateBase

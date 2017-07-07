@@ -9,6 +9,9 @@ namespace Osblow.Util
     {
         None = 0,
         OtherPlayerEnter = 1, // 有其它玩家进入
+
+        Connected = 2, // socket 连接成功
+        Registed = 3, // socket 注册成功
     }
 
 

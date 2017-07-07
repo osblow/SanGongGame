@@ -87,7 +87,7 @@ namespace Osblow.App
             }
             if (user == null) return;
             UserName.text = user.user_nick_name;
-            UserName.text = user.account_id.ToString();
+            UserId.text = user.account_id.ToString();
             Diamond.text = user.user_diamond.ToString();
         }
 

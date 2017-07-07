@@ -186,9 +186,9 @@ namespace Osblow.Game
 
             List<byte> data = new List<byte>();
 
-            byte head = 0x00;
+            byte head = 0x64;
             short length = (short)result.Length;
-            byte tail = 0x00;
+            byte tail = 0x64;
 
             data.Add(head);
             data.AddRange(BitConverter.GetBytes(cmd));

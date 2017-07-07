@@ -5,6 +5,7 @@ using System.IO;
 using System;
 using com.sansanbbox.protobuf;
 using Osblow.App;
+using Osblow.Util;
 
 public class CmdHandler
 {
@@ -15,20 +16,22 @@ public class CmdHandler
     public static void ServerRegisterResponse(byte[] data)
     {
         ServerRegisterResponse res = GetProtoInstance<ServerRegisterResponse>(data);
-        uint code = res.code;
+        MsgMng.Dispatch(MsgType.Registed);
+        
+        //Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player).socket_code = res.code;
 
-        if(code == 0)
-        {
-            // success
-            Debug.Log("table regist    success");
+        //if(res.code == 0)
+        //{
+        //    // success
+        //    Debug.Log("table regist    success");
 
-            //Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
-        }
-        else
-        {
-            // failed
-            Debug.Log("table regist     failed");
-        }
+        //    Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
+        //}
+        //else
+        //{
+        //    // failed
+        //    Debug.Log("table regist     failed");
+        //}
     }
 
     /// <summary>
@@ -419,7 +422,7 @@ public class CmdHandler
             //将流的位置归0
             ms.Position = 0;
             //使用工具反序列化对象
-            T res = ProtoBuf.Serializer.Deserialize<T>(ms);
+            t = ProtoBuf.Serializer.Deserialize<T>(ms);
         }
 
         return t;

@@ -6,13 +6,13 @@ using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
 using Osblow.App;
+using Osblow.Util;
 
 
 namespace Osblow.Game
 {
     public class SocketNetworkMng : MonoBehaviour
     {
-        private CmdHandler m_handler;
         private Dictionary<short, Action<byte[]>> m_hadlerDic = new Dictionary<short, Action<byte[]>>();
 
         
@@ -61,7 +61,7 @@ namespace Osblow.Game
 
             int index = 0;
             byte flag = data[0];
-            if (flag != 0x00)
+            if (flag != 0x64)
             {
                 return;
             }
@@ -101,7 +101,7 @@ namespace Osblow.Game
         {
             while (true)
             {
-                yield return new WaitForSeconds(5);
+                yield return new WaitForSeconds(2);
 
                 if (!m_client.Connected)
                 {
@@ -151,7 +151,7 @@ namespace Osblow.Game
                 Receive();
 
                 Debug.Log("已连接，准备接收命令");
-                CmdRequest.ClientRegisterRequest();
+                MsgMng.Dispatch(MsgType.Connected);
             }
             catch (Exception e)
             {

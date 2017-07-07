@@ -14,4 +14,6 @@ public class UserData : DataBase
     public uint is_enter_room = 0;
     public double evaluate_score = 1;
     public uint user_diamond = 100;
+
+    public uint socket_code = 0;
 }
