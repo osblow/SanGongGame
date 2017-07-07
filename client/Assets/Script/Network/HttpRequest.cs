@@ -36,6 +36,8 @@ namespace Osblow.App
 
             UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
 
+            url += "?uuid=" + playerdata.uuid;
+            url += "&roomId=" + roomId;
 
             WWWForm form = new WWWForm();
             form.AddField("uuid", playerdata.uuid);
@@ -53,6 +55,16 @@ namespace Osblow.App
             UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
             RoomData roomData = Globals.SceneSingleton<DataMng>().GetData<RoomData>(DataType.Room);
 
+            // test 
+            url += "?uuid=" + playerdata.uuid;
+            url += "&roomRuleName=" + roomData.RoomRuleName;
+            url += "&roomAllCount=" + roomData.RoomTotalRound;
+            url += "&roomCostRule=" + roomData.RoomCostRule;
+            url += "&isJoin=" + roomData.IsJoin;
+            url += "&roomRuleType=" + roomData.RoomRuleType;
+            url += "&maxPlayer=" + roomData.MaxPlayerCount;
+            //////
+
             WWWForm form = new WWWForm();
             form.AddField("uuid", playerdata.uuid);
             form.AddField("roomRuleName", roomData.RoomRuleName);
@@ -60,7 +72,9 @@ namespace Osblow.App
             form.AddField("roomCostRule", roomData.RoomCostRule);
             form.AddField("isJoin", roomData.IsJoin);
             form.AddField("roomRuleType", roomData.RoomRuleType);
-            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.ExistRoomWebResponse);
+            form.AddField("maxPlayer", roomData.MaxPlayerCount);
+
+            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.CreateRoomWebResponse);
         }
         #region 不一定用得到
         /*

@@ -15,10 +15,24 @@ namespace Osblow.App
     public class CreateRoomView : BaseView
     {
         #region 场景引用 
-
+        public List<GameObject> ModePanels;
+        public List<Image> ModeButtons;
         #endregion
 
+
+
         #region 场景事件
+        public void SelectMode(int mode)
+        {
+            for(int i = 0; i < ModePanels.Count; i++)
+            {
+                ModePanels[i].SetActive(i == mode);
+                ModeButtons[i].color = i == mode ? Color.white : Color.gray;
+            }
+
+            m_roomData.RoomRuleType = mode;
+        }
+
         public void OnCreateBtn()
         {
             OnCreateRoom();
@@ -34,42 +48,57 @@ namespace Osblow.App
                 // AA
             }
 
-
+            m_roomData.RoomCostRule = option;
         }
 
-        public void OnSelectSanGond(int option)
+        //public void OnSelectSanGond(int option)
+        //{
+        //    if(option == 0) // 三公
+        //    {
+        //        Debug.Log("三公");
+        //    }
+        //    else if(option == 1) // 双公
+        //    {
+        //        Debug.Log("双公");
+        //    }
+
+        //    m_isSanGong = option;
+        //}
+
+        //public void OnSelectHasOwner(int option)
+        //{
+        //    if(option == 0) // 抢庄
+        //    {
+        //        Debug.Log("抢庄");
+        //    }
+        //    else // 不抢庄
+        //    {
+        //        Debug.Log("不抢庄");
+        //    }
+
+        //    m_hasOwner = option;
+        //}
+
+        public void OnSelectAllowJoin()
         {
-            if(option == 0) // 三公
-            {
-                Debug.Log("三公");
-            }
-            else if(option == 1) // 双公
-            {
-                Debug.Log("双公");
-            }
-
-            m_isSanGong = option;
+            m_roomData.IsJoin = m_roomData.IsJoin ^ 1;
         }
 
-        public void OnSelectHasOwner(int option)
+        public void SelectTotalRound(int round)
         {
-            if(option == 0) // 抢庄
-            {
-                Debug.Log("抢庄");
-            }
-            else // 不抢庄
-            {
-                Debug.Log("不抢庄");
-            }
-
-            m_hasOwner = option;
+            m_roomData.RoomTotalRound = round.ToString();
         }
 
-        public void OnSelectBaseScore(int score)
+        public void SelectPlayerCount(int count)
         {
-            m_baseScore = score;
-            Debug.Log("底分：" + m_baseScore);
+            m_roomData.MaxPlayerCount = count;
         }
+
+        //public void OnSelectBaseScore(int score)
+        //{
+        //    m_baseScore = score;
+        //    Debug.Log("底分：" + m_baseScore);
+        //}
 
         public void OnExitBtn()
         {
@@ -82,10 +111,7 @@ namespace Osblow.App
             data.HasOwner = m_hasOwner;
             data.SanGong = m_isSanGong;
             data.BaseScore = m_baseScore;
-
-            RoomData roomData = new RoomData();
-            roomData.RoomRuleName = "三公";
-            Globals.SceneSingleton<DataMng>().SetData(DataType.Room, roomData);
+            
 
             //TableUIContext context = new TableUIContext();
             //context.TableData = data;
@@ -103,11 +129,20 @@ namespace Osblow.App
         private int m_hasOwner = 0; // 0抢庄，1不抢庄
         private int m_baseScore = 0; // 底分
 
+        private RoomData m_roomData = null;
+
 
 
         public override void OnEnter(BaseContext context)
         {
             base.OnEnter(context);
+
+            m_roomData = Globals.SceneSingleton<DataMng>().GetData<RoomData>(DataType.Room);
+            if(m_roomData == null)
+            {
+                m_roomData = new RoomData();
+                Globals.SceneSingleton<DataMng>().SetData(DataType.Room, m_roomData);
+            }
         }
 
         public override void OnExit(BaseContext context)

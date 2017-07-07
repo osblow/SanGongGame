@@ -5,7 +5,7 @@ using UnityEngine;
 public class RoomData : DataBase
 {
     public string RoomRuleName = "三公";
-    public string RoomTotalRound = "总局数";
+    public string RoomTotalRound = "10";// 总局数
     public int RoomCostRule = 0; // 0房主支付，1AA
     public int IsJoin = 0;// 0允许加入，1不允许
     /*
@@ -15,6 +15,7 @@ public class RoomData : DataBase
      * 3先下注后抢庄，发两张牌比大小
      */
     public int RoomRuleType = 0;
+    public int MaxPlayerCount = 2;
 
     // 服务返回
     public uint RoomId = 0;
