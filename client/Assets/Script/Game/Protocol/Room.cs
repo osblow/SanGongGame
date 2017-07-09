@@ -1028,13 +1028,51 @@ namespace com.sansanbbox.protobuf
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"ClientExpressionRequest")]
+  public partial class ClientExpressionRequest : global::ProtoBuf.IExtensible
+  {
+    public ClientExpressionRequest() {}
+    
+    private string _uuid;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"uuid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public string uuid
+    {
+      get { return _uuid; }
+      set { _uuid = value; }
+    }
+    private uint _expression_id;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"expression_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public uint expression_id
+    {
+      get { return _expression_id; }
+      set { _expression_id = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"SynchroniseExpressionResponse")]
   public partial class SynchroniseExpressionResponse : global::ProtoBuf.IExtensible
   {
     public SynchroniseExpressionResponse() {}
     
+    private string _uuid;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"uuid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public string uuid
+    {
+      get { return _uuid; }
+      set { _uuid = value; }
+    }
+    private uint _seat;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"seat", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public uint seat
+    {
+      get { return _seat; }
+      set { _seat = value; }
+    }
     private uint _expression_id;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"expression_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"expression_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     public uint expression_id
     {
       get { return _expression_id; }

@@ -13,14 +13,15 @@ namespace Osblow.App
         /// </summary>
         public static void LoginRequest()
         {
+            string username = PlayerPrefs.GetString("username");
             string url = Globals.Instance.Settings.WebUrlBase + "loginAction/login.do";
 
             // test
-            url += "?unionId=0000000000";
+            url += "?unionId=" + username;
             ///////////
 
             WWWForm form = new WWWForm();
-            form.AddField("unionId", "0000000000");
+            form.AddField("unionId", username);
             form.headers["Content-Type"] = "application/x-www-form-urlencoded";
             
             Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.LoginResponse);
@@ -33,6 +34,10 @@ namespace Osblow.App
         public static void ExistRoomRequest(string roomId)
         {
             string url = Globals.Instance.Settings.WebUrlBase + "roomAction/existRoomWebRequest.do";
+
+            RoomData roomData = new RoomData();
+            roomData.RoomId = uint.Parse(roomId);
+            Globals.SceneSingleton<DataMng>().SetData(DataType.Room, roomData);
 
             UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
 

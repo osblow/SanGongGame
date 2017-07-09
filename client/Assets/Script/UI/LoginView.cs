@@ -1,4 +1,6 @@
-﻿
+﻿using UnityEngine;
+using UnityEngine.UI;
+
 namespace Osblow.App
 {
     public class LoginUIContext : BaseContext
@@ -9,13 +11,14 @@ namespace Osblow.App
     public class LoginView : BaseView
     {
         #region 场景引用 
-
+        public InputField UserInput;
         #endregion
 
         #region 场景事件
 
         public void OnLoginBtn()
         {
+            PlayerPrefs.SetString("username", UserInput.text);
             Login();
         }
         #endregion
@@ -30,6 +33,11 @@ namespace Osblow.App
         public override void OnEnter(BaseContext context)
         {
             base.OnEnter(context);
+
+            if (PlayerPrefs.HasKey("username"))
+            {
+                UserInput.text = PlayerPrefs.GetString("username");
+            }
         }
 
         public override void OnExit(BaseContext context)

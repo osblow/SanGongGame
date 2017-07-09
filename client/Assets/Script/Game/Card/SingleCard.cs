@@ -8,9 +8,9 @@ namespace Osblow.Game
 {
     public class SingleCard : MonoBehaviour
     {
-        public int CurNum = 0;
+        public uint CurNum = 0;
 
-        public void SetNum(int cardVal)
+        public void SetNum(uint cardVal)
         {
             CurNum = cardVal;
 

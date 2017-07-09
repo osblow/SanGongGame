@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class RoomData : DataBase
 {
-    public string RoomRuleName = "三公";
+    public string RoomRuleName = "sangong";
     public string RoomTotalRound = "10";// 总局数
     public int RoomCostRule = 0; // 0房主支付，1AA
     public int IsJoin = 0;// 0允许加入，1不允许

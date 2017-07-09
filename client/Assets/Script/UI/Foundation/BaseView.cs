@@ -19,6 +19,12 @@ namespace Osblow.App
         {
             gameObject.SetActive(true);
             transform.SetAsLastSibling();
+
+            UIAnimationBase anim = transform.GetComponent<UIAnimationBase>();
+            if (anim)
+            {
+                anim.Anim();
+            }
         }
 
         public virtual void OnExit(BaseContext context)

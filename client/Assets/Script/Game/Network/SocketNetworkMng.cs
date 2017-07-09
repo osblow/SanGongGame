@@ -50,6 +50,14 @@ namespace Osblow.Game
             m_hadlerDic.Add(Cmd.SynchroniseCardsResponse, CmdHandler.SynchroniseCardsResponse);
             m_hadlerDic.Add(Cmd.WinOrLoseResponse, CmdHandler.WinOrLoseResponse);
             m_hadlerDic.Add(Cmd.UserAllResult, CmdHandler.UserAllResult);
+            /*
+             * public static short StartGameResponse = 0x1037;
+        public static short ServerBetOverResponse = 0x1038;
+        public static short ServerToBankerResponse = 0x1039;
+             */
+            m_hadlerDic.Add(Cmd.StartGameResponse, CmdHandler.StartGameResponse);
+            m_hadlerDic.Add(Cmd.ServerBetOverResponse, CmdHandler.ServerBetOverResponse);
+            m_hadlerDic.Add(Cmd.ServerToBankerResponse, CmdHandler.ServerToBankerResponse);
         }
 
         public void Handler(byte[] data)
@@ -77,6 +85,11 @@ namespace Osblow.Game
 
         public void Execute(short cmd, byte[] data)
         {
+            if(cmd != 0x1004)
+            {
+                int a = 0;
+            }
+
             if (!m_hadlerDic.ContainsKey(cmd))
             {
                 return;
@@ -113,7 +126,7 @@ namespace Osblow.Game
                 else
                 {
                     Debug.Log(Time.time);
-                    CmdRequest.ClientHeartBeatRequest();
+                    //CmdRequest.ClientHeartBeatRequest();
                 }
             }
         }
@@ -213,6 +226,12 @@ namespace Osblow.Game
                 // from the asynchronous state object.     
                 TCPState state = (TCPState)ar.AsyncState;
                 Socket client = state.Socket;
+
+                if(client == null)
+                {
+                    return;
+                }
+
                 // Read data from the remote device.     
                 int bytesRead = client.EndReceive(ar);
 

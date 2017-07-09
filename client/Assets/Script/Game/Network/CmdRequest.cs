@@ -45,7 +45,8 @@ namespace Osblow.Game
 
             EnterRoomRequest request = new com.sansanbbox.protobuf.EnterRoomRequest();
             request.uuid = playerdata.uuid;
-            request.room_id = 0;
+            request.room_id = 
+                Globals.SceneSingleton<DataMng>().GetData<RoomData>(DataType.Room).RoomId;
 
             Serialize(Cmd.EnterRoomRequest, request);
         }
@@ -118,6 +119,35 @@ namespace Osblow.Game
         }
 
         /// <summary>
+        /// 亮牌请求
+        /// </summary>
+        /// <param name="expressionId"></param>
+        public static void SynchroniseCardsRequest()
+        {
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            SynchroniseCardsRequest request = new com.sansanbbox.protobuf.SynchroniseCardsRequest();
+            request.uuid = playerdata.uuid;
+            
+            Serialize(Cmd.SynchroniseCardsRequest, request);
+        }
+
+        /// <summary>
+        /// 亮牌请求
+        /// </summary>
+        /// <param name="expressionId"></param>
+        public static void ClientExpressionRequest(uint expressionId)
+        {
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            ClientExpressionRequest request = new com.sansanbbox.protobuf.ClientExpressionRequest();
+            request.uuid = playerdata.uuid;
+            request.expression_id = expressionId;
+
+            Serialize(Cmd.ClientExpressionRequest, request);
+        }
+
+        /// <summary>
         /// 上传语音
         /// </summary>
         public static void AudioStreamUpload()
@@ -165,6 +195,18 @@ namespace Osblow.Game
             request.uuid = playerdata.uuid;
 
             Serialize(Cmd.ClientBankerRequest, request);
+        }
+
+        public static void StartGameRequest()
+        {
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            StartGameRequest request = new com.sansanbbox.protobuf.StartGameRequest();
+            request.uuid = playerdata.uuid;
+
+            Debug.Log("请求开始游戏..");
+
+            Serialize(Cmd.StartGameRequest, request);
         }
 
         static void Serialize(short cmd, ProtoBuf.IExtensible proto)

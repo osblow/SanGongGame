@@ -15,5 +15,8 @@ public class UserData : DataBase
     public double evaluate_score = 1;
     public uint user_diamond = 100;
 
+    public List<uint> cards = new List<uint>() { 0,0,0 };
+    public string cardResult = "";
+
     public uint socket_code = 0;
 }

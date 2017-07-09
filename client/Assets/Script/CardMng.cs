@@ -23,7 +23,7 @@ namespace Osblow.App
 
         }
 
-        public Sprite GetSprite(int cardVal)
+        public Sprite GetSprite(uint cardVal)
         {
             if (m_cardTextures.Count <= 0)
             {
@@ -36,7 +36,7 @@ namespace Osblow.App
                 return null;
             }
 
-            return m_cardTextures[cardVal];
+            return m_cardTextures[(int)cardVal];
         }
 
         public Sprite GetBackSprite()

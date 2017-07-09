@@ -42,5 +42,8 @@ namespace Osblow.App
         public static readonly UIType ShareView = new UIType("Prefab/UI/ShareView");
         public static readonly UIType SettingView = new UIType("Prefab/UI/SettingView");
         public static readonly UIType PayView = new UIType("Prefab/UI/PayView");
+        public static readonly UIType UserInfoDialog = new UIType("Prefab/UI/UserInfoDialog");
+        
+        public static readonly UIType AlertDialog = new UIType("Prefab/UI/AlertDialog");
     }
 }

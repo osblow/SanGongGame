@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Osblow.App;
 
 namespace Osblow.Util
 {
@@ -12,6 +13,26 @@ namespace Osblow.Util
 
         Connected = 2, // socket 连接成功
         Registed = 3, // socket 注册成功
+        Ready = 4, // 准备
+
+        PlayerEnter = 5, // 玩家进入
+        UI_AddPlayer = 6, 
+
+        UI_PlayerReady = 7,
+        UI_ShowCards = 8,
+
+        UI_ConfirmOwner = 9,
+        UI_Bankering = 10,
+
+        UI_PlayerBet = 11,
+
+        UI_StartBet = 12, // 游戏开始，准备下注
+
+        UI_Expression = 13, // 表情
+
+        UI_CuoPaiEnd = 14, // 搓牌结束 
+
+        DealCards = 15, // 发牌
     }
 
 

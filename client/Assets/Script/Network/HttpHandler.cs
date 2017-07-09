@@ -48,6 +48,14 @@ namespace Osblow.App
             bool isRoomExist = res.flag;
 
             Debug.Log("房间存在" + isRoomExist);
+
+            if (isRoomExist)
+            {
+                Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+                {
+                    Globals.SceneSingleton<StateMng>().ChangeState(StateType.Game);
+                };
+            }
         }
 
         /// <summary>

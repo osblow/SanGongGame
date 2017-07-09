@@ -33,16 +33,39 @@ namespace Osblow.App
             return (T)s_singletonDic[typeof(T)];
         }
 
+        public static void RemoveSceneSingleton<T>()
+        {
+            if (!s_singletonDic.ContainsKey(typeof(T)))
+            {
+                return;
+            }
 
+            GameObject.Destroy(s_singletonDic[typeof(T)]);
+            s_singletonDic.Remove(typeof(T));
+        }
 
 
         public Settings Settings = new Settings();
+
+
+        public static void GetHeadImgByUrl(string url, Action<Texture> getTextureCallback)
+        {
+            Instance.StartCoroutine(GetImageByUrl(url, getTextureCallback));
+        }
+
+        private static IEnumerator GetImageByUrl(string url, Action<Texture> getTextureCallback)
+        {
+            WWW www = new WWW(url);
+            yield return www;
+            if (getTextureCallback != null)
+                getTextureCallback.Invoke(www.texture);
+        }
     }
 
     public class Settings
     {
-        public string WebUrlBase = "http://bbox.sansanbbox.com:6080/";
-        public string SocketUrl = "112.74.89.125";
+        public string WebUrlBase = "http://183.61.146.92:81/sangong/";//"http://bbox.sansanbbox.com:6080/";
+        public string SocketUrl = "183.61.146.92";
         public int SocketPort = 9876;
     }
 }

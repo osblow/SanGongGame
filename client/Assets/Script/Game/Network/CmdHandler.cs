@@ -16,6 +16,8 @@ public class CmdHandler
     public static void ServerRegisterResponse(byte[] data)
     {
         ServerRegisterResponse res = GetProtoInstance<ServerRegisterResponse>(data);
+
+        Debug.Log("注册成功");
         MsgMng.Dispatch(MsgType.Registed);
         
         //Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player).socket_code = res.code;
@@ -97,11 +99,15 @@ public class CmdHandler
             temp.NickName = x.player_nike_name;
             temp.UserIp = x.user_ip;
             temp.EvaluateScore = x.evaluate_score;
+            tableData.Players.Add(temp);
         });
 
         Globals.SceneSingleton<DataMng>().SetData(DataType.Table, tableData);
 
-        Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
+        Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+        {
+            Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
+        };
 
         Debug.Log("成功进入房间， 房号： " + tableData.RoomId);
     }
@@ -112,6 +118,8 @@ public class CmdHandler
     /// <param name="data"></param>
     public static void EnterRoomOtherResponse(byte[] data)
     {
+        Debug.Log("其它玩家进入");
+
         EnterRoomOtherResponse res = GetProtoInstance<EnterRoomOtherResponse>(data);
         TablePlayerData playerData = new TablePlayerData();
         playerData.SeatNum = res.seat;
@@ -132,7 +140,7 @@ public class CmdHandler
 
         curTableData.Players.Add(playerData);
 
-        Osblow.Util.MsgMng.Dispatch(Osblow.Util.MsgType.OtherPlayerEnter, playerData.PlayerUUID);
+        Osblow.Util.MsgMng.Dispatch(Osblow.Util.MsgType.PlayerEnter, playerData.PlayerUUID, playerData);
 
         Debug.Log("有玩家进入");
     }
@@ -160,6 +168,12 @@ public class CmdHandler
         if (res.code == 0)
         {
             Debug.Log("退出房间成功");
+            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            {
+                Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
+                Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
+                Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
+            };
         }
         else
         {
@@ -178,6 +192,8 @@ public class CmdHandler
 
         string theUUID = res.dismiss_uuid;
         uint expireTime = res.expire_seconds;
+
+
 
         Debug.Log(theUUID + "解散了房间");
     }
@@ -207,6 +223,13 @@ public class CmdHandler
         {
             // 成功
             Debug.Log("成功解散");
+
+            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            {
+                Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
+                Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
+                Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
+            };
         }
         else
         {
@@ -226,6 +249,7 @@ public class CmdHandler
         string theUUID = res.play_uuid;
         uint theSeat = res.seat;
 
+        MsgMng.Dispatch(MsgType.UI_PlayerReady, theUUID);
         Debug.Log(theUUID + "已准备");
     }
 
@@ -260,6 +284,14 @@ public class CmdHandler
     public static void SynchroniseExpressionResponse(byte[] data)
     {
         // 需要ID
+        SynchroniseExpressionResponse res = GetProtoInstance<SynchroniseExpressionResponse>(data);
+
+        string uuid = res.uuid;
+        uint expression_id = res.expression_id;
+
+
+        MsgMng.Dispatch(MsgType.UI_Expression, uuid, expression_id);
+        Debug.Log("表情" + expression_id);
     }
 
     /// <summary>
@@ -269,6 +301,7 @@ public class CmdHandler
     public static void AudioStreamBroadcast(byte[] data)
     {
         // 需要ID
+
     }
 
     /// <summary>
@@ -284,6 +317,7 @@ public class CmdHandler
         uint thePoint = res.bet_point;
 
         Debug.Log(theUUID + "下注" + thePoint);
+        MsgMng.Dispatch(MsgType.UI_PlayerBet, theUUID, thePoint);
     }
 
     /// <summary>
@@ -329,6 +363,7 @@ public class CmdHandler
         uint theSeat = res.seat;
         uint betPoint = res.bet_point;
 
+        MsgMng.Dispatch(MsgType.UI_PlayerBet, theUUID, betPoint);
         Debug.Log(theUUID + "再次下注" + betPoint);
     }
 
@@ -345,9 +380,32 @@ public class CmdHandler
         uint ownerSeat = res.banker_seat;
         bool nextBet = res.is_bet;
 
+        MsgMng.Dispatch(MsgType.UI_ConfirmOwner, ownerUUID);
+
+        if (nextBet)
+        {
+            MsgMng.Dispatch(MsgType.UI_Bankering);
+        }
+
         Debug.Log("抢庄结果");
     }
 
+    static Dictionary<uint, string> s_cardResultDic = new Dictionary<uint, string>()
+    {
+        {0, "0点" },
+        {1, "1点" },
+        {2, "2点" },
+        {3, "3点" },
+        {4, "4点" },
+        {5, "5点" },
+        {6, "6点" },
+        {7, "7点" },
+        {8, "8点" },
+        {9, "9点" },
+        {10, "混三公" },
+        {11, "小三公" },
+        {12, "大三公" },
+    };
     /// <summary>
     /// 发牌
     /// </summary>
@@ -361,11 +419,16 @@ public class CmdHandler
         /*
          * 0:0点	 1: 1点   	2:2点 	3: 3点 	 4:4点   	 5: 5点   	6:6点	7: 7点  	8:8点  	 9:9点    	10：混三公  	11：小三公 	 12：大三公 
          */
-        uint cardResult = res.card_result;
+
+        UserData playerData = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+        playerData.cards = cards;
+        playerData.cardResult = s_cardResultDic[res.card_result];
 
         uint autoShowCardInterval = res.expire_seconds;
 
-        Debug.Log("结果" + cardResult);
+        MsgMng.Dispatch(MsgType.DealCards);
+
+        Debug.Log("结果" + s_cardResultDic[res.card_result]);
     }
 
     /// <summary>
@@ -398,6 +461,42 @@ public class CmdHandler
     }
 
     /// <summary>
+    /// 开始游戏
+    /// </summary>
+    /// <param name="data"></param>
+    public static void StartGameResponse(byte[] data)
+    {
+        StartGameResponse res = GetProtoInstance<StartGameResponse>(data);
+
+        if(res.code != 1)
+        {
+            return;
+        }
+
+        uint expireTime = res.expire_seconds;
+        // 开始游戏，准备下注
+        Debug.Log("开始游戏，准备下注");
+        MsgMng.Dispatch(MsgType.UI_StartBet, expireTime);
+    }
+
+    /// <summary>
+    /// 下注结束广播
+    /// </summary>
+    /// <param name="data"></param>
+    public static void ServerBetOverResponse(byte[] data)
+    {
+        ServerBetOverResponse res = GetProtoInstance<ServerBetOverResponse>(data);
+
+        if(res.code == 0)
+        {
+            return;
+        }
+
+        // 时间到了
+
+    }
+
+    /// <summary>
     /// 总结算
     /// </summary>
     /// <param name="data"></param>
@@ -406,6 +505,17 @@ public class CmdHandler
         UserAllResult res = GetProtoInstance<UserAllResult>(data);
 
         Debug.Log("总结算" + res.allResult.Count);
+    }
+
+    /// <summary>
+    /// 抢庄广播
+    /// </summary>
+    /// <param name="data"></param>
+    public static void ServerToBankerResponse(byte[] data)
+    {
+        ServerToBankerResponse res = GetProtoInstance<ServerToBankerResponse>(data);
+
+        Debug.Log("抢庄 " + res.uuid);
     }
 
     public static T GetProtoInstance<T>(byte[] data)

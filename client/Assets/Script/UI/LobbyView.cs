@@ -19,6 +19,8 @@ namespace Osblow.App
         public Text UserName;
         public Text UserId;
         public Text Diamond;
+        public Image Icon;
+        
         #endregion
 
         #region 场景事件
@@ -34,32 +36,57 @@ namespace Osblow.App
 
         public void InviteCodeBtn()
         {
-            ShowInviteCodeDialog();
+            //ShowInviteCodeDialog();
+            AlertUIContext context = new AlertUIContext();
+            context.Info = "服务器正忙，请稍后再试..";
+            Globals.SceneSingleton<ContextManager>().Push(context);
         }
 
         public void HistoryBtn()
         {
-            Globals.SceneSingleton<ContextManager>().Push(new HistoryUIContext());
+            //Globals.SceneSingleton<ContextManager>().Push(new HistoryUIContext());
+            AlertUIContext context = new AlertUIContext();
+            context.Info = "服务器正忙，请稍后再试..";
+            Globals.SceneSingleton<ContextManager>().Push(context);
         }
 
         public void MessageBtn()
         {
-            Globals.SceneSingleton<ContextManager>().Push(new MessageUIContext());
+            //Globals.SceneSingleton<ContextManager>().Push(new MessageUIContext());
+            AlertUIContext context = new AlertUIContext();
+            context.Info = "服务器正忙，请稍后再试..";
+            Globals.SceneSingleton<ContextManager>().Push(context);
         }
 
         public void ShareBtn()
         {
-            Globals.SceneSingleton<ContextManager>().Push(new ShareUIContext());
+            //Globals.SceneSingleton<ContextManager>().Push(new ShareUIContext());
+            AlertUIContext context = new AlertUIContext();
+            context.Info = "服务器正忙，请稍后再试..";
+            Globals.SceneSingleton<ContextManager>().Push(context);
         }
 
         public void SettingBtn()
         {
-            Globals.SceneSingleton<ContextManager>().Push(new SettingUIContext());
+            //Globals.SceneSingleton<ContextManager>().Push(new SettingUIContext());
+            AlertUIContext context = new AlertUIContext();
+            context.Info = "服务器正忙，请稍后再试..";
+            Globals.SceneSingleton<ContextManager>().Push(context);
         }
 
         public void PayBtn()
         {
-            Globals.SceneSingleton<ContextManager>().Push(new PayUIContext());
+            //Globals.SceneSingleton<ContextManager>().Push(new PayUIContext());
+            AlertUIContext context = new AlertUIContext();
+            context.Info = "服务器正忙，请稍后再试..";
+            Globals.SceneSingleton<ContextManager>().Push(context);
+        }
+
+        public void MyRoomsBtn()
+        {
+            AlertUIContext context = new AlertUIContext();
+            context.Info = "服务器正忙，请稍后再试..";
+            Globals.SceneSingleton<ContextManager>().Push(context);
         }
         #endregion
         void ShowCreateView()
@@ -89,6 +116,17 @@ namespace Osblow.App
             UserName.text = user.user_nick_name;
             UserId.text = user.account_id.ToString();
             Diamond.text = user.user_diamond.ToString();
+            Globals.GetHeadImgByUrl(user.user_head_img, SetIcon);
+        }
+
+        void SetIcon(Texture tex)
+        {
+            if(null == tex)
+            {
+                return;
+            }
+
+            Icon.sprite = Sprite.Create(tex as Texture2D, new Rect(0 ,0, tex.width, tex.height), Vector2.one * 0.5f);
         }
 
         public override void OnExit(BaseContext context)
