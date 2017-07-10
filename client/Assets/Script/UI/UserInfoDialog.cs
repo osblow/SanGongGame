@@ -42,7 +42,12 @@ namespace Osblow.App
             {
                 Stars[i].SetActive(i < theContent.ThePlayerData.EvaluateScore.Length);
             }
+			Globals.GetHeadImgByUrl (theContent.ThePlayerData.HeadImg, SetIcon);
         }
+
+		void SetIcon(Texture tex){
+			Icon.sprite = Sprite.Create (tex as Texture2D, new Rect (0, 0, tex.width, tex.height), Vector2.one * 0.5f);	
+		}
 
         public override void OnExit(BaseContext context)
         {

@@ -125,7 +125,7 @@ namespace Osblow.Game
                 }
                 else
                 {
-                    Debug.Log(Time.time);
+                    //Debug.Log(Time.time);
                     //CmdRequest.ClientHeartBeatRequest();
                 }
             }

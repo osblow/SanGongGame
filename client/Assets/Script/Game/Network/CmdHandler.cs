@@ -334,6 +334,7 @@ public class CmdHandler
 
         uint expireTime = res.expire_seconds;
 
+		MsgMng.Dispatch (MsgType.StartBanker);
         Debug.Log("开始抢庄");
     }
 
@@ -349,6 +350,7 @@ public class CmdHandler
 
         uint expireTime = res.expire_seconds;
 
+		MsgMng.Dispatch (MsgType.ShowTwoCardsAndStartBanker, cards.ToArray());
         Debug.Log("先发两张，然后抢庄");
     }
 
@@ -380,7 +382,10 @@ public class CmdHandler
         uint ownerSeat = res.banker_seat;
         bool nextBet = res.is_bet;
 
-        MsgMng.Dispatch(MsgType.UI_ConfirmOwner, ownerUUID);
+		if (hasOwner)
+		{
+			MsgMng.Dispatch (MsgType.UI_ConfirmOwner, ownerUUID);
+		}
 
         if (nextBet)
         {
@@ -441,10 +446,14 @@ public class CmdHandler
         string theUUID = res.player;
         uint theSeat = res.seat;
 
+
+
         List<uint> cards = new List<uint>();
         res.card.ForEach((x) => { { cards.Add(x.card); } });
 
         uint cardResult = res.card_face;
+
+		MsgMng.Dispatch (MsgType.SynchroniseCards, cards.ToArray (), s_cardResultDic [cardResult]);
 
         Debug.Log("亮牌" + cardResult);
     }

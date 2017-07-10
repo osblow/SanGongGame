@@ -17,12 +17,12 @@ namespace Osblow.App
             string url = Globals.Instance.Settings.WebUrlBase + "loginAction/login.do";
 
             // test
-            url += "?unionId=" + username;
+            //url += "?unionId=" + username;
             ///////////
 
             WWWForm form = new WWWForm();
-            form.AddField("unionId", username);
-            form.headers["Content-Type"] = "application/x-www-form-urlencoded";
+            //form.AddField("unionId", username);
+            //form.headers["Content-Type"] = "application/x-www-form-urlencoded";
             
             Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.LoginResponse);
         }

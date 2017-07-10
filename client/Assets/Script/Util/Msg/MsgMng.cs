@@ -33,6 +33,12 @@ namespace Osblow.Util
         UI_CuoPaiEnd = 14, // 搓牌结束 
 
         DealCards = 15, // 发牌
+
+		StartBanker = 16, // 开始抢庄
+
+		ShowTwoCardsAndStartBanker = 17, // 先发两张牌，开始抢庄
+
+		SynchroniseCards = 18, // 强制显示牌
     }
 
 

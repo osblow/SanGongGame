@@ -51,7 +51,7 @@ namespace Osblow.App
 
         void InitCardSprites()
         {
-            for (int i = 1; i < 54; i++)
+            for (int i = 1; i <= 54; i++)
             {
                 Sprite temp = Resources.Load<Sprite>(c_cardTexPath + i);
                 m_cardTextures.Add(temp);
