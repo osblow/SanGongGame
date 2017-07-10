@@ -13,9 +13,9 @@ public class CmdHandler
     /// 游戏服注册返回
     /// </summary>
     /// <param name="data"></param>
-    public static void ServerRegisterResponse(byte[] data)
+    public static void ServerRegisterResponse(byte[] data, int index)
     {
-        ServerRegisterResponse res = GetProtoInstance<ServerRegisterResponse>(data);
+        ServerRegisterResponse res = GetProtoInstance<ServerRegisterResponse>(data, index);
 
         Debug.Log("注册成功");
         MsgMng.Dispatch(MsgType.Registed);
@@ -40,9 +40,9 @@ public class CmdHandler
     /// 心跳返回
     /// </summary>
     /// <param name="data"></param>
-    public static void ServerHeartbeatResponse(byte[] data)
+    public static void ServerHeartbeatResponse(byte[] data, int index)
     {
-        ServerHeartbeatResponse res = GetProtoInstance<ServerHeartbeatResponse>(data);
+        ServerHeartbeatResponse res = GetProtoInstance<ServerHeartbeatResponse>(data, index);
         string serverTime = res.date_time;
 
         Debug.Log("Heartbeat....time= " + serverTime);
@@ -52,9 +52,9 @@ public class CmdHandler
     /// 进入房间返回
     /// </summary>
     /// <param name="data"></param>
-    public static void EnterRoomResponse(byte[] data)
+    public static void EnterRoomResponse(byte[] data, int index)
     {
-        EnterRoomResponse res = GetProtoInstance<EnterRoomResponse>(data);
+        EnterRoomResponse res = GetProtoInstance<EnterRoomResponse>(data, index);
         uint code = res.code;
         if(code == 1) // 请求失败
         {
@@ -116,11 +116,11 @@ public class CmdHandler
     /// 其他玩家进入
     /// </summary>
     /// <param name="data"></param>
-    public static void EnterRoomOtherResponse(byte[] data)
+    public static void EnterRoomOtherResponse(byte[] data, int index)
     {
         Debug.Log("其它玩家进入");
 
-        EnterRoomOtherResponse res = GetProtoInstance<EnterRoomOtherResponse>(data);
+        EnterRoomOtherResponse res = GetProtoInstance<EnterRoomOtherResponse>(data, index);
         TablePlayerData playerData = new TablePlayerData();
         playerData.SeatNum = res.seat;
         playerData.PlayerUUID = res.player_uuid;
@@ -149,9 +149,9 @@ public class CmdHandler
     /// 退出房间广播
     /// </summary>
     /// <param name="data"></param>
-    public static void ExitRoomToOtherResponse(byte[] data)
+    public static void ExitRoomToOtherResponse(byte[] data, int index)
     {
-        ExitRoomToOtherResponse res = GetProtoInstance<ExitRoomToOtherResponse>(data);
+        ExitRoomToOtherResponse res = GetProtoInstance<ExitRoomToOtherResponse>(data, index);
 
         string thePlayerUUID = res.player_uuid;
 
@@ -162,14 +162,15 @@ public class CmdHandler
     /// 退出房间返回
     /// </summary>
     /// <param name="data"></param>
-    public static void ExitRoomResultResponse(byte[] data)
+    public static void ExitRoomResultResponse(byte[] data, int index)
     {
-        ExitRoomResultResponse res = GetProtoInstance<ExitRoomResultResponse>(data);
+        ExitRoomResultResponse res = GetProtoInstance<ExitRoomResultResponse>(data, index);
         if (res.code == 0)
         {
             Debug.Log("退出房间成功");
             Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
             {
+                Globals.SceneSingleton<StateMng>().ChangeState(StateType.Lobby);
                 Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
                 Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
                 Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
@@ -186,9 +187,9 @@ public class CmdHandler
     /// 解散房间广播
     /// </summary>
     /// <param name="data"></param>
-    public static void DismissRoomToOtherResponse(byte[] data)
+    public static void DismissRoomToOtherResponse(byte[] data, int index)
     {
-        DismissRoomToOtherResponse res = GetProtoInstance<DismissRoomToOtherResponse>(data);
+        DismissRoomToOtherResponse res = GetProtoInstance<DismissRoomToOtherResponse>(data, index);
 
         string theUUID = res.dismiss_uuid;
         uint expireTime = res.expire_seconds;
@@ -202,7 +203,7 @@ public class CmdHandler
     /// 投票信息广播
     /// </summary>
     /// <param name="data"></param>
-    public static void PlayerVoteDismissRoomResponse(byte[] data)
+    public static void PlayerVoteDismissRoomResponse(byte[] data, int index)
     {
         PlayerVoteDismissRoomResponse res = new com.sansanbbox.protobuf.PlayerVoteDismissRoomResponse();
 
@@ -216,7 +217,7 @@ public class CmdHandler
     /// 解散投票结果
     /// </summary>
     /// <param name="data"></param>
-    public static void DismissRoomResultResponse(byte[] data)
+    public static void DismissRoomResultResponse(byte[] data, int index)
     {
         DismissRoomResultResponse res = new com.sansanbbox.protobuf.DismissRoomResultResponse();
         if(res.code == 0)
@@ -242,9 +243,9 @@ public class CmdHandler
     /// 准备消息广播
     /// </summary>
     /// <param name="data"></param>
-    public static void ReadyResponse(byte[] data)
+    public static void ReadyResponse(byte[] data, int index)
     {
-        ReadyResponse res = GetProtoInstance<ReadyResponse>(data);
+        ReadyResponse res = GetProtoInstance<ReadyResponse>(data, index);
 
         string theUUID = res.play_uuid;
         uint theSeat = res.seat;
@@ -257,7 +258,7 @@ public class CmdHandler
     /// 断线重连返回
     /// </summary>
     /// <param name="data"></param>
-    public static void ReconnectResponse(byte[] data)
+    public static void ReconnectResponse(byte[] data, int index)
     {
         Debug.Log("重连");
     }
@@ -266,9 +267,9 @@ public class CmdHandler
     /// 玩家上线离线广播
     /// </summary>
     /// <param name="data"></param>
-    public static void OnlineStatusResponse(byte[] data)
+    public static void OnlineStatusResponse(byte[] data, int index)
     {
-        OnlineStatusResponse res = GetProtoInstance<OnlineStatusResponse>(data);
+        OnlineStatusResponse res = GetProtoInstance<OnlineStatusResponse>(data, index);
 
         string theUUID = res.player_uuid;
         uint theSeat = res.seat;
@@ -281,10 +282,10 @@ public class CmdHandler
     /// 表情和文字同步
     /// </summary>
     /// <param name="data"></param>
-    public static void SynchroniseExpressionResponse(byte[] data)
+    public static void SynchroniseExpressionResponse(byte[] data, int index)
     {
         // 需要ID
-        SynchroniseExpressionResponse res = GetProtoInstance<SynchroniseExpressionResponse>(data);
+        SynchroniseExpressionResponse res = GetProtoInstance<SynchroniseExpressionResponse>(data, index);
 
         string uuid = res.uuid;
         uint expression_id = res.expression_id;
@@ -298,7 +299,7 @@ public class CmdHandler
     /// 语音广播
     /// </summary>
     /// <param name="data"></param>
-    public static void AudioStreamBroadcast(byte[] data)
+    public static void AudioStreamBroadcast(byte[] data, int index)
     {
         // 需要ID
 
@@ -308,9 +309,9 @@ public class CmdHandler
     /// 下注广播
     /// </summary>
     /// <param name="data"></param>
-    public static void ServerBetResponse(byte[] data)
+    public static void ServerBetResponse(byte[] data, int index)
     {
-        ServerBetResponse res = GetProtoInstance<ServerBetResponse>(data);
+        ServerBetResponse res = GetProtoInstance<ServerBetResponse>(data, index);
 
         string theUUID = res.player_uuid;
         uint theSeat = res.seat;
@@ -324,15 +325,16 @@ public class CmdHandler
     /// 开始抢庄广播(直接抢庄)
     /// </summary>
     /// <param name="data"></param>
-    public static void ServerBankerNotice1Response(byte[] data)
+    public static void ServerBankerNotice1Response(byte[] data, int index)
     {
-        ServerBankerNotice1Response res = GetProtoInstance<ServerBankerNotice1Response>(data);
+        ServerBankerNotice1Response res = GetProtoInstance<ServerBankerNotice1Response>(data, index);
         if(!res.code)
         {
             return;
         }
 
         uint expireTime = res.expire_seconds;
+        MsgMng.Dispatch(MsgType.UpdateClock, expireTime);
 
 		MsgMng.Dispatch (MsgType.StartBanker);
         Debug.Log("开始抢庄");
@@ -342,15 +344,16 @@ public class CmdHandler
     /// 先发两张牌，看了牌之后再抢庄
     /// </summary>
     /// <param name="data"></param>
-    public static void ServerBankerNotice2Response(byte[] data)
+    public static void ServerBankerNotice2Response(byte[] data, int index)
     {
-        ServerBankerNotice2Response res = GetProtoInstance<ServerBankerNotice2Response>(data);
+        ServerBankerNotice2Response res = GetProtoInstance<ServerBankerNotice2Response>(data, index);
         List<uint> cards = new List<uint>();
         res.card.ForEach((x) => { cards.Add(x.card); });
 
         uint expireTime = res.expire_seconds;
+        MsgMng.Dispatch(MsgType.UpdateClock, expireTime);
 
-		MsgMng.Dispatch (MsgType.ShowTwoCardsAndStartBanker, cards.ToArray());
+        MsgMng.Dispatch (MsgType.ShowTwoCardsAndStartBanker, cards.ToArray());
         Debug.Log("先发两张，然后抢庄");
     }
 
@@ -358,9 +361,9 @@ public class CmdHandler
     /// 再次下注广播
     /// </summary>
     /// <param name="data"></param>
-    public static void ServerBetAgainResponse(byte[] data)
+    public static void ServerBetAgainResponse(byte[] data, int index)
     {
-        ServerBetAgainResponse res = GetProtoInstance<ServerBetAgainResponse>(data);
+        ServerBetAgainResponse res = GetProtoInstance<ServerBetAgainResponse>(data, index);
         string theUUID = res.player_uuid;
         uint theSeat = res.seat;
         uint betPoint = res.bet_point;
@@ -373,9 +376,9 @@ public class CmdHandler
     /// 抢庄返回，多人抢庄服务器随机分配，无人抢庄则通比大小
     /// </summary>
     /// <param name="data"></param>
-    public static void ServerBankerResponse(byte[] data)
+    public static void ServerBankerResponse(byte[] data, int index)
     {
-        ServerBankerResponse res = GetProtoInstance<ServerBankerResponse>(data);
+        ServerBankerResponse res = GetProtoInstance<ServerBankerResponse>(data, index);
 
         bool hasOwner = res.is_banker;
         string ownerUUID = res.banker_uuid;
@@ -389,7 +392,7 @@ public class CmdHandler
 
         if (nextBet)
         {
-            MsgMng.Dispatch(MsgType.UI_Bankering);
+            MsgMng.Dispatch(MsgType.UI_StartBet);
         }
 
         Debug.Log("抢庄结果");
@@ -415,11 +418,17 @@ public class CmdHandler
     /// 发牌
     /// </summary>
     /// <param name="data"></param>
-    public static void ServerCardsResponse(byte[] data)
+    public static void ServerCardsResponse(byte[] data, int index)
     {
-        ServerCardsResponse res = GetProtoInstance<ServerCardsResponse>(data);
+        ServerCardsResponse res = GetProtoInstance<ServerCardsResponse>(data, index);
         List<uint> cards = new List<uint>();
         res.card.ForEach((x) => { cards.Add(x.card); });
+
+        if(cards.Count > 3)
+        {
+            Debug.LogError("发了" + cards.Count + "张牌");
+            cards.RemoveRange(3, cards.Count - 3);
+        }
 
         /*
          * 0:0点	 1: 1点   	2:2点 	3: 3点 	 4:4点   	 5: 5点   	6:6点	7: 7点  	8:8点  	 9:9点    	10：混三公  	11：小三公 	 12：大三公 
@@ -428,8 +437,9 @@ public class CmdHandler
         UserData playerData = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
         playerData.cards = cards;
         playerData.cardResult = s_cardResultDic[res.card_result];
-
-        uint autoShowCardInterval = res.expire_seconds;
+        
+        uint expireTime = res.expire_seconds;
+        MsgMng.Dispatch(MsgType.UpdateClock, expireTime);
 
         MsgMng.Dispatch(MsgType.DealCards);
 
@@ -440,12 +450,12 @@ public class CmdHandler
     /// 亮牌
     /// </summary>
     /// <param name="data"></param>
-    public static void SynchroniseCardsResponse(byte[] data)
+    public static void SynchroniseCardsResponse(byte[] data, int index)
     {
-        SynchroniseCardsResponse res = GetProtoInstance<SynchroniseCardsResponse>(data);
+        SynchroniseCardsResponse res = GetProtoInstance<SynchroniseCardsResponse>(data, index);
         string theUUID = res.player;
         uint theSeat = res.seat;
-
+        
 
 
         List<uint> cards = new List<uint>();
@@ -453,7 +463,7 @@ public class CmdHandler
 
         uint cardResult = res.card_face;
 
-		MsgMng.Dispatch (MsgType.SynchroniseCards, cards.ToArray (), s_cardResultDic [cardResult]);
+		MsgMng.Dispatch (MsgType.SynchroniseCards, cards, s_cardResultDic [cardResult], theUUID);
 
         Debug.Log("亮牌" + cardResult);
     }
@@ -462,10 +472,23 @@ public class CmdHandler
     /// 比大小
     /// </summary>
     /// <param name="data"></param>
-    public static void WinOrLoseResponse(byte[] data)
+    public static void WinOrLoseResponse(byte[] data, int index)
     {
-        WinOrLoseResponse res = GetProtoInstance<WinOrLoseResponse>(data);
+        WinOrLoseResponse res = GetProtoInstance<WinOrLoseResponse>(data, index);
+        List<ResultEffectData> results = new List<ResultEffectData>();
+        res.result.ForEach((x) => 
+        {
+            ResultEffectData e = new ResultEffectData();
+            e.FromUser = x.from_user_uuid;
+            e.ToUser = x.to_user_uuid;
+            e.Point = x.point;
+            results.Add(e);
+        });
 
+        uint expireTime = res.expire_seconds;
+        MsgMng.Dispatch(MsgType.UpdateClock, expireTime);
+
+        MsgMng.Dispatch(MsgType.Compare, results.ToArray());
         Debug.Log("比大小" + res.result);
     }
 
@@ -473,16 +496,16 @@ public class CmdHandler
     /// 开始游戏
     /// </summary>
     /// <param name="data"></param>
-    public static void StartGameResponse(byte[] data)
+    public static void StartGameResponse(byte[] data, int index)
     {
-        StartGameResponse res = GetProtoInstance<StartGameResponse>(data);
+        StartGameResponse res = GetProtoInstance<StartGameResponse>(data, index);
 
         if(res.code != 1)
         {
             return;
         }
-
         uint expireTime = res.expire_seconds;
+        MsgMng.Dispatch(MsgType.UpdateClock, expireTime);
         // 开始游戏，准备下注
         Debug.Log("开始游戏，准备下注");
         MsgMng.Dispatch(MsgType.UI_StartBet, expireTime);
@@ -492,9 +515,9 @@ public class CmdHandler
     /// 下注结束广播
     /// </summary>
     /// <param name="data"></param>
-    public static void ServerBetOverResponse(byte[] data)
+    public static void ServerBetOverResponse(byte[] data, int index)
     {
-        ServerBetOverResponse res = GetProtoInstance<ServerBetOverResponse>(data);
+        ServerBetOverResponse res = GetProtoInstance<ServerBetOverResponse>(data, index);
 
         if(res.code == 0)
         {
@@ -509,10 +532,25 @@ public class CmdHandler
     /// 总结算
     /// </summary>
     /// <param name="data"></param>
-    public static void UserAllResult(byte[] data)
+    public static void UserAllResult(byte[] data, int index)
     {
-        UserAllResult res = GetProtoInstance<UserAllResult>(data);
+        UserAllResult res = GetProtoInstance<UserAllResult>(data, index);
 
+        List<ResultUser> results = new List<ResultUser>();
+        res.allResult.ForEach((x) => {
+            ResultUser r = new ResultUser();
+            r.Name = x.nick_name;
+            r.Icon = x.head_img;
+            r.Point = x.point;
+            r.UUID = x.uuid;
+            r.WinCount = x.win_count;
+            results.Add(r);
+        });
+
+        MsgMng.Dispatch(MsgType.GameEnd, results);
+
+
+        Debug.LogError("结束啦！！！");
         Debug.Log("总结算" + res.allResult.Count);
     }
 
@@ -520,17 +558,16 @@ public class CmdHandler
     /// 抢庄广播
     /// </summary>
     /// <param name="data"></param>
-    public static void ServerToBankerResponse(byte[] data)
+    public static void ServerToBankerResponse(byte[] data, int index)
     {
-        ServerToBankerResponse res = GetProtoInstance<ServerToBankerResponse>(data);
+        ServerToBankerResponse res = GetProtoInstance<ServerToBankerResponse>(data, index);
 
         Debug.Log("抢庄 " + res.uuid);
     }
 
-    public static T GetProtoInstance<T>(byte[] data)
+    public static T GetProtoInstance<T>(byte[] data, int index)
     {
         T t = default(T);
-        int index = 3;
         short length = BitConverter.ToInt16(data, index);
         index += 2;
 

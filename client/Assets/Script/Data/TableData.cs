@@ -47,4 +47,20 @@ namespace Osblow.App
         public string UserIp = "";
         public string EvaluateScore = "";
     }
+
+    public class ResultEffectData : DataBase
+    {
+        public string FromUser;
+        public string ToUser;
+        public uint Point;
+    }
+
+    public class ResultUser : DataBase
+    {
+        public string UUID;
+        public string Icon;
+        public string Name;
+        public int Point;
+        public uint WinCount;
+    }
 }

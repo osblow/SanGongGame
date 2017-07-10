@@ -851,23 +851,39 @@ namespace com.sansanbbox.protobuf
       get { return _card; }
     }
   
+    private uint _cardFace = default(uint);
+    [global::ProtoBuf.ProtoMember(19, IsRequired = false, Name=@"cardFace", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint cardFace
+    {
+      get { return _cardFace; }
+      set { _cardFace = value; }
+    }
     private uint _remain_time = default(uint);
-    [global::ProtoBuf.ProtoMember(19, IsRequired = false, Name=@"remain_time", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(20, IsRequired = false, Name=@"remain_time", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     [global::System.ComponentModel.DefaultValue(default(uint))]
     public uint remain_time
     {
       get { return _remain_time; }
       set { _remain_time = value; }
     }
+    private string _room_rules = "";
+    [global::ProtoBuf.ProtoMember(21, IsRequired = false, Name=@"room_rules", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string room_rules
+    {
+      get { return _room_rules; }
+      set { _room_rules = value; }
+    }
     private readonly global::System.Collections.Generic.List<com.sansanbbox.protobuf.BetPoints> _betPoints = new global::System.Collections.Generic.List<com.sansanbbox.protobuf.BetPoints>();
-    [global::ProtoBuf.ProtoMember(20, Name=@"betPoints", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(22, Name=@"betPoints", DataFormat = global::ProtoBuf.DataFormat.Default)]
     public global::System.Collections.Generic.List<com.sansanbbox.protobuf.BetPoints> betPoints
     {
       get { return _betPoints; }
     }
   
     private readonly global::System.Collections.Generic.List<com.sansanbbox.protobuf.ReconnectResponse.Player> _player = new global::System.Collections.Generic.List<com.sansanbbox.protobuf.ReconnectResponse.Player>();
-    [global::ProtoBuf.ProtoMember(21, Name=@"player", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(23, Name=@"player", DataFormat = global::ProtoBuf.DataFormat.Default)]
     public global::System.Collections.Generic.List<com.sansanbbox.protobuf.ReconnectResponse.Player> player
     {
       get { return _player; }
@@ -892,8 +908,16 @@ namespace com.sansanbbox.protobuf
       get { return _player_uuid; }
       set { _player_uuid = value; }
     }
+    private uint _account_id = default(uint);
+    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"account_id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint account_id
+    {
+      get { return _account_id; }
+      set { _account_id = value; }
+    }
     private bool _is_online = default(bool);
-    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"is_online", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"is_online", DataFormat = global::ProtoBuf.DataFormat.Default)]
     [global::System.ComponentModel.DefaultValue(default(bool))]
     public bool is_online
     {
@@ -901,7 +925,7 @@ namespace com.sansanbbox.protobuf
       set { _is_online = value; }
     }
     private uint _total_score = default(uint);
-    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"total_score", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name=@"total_score", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     [global::System.ComponentModel.DefaultValue(default(uint))]
     public uint total_score
     {
@@ -909,7 +933,7 @@ namespace com.sansanbbox.protobuf
       set { _total_score = value; }
     }
     private string _player_head_img = "";
-    [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name=@"player_head_img", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(6, IsRequired = false, Name=@"player_head_img", DataFormat = global::ProtoBuf.DataFormat.Default)]
     [global::System.ComponentModel.DefaultValue("")]
     public string player_head_img
     {
@@ -917,7 +941,7 @@ namespace com.sansanbbox.protobuf
       set { _player_head_img = value; }
     }
     private string _player_nike_name = "";
-    [global::ProtoBuf.ProtoMember(6, IsRequired = false, Name=@"player_nike_name", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(7, IsRequired = false, Name=@"player_nike_name", DataFormat = global::ProtoBuf.DataFormat.Default)]
     [global::System.ComponentModel.DefaultValue("")]
     public string player_nike_name
     {
@@ -925,7 +949,7 @@ namespace com.sansanbbox.protobuf
       set { _player_nike_name = value; }
     }
     private string _user_ip = "";
-    [global::ProtoBuf.ProtoMember(7, IsRequired = false, Name=@"user_ip", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(8, IsRequired = false, Name=@"user_ip", DataFormat = global::ProtoBuf.DataFormat.Default)]
     [global::System.ComponentModel.DefaultValue("")]
     public string user_ip
     {
@@ -933,7 +957,7 @@ namespace com.sansanbbox.protobuf
       set { _user_ip = value; }
     }
     private string _evaluate_score = "";
-    [global::ProtoBuf.ProtoMember(8, IsRequired = false, Name=@"evaluate_score", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(9, IsRequired = false, Name=@"evaluate_score", DataFormat = global::ProtoBuf.DataFormat.Default)]
     [global::System.ComponentModel.DefaultValue("")]
     public string evaluate_score
     {
@@ -941,7 +965,7 @@ namespace com.sansanbbox.protobuf
       set { _evaluate_score = value; }
     }
     private bool _is_seat = default(bool);
-    [global::ProtoBuf.ProtoMember(9, IsRequired = false, Name=@"is_seat", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(10, IsRequired = false, Name=@"is_seat", DataFormat = global::ProtoBuf.DataFormat.Default)]
     [global::System.ComponentModel.DefaultValue(default(bool))]
     public bool is_seat
     {
@@ -949,7 +973,7 @@ namespace com.sansanbbox.protobuf
       set { _is_seat = value; }
     }
     private bool _is_banker = default(bool);
-    [global::ProtoBuf.ProtoMember(10, IsRequired = false, Name=@"is_banker", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(11, IsRequired = false, Name=@"is_banker", DataFormat = global::ProtoBuf.DataFormat.Default)]
     [global::System.ComponentModel.DefaultValue(default(bool))]
     public bool is_banker
     {
@@ -957,7 +981,7 @@ namespace com.sansanbbox.protobuf
       set { _is_banker = value; }
     }
     private uint _rule_step = default(uint);
-    [global::ProtoBuf.ProtoMember(11, IsRequired = false, Name=@"rule_step", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(12, IsRequired = false, Name=@"rule_step", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     [global::System.ComponentModel.DefaultValue(default(uint))]
     public uint rule_step
     {
@@ -965,7 +989,7 @@ namespace com.sansanbbox.protobuf
       set { _rule_step = value; }
     }
     private uint _rule_operation = default(uint);
-    [global::ProtoBuf.ProtoMember(12, IsRequired = false, Name=@"rule_operation", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(13, IsRequired = false, Name=@"rule_operation", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     [global::System.ComponentModel.DefaultValue(default(uint))]
     public uint rule_operation
     {
@@ -973,7 +997,7 @@ namespace com.sansanbbox.protobuf
       set { _rule_operation = value; }
     }
     private uint _point = default(uint);
-    [global::ProtoBuf.ProtoMember(13, IsRequired = false, Name=@"point", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(14, IsRequired = false, Name=@"point", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     [global::System.ComponentModel.DefaultValue(default(uint))]
     public uint point
     {
@@ -981,12 +1005,20 @@ namespace com.sansanbbox.protobuf
       set { _point = value; }
     }
     private readonly global::System.Collections.Generic.List<com.sansanbbox.protobuf.Card> _card = new global::System.Collections.Generic.List<com.sansanbbox.protobuf.Card>();
-    [global::ProtoBuf.ProtoMember(14, Name=@"card", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(15, Name=@"card", DataFormat = global::ProtoBuf.DataFormat.Default)]
     public global::System.Collections.Generic.List<com.sansanbbox.protobuf.Card> card
     {
       get { return _card; }
     }
   
+    private uint _cardFace = default(uint);
+    [global::ProtoBuf.ProtoMember(16, IsRequired = false, Name=@"cardFace", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint cardFace
+    {
+      get { return _cardFace; }
+      set { _cardFace = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -1310,15 +1342,17 @@ namespace com.sansanbbox.protobuf
       get { return _is_banker; }
       set { _is_banker = value; }
     }
-    private string _banker_uuid;
-    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"banker_uuid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    private string _banker_uuid = "";
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"banker_uuid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
     public string banker_uuid
     {
       get { return _banker_uuid; }
       set { _banker_uuid = value; }
     }
-    private uint _banker_seat;
-    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"banker_seat", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    private uint _banker_seat = default(uint);
+    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"banker_seat", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
     public uint banker_seat
     {
       get { return _banker_seat; }
@@ -1437,6 +1471,14 @@ namespace com.sansanbbox.protobuf
       get { return _result; }
     }
   
+    private uint _expire_seconds = default(uint);
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"expire_seconds", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint expire_seconds
+    {
+      get { return _expire_seconds; }
+      set { _expire_seconds = value; }
+    }
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Result")]
   public partial class Result : global::ProtoBuf.IExtensible
   {
@@ -1511,9 +1553,9 @@ namespace com.sansanbbox.protobuf
       get { return _head_img; }
       set { _head_img = value; }
     }
-    private uint _point;
-    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"point", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public uint point
+    private int _point;
+    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"point", DataFormat = global::ProtoBuf.DataFormat.ZigZag)]
+    public int point
     {
       get { return _point; }
       set { _point = value; }

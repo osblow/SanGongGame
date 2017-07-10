@@ -50,6 +50,8 @@ namespace Osblow.App
         public override void Begin(StateType lastState)
         {
             base.Begin(lastState);
+
+
             Globals.SceneSingleton<ContextManager>().Push(new LoginUIContext());
         }
     }
@@ -65,6 +67,12 @@ namespace Osblow.App
         }
 
         public LobbyState(StateMng parent) : base(parent) { }
+
+        public override void Begin(StateType lastState)
+        {
+            base.Begin(lastState);
+            Globals.SceneSingleton<GameMng>().IsGaming = false;
+        }
     }
 
     public class GameState : StateBase
@@ -83,6 +91,7 @@ namespace Osblow.App
         {
             base.Begin(lastState);
 
+            Globals.SceneSingleton<GameMng>().IsGaming = true;
             Globals.SceneSingleton<Osblow.Game.SocketNetworkMng>();
 
             GameObject obj = new GameObject("GameMode");
@@ -102,5 +111,12 @@ namespace Osblow.App
         }
 
         public GameResultState(StateMng parent) : base(parent) { }
+
+        public override void Begin(StateType lastState)
+        {
+            base.Begin(lastState);
+            Globals.SceneSingleton<GameMng>().IsGaming = false;
+            Globals.SceneSingleton<AsyncInvokeMng>().ClearAll();
+        }
     }
 }

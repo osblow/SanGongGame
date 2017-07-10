@@ -39,6 +39,12 @@ namespace Osblow.Util
 		ShowTwoCardsAndStartBanker = 17, // 先发两张牌，开始抢庄
 
 		SynchroniseCards = 18, // 强制显示牌
+
+        Compare = 19, // 比大小,并显示积分变化特效
+
+        GameEnd = 20, // 结束游戏
+
+        UpdateClock = 21, // 开始计时器
     }
 
 
@@ -130,6 +136,7 @@ namespace Osblow.Util
 
         public T Get<T>(int index)
         {
+            Debug.LogFormat("{0},{1}", index, Params.Length);
             return (T)Params[index];
         }
     }

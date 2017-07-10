@@ -13,7 +13,7 @@ namespace Osblow.Game
 {
     public class SocketNetworkMng : MonoBehaviour
     {
-        private Dictionary<short, Action<byte[]>> m_hadlerDic = new Dictionary<short, Action<byte[]>>();
+        private Dictionary<short, Action<byte[], int>> m_hadlerDic = new Dictionary<short, Action<byte[], int>>();
 
         
         private MyClient m_client;
@@ -67,23 +67,53 @@ namespace Osblow.Game
                 return;
             }
 
-            int index = 0;
-            byte flag = data[0];
-            if (flag != 0x64)
-            {
-                return;
-            }
-            index += 1;
+            
 
             Globals.SceneSingleton<ContextManager>().WebBlockUI(false);
 
-            short cmd = BitConverter.ToInt16(data, index);
-            Execute(cmd, data);
+
+            int foo = 0;
+
+            int index = 0;
+            // 处理粘包
+            while (true)
+            {
+                byte flag = data[index];
+                if (flag != 0x64)
+                {
+                    return;
+                }
+                index += 1;
+                short dataLen = BitConverter.ToInt16(data, index + 2);
+                Debug.LogFormat("socket: {0},,,,{1},,,{2}", data.Length, index + 4 + dataLen + 1, dataLen);
+                if(index + 4 + dataLen + 1 > data.Length)
+                {
+                    break;
+                }
+
+                if(foo >= 1)
+                {
+                    int a = 0;
+                }
+
+                short cmd = BitConverter.ToInt16(data, index);
+                index += 2;
+                Execute(cmd, data, index);
+
+                index += (4 + dataLen + 1);
+                if(index >= data.Length)
+                {
+                    break;
+                }
+
+                foo += 1;
+            }
+
         }
 
 
 
-        public void Execute(short cmd, byte[] data)
+        public void Execute(short cmd, byte[] data, int index)
         {
             if(cmd != 0x1004)
             {
@@ -95,7 +125,7 @@ namespace Osblow.Game
                 return;
             }
 
-            m_hadlerDic[cmd].Invoke(data);
+            m_hadlerDic[cmd].Invoke(data, index);
         }
 
 
@@ -107,6 +137,11 @@ namespace Osblow.Game
 
         private void OnDestroy()
         {
+            if (!m_client.Connected)
+            {
+                return;
+            }
+
             m_client.Close();
         }
 
@@ -116,9 +151,16 @@ namespace Osblow.Game
             {
                 yield return new WaitForSeconds(2);
 
+                if (!Globals.SceneSingleton<GameMng>().IsGaming)
+                {
+                    Destroy(gameObject);
+                    yield break;
+                }
+
                 if (!m_client.Connected)
                 {
                     Debug.Log("正在重新连接....");
+                    Globals.SceneSingleton<ContextManager>().WebBlockUI(true);
                     m_client.ForceClose();
                     m_client = new MyClient(Globals.Instance.Settings.SocketUrl,
                 Globals.Instance.Settings.SocketPort);
@@ -126,7 +168,7 @@ namespace Osblow.Game
                 else
                 {
                     //Debug.Log(Time.time);
-                    //CmdRequest.ClientHeartBeatRequest();
+                    CmdRequest.ClientHeartBeatRequest();
                 }
             }
         }
@@ -197,6 +239,10 @@ namespace Osblow.Game
                 Debug.LogFormat("Sent {0} bytes to server.", bytesSent);
                 //NetworkMng.Instance.DebugStr = string.Format("Sent {0} bytes to server.", bytesSent);
             }
+            catch (SocketException e)
+            {
+                Debug.Log(e.ToString());
+            }
             catch (Exception e)
             {
                 Debug.LogError(e.ToString());
@@ -227,7 +273,7 @@ namespace Osblow.Game
                 TCPState state = (TCPState)ar.AsyncState;
                 Socket client = state.Socket;
 
-                if(client == null)
+                if(client == null || !client.Connected)
                 {
                     return;
                 }
@@ -238,11 +284,17 @@ namespace Osblow.Game
                 Debug.Log("get from server, length = " + bytesRead);
                 if (bytesRead > 0)
                 {
-                    Globals.SceneSingleton<SocketNetworkMng>().Handler(state.Buffer);
+                    byte[] realData = new byte[bytesRead];
+                    Array.Copy(state.Buffer, realData, bytesRead);
+                    Globals.SceneSingleton<SocketNetworkMng>().Handler(realData);
 
                     // Get new data.     
                     client.BeginReceive(state.Buffer, 0, TCPState.BuffSize, 0, new AsyncCallback(ReceiveCallback), state);
                 }
+            }
+            catch (SocketException e)
+            {
+                Debug.Log(e.ToString());
             }
             catch (Exception e)
             {

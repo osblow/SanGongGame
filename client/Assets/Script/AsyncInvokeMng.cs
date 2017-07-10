@@ -18,4 +18,9 @@ public class AsyncInvokeMng : MonoBehaviour
             EventsToAct = null;
         }
     }
+
+    public void ClearAll()
+    {
+        EventsToAct = null;
+    }
 }

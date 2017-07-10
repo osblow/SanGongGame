@@ -35,13 +35,15 @@ namespace Osblow.App
 
         public static void RemoveSceneSingleton<T>()
         {
+            
             if (!s_singletonDic.ContainsKey(typeof(T)))
             {
                 return;
             }
 
-            GameObject.Destroy(s_singletonDic[typeof(T)]);
+            //GameObject.Destroy(s_singletonDic[typeof(T)].gameObject);
             s_singletonDic.Remove(typeof(T));
+            
         }
 
 

@@ -10,7 +10,8 @@ namespace Osblow.App
         None = 0,
         Player = 1,
         Table = 2,
-        Room = 3
+        Room = 3,
+        GameResult = 4,
     }
 
     public class DataMng : MonoBehaviour

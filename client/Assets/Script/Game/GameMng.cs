@@ -9,6 +9,8 @@ public class GameMng : MonoBehaviour
     public List<TablePlayerData> Users = new List<TablePlayerData>();
     public Dictionary<string, TablePlayerData> UsersDic = new Dictionary<string, TablePlayerData>();
 
+    public bool IsGaming = false;
+
     private void Awake()
     {
         MsgMng.AddListener(MsgType.PlayerEnter, OnplayerEner);
