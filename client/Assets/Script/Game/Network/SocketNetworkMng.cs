@@ -67,10 +67,11 @@ namespace Osblow.Game
                 return;
             }
 
-            
 
-            Globals.SceneSingleton<ContextManager>().WebBlockUI(false);
-
+            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            {
+                Globals.SceneSingleton<ContextManager>().WebBlockUI(false);
+            };
 
             int foo = 0;
 
@@ -281,7 +282,7 @@ namespace Osblow.Game
                 // Read data from the remote device.     
                 int bytesRead = client.EndReceive(ar);
 
-                Debug.Log("get from server, length = " + bytesRead);
+                //Debug.Log("get from server, length = " + bytesRead);
                 if (bytesRead > 0)
                 {
                     byte[] realData = new byte[bytesRead];

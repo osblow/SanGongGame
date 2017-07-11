@@ -136,7 +136,6 @@ namespace Osblow.Util
 
         public T Get<T>(int index)
         {
-            Debug.LogFormat("{0},{1}", index, Params.Length);
             return (T)Params[index];
         }
     }

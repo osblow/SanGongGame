@@ -45,7 +45,7 @@ public class CmdHandler
         ServerHeartbeatResponse res = GetProtoInstance<ServerHeartbeatResponse>(data, index);
         string serverTime = res.date_time;
 
-        Debug.Log("Heartbeat....time= " + serverTime);
+        //Debug.Log("Heartbeat....time= " + serverTime);
     }
 
     /// <summary>
