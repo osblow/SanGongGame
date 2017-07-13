@@ -28,8 +28,18 @@ namespace Osblow.App
             }
         }
 
-        public GameObject GetSingleUI(UIType uiType)
+        public GameObject GetSingleUI(UIType uiType, bool isCreating = false)
         {
+            if(uiType == UIType.TableView)
+            {
+                int a = 0;
+            }
+            if(!isCreating && (!_UIDict.ContainsKey(uiType) || !_UIDict[uiType]))
+            {
+                return null;
+            }
+
+
             if (_UIDict.ContainsKey(uiType) == false || _UIDict[uiType] == null)
             {
                 GameObject go = GameObject.Instantiate(Resources.Load<GameObject>(uiType.Path)) as GameObject;
@@ -53,8 +63,9 @@ namespace Osblow.App
                 _UIDict.Remove(uiType);
                 return;
             }
+            _UIDict[uiType].name = "hello";
 
-            GameObject.Destroy(_UIDict[uiType]);
+            //GameObject.DestroyImmediate(_UIDict[uiType]);
             _UIDict.Remove(uiType);
         }
 	}

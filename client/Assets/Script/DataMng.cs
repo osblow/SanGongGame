@@ -51,6 +51,13 @@ namespace Osblow.App
             m_dataDic.Remove(type);
         }
 
+        public void ClearAll()
+        {
+            m_dataDic.Remove(DataType.GameResult);
+            m_dataDic.Remove(DataType.Room);
+            m_dataDic.Remove(DataType.Table);
+        }
+
         private void Awake()
         {
 

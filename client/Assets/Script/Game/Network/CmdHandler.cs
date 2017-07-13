@@ -284,7 +284,6 @@ public class CmdHandler
     /// <param name="data"></param>
     public static void SynchroniseExpressionResponse(byte[] data, int index)
     {
-        // 需要ID
         SynchroniseExpressionResponse res = GetProtoInstance<SynchroniseExpressionResponse>(data, index);
 
         string uuid = res.uuid;
@@ -488,7 +487,7 @@ public class CmdHandler
         uint expireTime = res.expire_seconds;
         MsgMng.Dispatch(MsgType.UpdateClock, expireTime);
 
-        MsgMng.Dispatch(MsgType.Compare, results.ToArray());
+        MsgMng.Dispatch(MsgType.Compare, results, expireTime);
         Debug.Log("比大小" + res.result);
     }
 

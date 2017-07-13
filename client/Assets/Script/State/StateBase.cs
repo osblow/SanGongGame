@@ -72,6 +72,8 @@ namespace Osblow.App
         {
             base.Begin(lastState);
             Globals.SceneSingleton<GameMng>().IsGaming = false;
+            Globals.SceneSingleton<GameMng>().ClearAll();
+            Globals.SceneSingleton<DataMng>().ClearAll();
         }
     }
 

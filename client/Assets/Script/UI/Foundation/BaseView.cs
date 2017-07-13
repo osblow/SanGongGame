@@ -14,7 +14,10 @@ namespace Osblow.App
 {
 	public abstract class BaseView : MonoBehaviour
     {
-
+        /// <summary>
+        /// 界面刚创建时调用
+        /// </summary>
+        /// <param name="context"></param>
         public virtual void OnEnter(BaseContext context)
         {
             gameObject.SetActive(true);

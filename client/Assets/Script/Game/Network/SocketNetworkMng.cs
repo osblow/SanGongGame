@@ -86,22 +86,24 @@ namespace Osblow.Game
                 }
                 index += 1;
                 short dataLen = BitConverter.ToInt16(data, index + 2);
-                Debug.LogFormat("socket: {0},,,,{1},,,{2}", data.Length, index + 4 + dataLen + 1, dataLen);
+
+                if (foo >= 1)
+                {
+                    int a = 0;
+                }
+                //Debug.LogFormat("socket: {0},,,,{1},,,{2}", data.Length, index + 4 + dataLen + 1, dataLen);
                 if(index + 4 + dataLen + 1 > data.Length)
                 {
                     break;
                 }
 
-                if(foo >= 1)
-                {
-                    int a = 0;
-                }
+                
 
                 short cmd = BitConverter.ToInt16(data, index);
                 index += 2;
                 Execute(cmd, data, index);
 
-                index += (4 + dataLen + 1);
+                index += (2 + dataLen + 1);
                 if(index >= data.Length)
                 {
                     break;
@@ -206,7 +208,7 @@ namespace Osblow.Game
                 client.EndConnect(iar);
                 Receive();
 
-                Debug.Log("已连接，准备接收命令");
+                Debug.Log("已连接");
                 MsgMng.Dispatch(MsgType.Connected);
             }
             catch (Exception e)
@@ -237,7 +239,7 @@ namespace Osblow.Game
                 Socket handler = (Socket)ar.AsyncState;
                 // Complete sending the data to the remote device.     
                 int bytesSent = handler.EndSend(ar);
-                Debug.LogFormat("Sent {0} bytes to server.", bytesSent);
+                //Debug.LogFormat("Sent {0} bytes to server.", bytesSent);
                 //NetworkMng.Instance.DebugStr = string.Format("Sent {0} bytes to server.", bytesSent);
             }
             catch (SocketException e)

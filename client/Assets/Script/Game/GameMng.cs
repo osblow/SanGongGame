@@ -35,5 +35,6 @@ public class GameMng : MonoBehaviour
     public void ClearAll()
     {
         Users.Clear();
+        UsersDic.Clear();
     }
 }

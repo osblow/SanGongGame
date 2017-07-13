@@ -10,27 +10,69 @@ namespace Osblow.App
         public AlertUIContext() : base(UIType.AlertDialog) { }
 
         public string Info;
+        public bool HasCancel = false;
+        public bool HasOK = false;
+        public System.Action CancelCallback;
+        public System.Action OKCallback;
     }
 
     public class AlertDialog : BaseView
     {
         #region 场景引用 
         public Text Info;
+
+        public GameObject OKButton;
+        public GameObject CancelButton;
         #endregion
 
         #region 场景事件
         public void OnExitBtn()
         {
-            Globals.SceneSingleton<ContextManager>().Pop();
+            Pop();
+        }
+
+        public void OnOKBtn()
+        {
+            if(OKCallback != null)
+            {
+                OKCallback.Invoke();
+            }
+            Pop();
+        }
+
+        public void OnCancelBtn()
+        {
+            if(CancelCallback != null)
+            {
+                CancelCallback.Invoke();
+            }
+
+            Pop();
         }
         #endregion
+        private System.Action OKCallback;
+        private System.Action CancelCallback;
+
+
+
+        void Pop()
+        {
+            Globals.SceneSingleton<ContextManager>().Pop();
+        }
 
 
 
         public override void OnEnter(BaseContext context)
         {
             base.OnEnter(context);
-            Info.text = (context as AlertUIContext).Info;
+            AlertUIContext theContext = context as AlertUIContext;
+            Info.text = theContext.Info;
+
+            OKButton.SetActive(theContext.HasOK);
+            CancelButton.SetActive(theContext.HasCancel);
+
+            OKCallback = theContext.OKCallback;
+            CancelCallback = theContext.CancelCallback;
         }
 
         public override void OnExit(BaseContext context)

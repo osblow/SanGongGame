@@ -66,8 +66,8 @@ namespace Osblow.App
 
     public class Settings
     {
-        public string WebUrlBase = "http://183.61.146.92:81/sangong/";//"http://bbox.sansanbbox.com:6080/";
-        public string SocketUrl = "183.61.146.92";
+        public string WebUrlBase = "http://bbox.sansanbbox.com:6080/";//"http://183.61.146.92:81/sangong/";//"http://bbox.sansanbbox.com:6080/";
+        public string SocketUrl = "112.74.89.125";//"183.61.146.92";
         public int SocketPort = 9876;
     }
 }

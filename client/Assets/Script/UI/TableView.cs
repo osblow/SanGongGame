@@ -95,6 +95,7 @@ namespace Osblow.App
             //ShowCards();
         }
 
+        private bool m_firstSit = true;
         public void OnSitDownBtn()
         {
             SitDownBtn.SetActive(false);
@@ -105,6 +106,18 @@ namespace Osblow.App
                 StartGameBtn.SetActive(true);
             }
 
+            for (int i = 0; i < m_usersPanelList.Count; i++)
+            {
+                m_usersPanelList[i].ShowCards(new uint[] { 54, 54, 54 });
+                m_usersPanelList[i].ShowCards(false);
+            }
+
+            if (!m_firstSit)
+            {
+                Round.text = (++tableData.CurRound + 1) + "/" + tableData.TotalRound;
+                m_firstSit = false;
+            }
+
             //ChaseOwnerBtn.SetActive(true);
             //StartCoroutine(TestCreateUsers());
             CmdRequest.ReadyRequest();
@@ -112,6 +125,7 @@ namespace Osblow.App
 
         public void OnBankeringBtn()
         {
+            Debug.Log("3..");
             BankerBtn.SetActive(false);
 			CmdRequest.ClientBankerRequest ();
             //BetPanel.SetActive(true);
@@ -500,9 +514,12 @@ namespace Osblow.App
                     m_usersPanelList[i].SetReady(false);
                 }
 
+                Debug.Log("开始下注。。。。。。。。。。。。。。。。");
+
                 SitDownBtn.SetActive(false);
                 StartGameBtn.SetActive(false);
                 BetPanel.SetActive(true);
+                Debug.Log("1..");
                 BankerBtn.SetActive(false);
                 CuopaiBtn.SetActive(false);
                 ShowCardBtn.SetActive(false);
@@ -518,16 +535,22 @@ namespace Osblow.App
 
             Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
             {
-				Debug.Log(m_usersPanelDic.Count);
+				//Debug.Log(m_usersPanelDic.Count);
                 m_usersPanelDic[theUUID].SetBet((int)thePoint);
 
-                BankerBtn.SetActive(false);
-                CuopaiBtn.SetActive(false);
-                ShowCardBtn.SetActive(false);
-                SitDownBtn.SetActive(false);
-                StartGameBtn.SetActive(false);
+                
+                if (!IsSelf(theUUID))
+                {
+                    return;
+                }
 
-                m_usersPanelList.ForEach((x) => { x.ShowCards(false); });
+                //BankerBtn.SetActive(false);
+                //CuopaiBtn.SetActive(false);
+                //ShowCardBtn.SetActive(false);
+                //SitDownBtn.SetActive(false);
+                //StartGameBtn.SetActive(false);
+
+                //m_usersPanelList.ForEach((x) => { x.ShowCards(false); });
             };
         }
 
@@ -559,9 +582,11 @@ namespace Osblow.App
                     }
                 }
 
+                Debug.Log("开始发牌。。。。。。。。");
+
                 CuopaiBtn.SetActive(true);
                 ShowCardBtn.SetActive(true);
-
+                Debug.Log("2..");
                 BankerBtn.SetActive(false);
                 SitDownBtn.SetActive(false);
                 StartGameBtn.SetActive(false);
@@ -575,6 +600,7 @@ namespace Osblow.App
 
 			Globals.SceneSingleton<AsyncInvokeMng> ().EventsToAct += delegate () {
 				BankerBtn.SetActive (true);
+                BetPanel.SetActive(false);
 			};
 		}
 
@@ -584,6 +610,7 @@ namespace Osblow.App
 				uint[] cards = msg.Get<uint[]>(0);
 				ShowCards(cards);
 				BankerBtn.SetActive (true);
+                BetPanel.SetActive(false);
 			};
 		}
         
@@ -593,6 +620,7 @@ namespace Osblow.App
 			Globals.SceneSingleton<AsyncInvokeMng> ().EventsToAct += delegate () {
 
 				BankerBtn.SetActive(true);
+                BetPanel.SetActive(false);
 			};
 		}
 
@@ -653,12 +681,12 @@ namespace Osblow.App
 
         void CompareCards(Msg msg)
         {
-            // 变长参数接收一个数组时，就直接按多个参数处理
-            ResultEffectData[] eDatas = (ResultEffectData[])msg.Params;
+            List<ResultEffectData> eDatas = msg.Get<List<ResultEffectData>>(0);
+            uint expireTime = msg.Get<uint>(1);
 
             Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
             {
-                for (int i = 0; i < eDatas.Length; i++)
+                for (int i = 0; i < eDatas.Count; i++)
                 {
                     string fromId = eDatas[i].FromUser;
                     string toId = eDatas[i].ToUser;
@@ -679,15 +707,15 @@ namespace Osblow.App
 
 		void NextRound()
 		{
-            for(int i = 0; i < m_usersPanelList.Count; i++)
-            {
-                m_usersPanelList[i].ShowCards(new uint[] { 54, 54, 54 });
-                m_usersPanelList[i].ShowCards(false);
-            }
+            //for(int i = 0; i < m_usersPanelList.Count; i++)
+            //{
+            //    m_usersPanelList[i].ShowCards(new uint[] { 54, 54, 54 });
+            //    m_usersPanelList[i].ShowCards(false);
+            //}
 
-            TableData tableData = Globals.SceneSingleton<DataMng>().GetData<TableData>(DataType.Table);
+            //TableData tableData = Globals.SceneSingleton<DataMng>().GetData<TableData>(DataType.Table);
 
-            Round.text = (++tableData.CurRound + 1) + "/" + tableData.TotalRound;
+            //Round.text = (++tableData.CurRound + 1) + "/" + tableData.TotalRound;
 
 			SitDownBtn.SetActive (true);
 		}
@@ -748,7 +776,16 @@ namespace Osblow.App
         }
 
 
+        bool IsSelf(string uuid)
+        {
+            UserData playerData = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+            if (playerData.uuid == uuid)
+            {
+                return true;
+            }
 
+            return false;
+        }
 
         class UserPanel
         {

@@ -27,12 +27,17 @@ namespace Osblow.App
             if (_contextStack.Count != 0)
             {
                 BaseContext curContext = _contextStack.Peek();
-                BaseView curView = Globals.SceneSingleton<UIManager>().GetSingleUI(curContext.ViewType).GetComponent<BaseView>();
-                curView.OnPause(curContext);
+                GameObject curViewObj = Globals.SceneSingleton<UIManager>().GetSingleUI(curContext.ViewType);
+
+                if (curViewObj)
+                {
+                    BaseView curView = curViewObj.GetComponent<BaseView>();
+                    if (curView != null) curView.OnPause(curContext);
+                }
             }
 
             _contextStack.Push(nextContext);
-            BaseView nextView = Globals.SceneSingleton<UIManager>().GetSingleUI(nextContext.ViewType).GetComponent<BaseView>();
+            BaseView nextView = Globals.SceneSingleton<UIManager>().GetSingleUI(nextContext.ViewType, true).GetComponent<BaseView>();
             nextView.OnEnter(nextContext);
         }
 
@@ -43,8 +48,13 @@ namespace Osblow.App
                 BaseContext curContext = _contextStack.Peek();
                 _contextStack.Pop();
 
-                BaseView curView = Globals.SceneSingleton<UIManager>().GetSingleUI(curContext.ViewType).GetComponent<BaseView>();
-                curView.OnExit(curContext);
+                GameObject curViewObj = Globals.SceneSingleton<UIManager>().GetSingleUI(curContext.ViewType);
+
+                if (curViewObj)
+                {
+                    BaseView curView = curViewObj.GetComponent<BaseView>();
+                    if (curView != null) curView.OnExit(curContext);
+                }
             }
 
             if (_contextStack.Count != 0)
@@ -63,7 +73,7 @@ namespace Osblow.App
             }
             return null;
         }
-
+        
         public void WebBlockUI(bool isBlock)
         {
             BaseContext curContext = PeekOrNull();
