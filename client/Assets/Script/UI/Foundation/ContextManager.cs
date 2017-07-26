@@ -74,7 +74,7 @@ namespace Osblow.App
             return null;
         }
         
-        public void WebBlockUI(bool isBlock)
+        public void WebBlockUI(bool isBlock, string info = "正在加载...")
         {
             BaseContext curContext = PeekOrNull();
             if (isBlock)
@@ -84,7 +84,9 @@ namespace Osblow.App
                     return;
                 }
 
-                Push(new LoadingUIContext());
+                LoadingUIContext context = new LoadingUIContext();
+                if(info != null && info.Length > 0) context.Info = info;
+                Push(context);
             }
             else
             {

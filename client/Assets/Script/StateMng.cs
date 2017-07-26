@@ -37,6 +37,7 @@ namespace Osblow.App
             StateBase nextState = m_stateDic[nextStateType];
             nextState.Begin(m_curStateType);
 
+            m_curState = nextState;
             m_curStateType = nextStateType;
         }
 

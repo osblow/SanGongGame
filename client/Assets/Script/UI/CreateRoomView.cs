@@ -31,11 +31,13 @@ namespace Osblow.App
             }
 
             m_roomData.RoomRuleType = mode;
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnCreateBtn()
         {
             OnCreateRoom();
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnSelectPayMethod(int option)
@@ -49,6 +51,7 @@ namespace Osblow.App
             }
 
             m_roomData.RoomCostRule = option;
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         //public void OnSelectSanGond(int option)
@@ -82,16 +85,19 @@ namespace Osblow.App
         public void OnSelectAllowJoin()
         {
             m_roomData.IsJoin = m_roomData.IsJoin ^ 1;
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void SelectTotalRound(int round)
         {
             m_roomData.RoomTotalRound = round.ToString();
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void SelectPlayerCount(int count)
         {
             m_roomData.MaxPlayerCount = count;
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         //public void OnSelectBaseScore(int score)
@@ -103,6 +109,7 @@ namespace Osblow.App
         public void OnExitBtn()
         {
             Globals.SceneSingleton<ContextManager>().Pop();
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
         #endregion
         void OnCreateRoom()

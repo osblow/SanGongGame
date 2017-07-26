@@ -21,6 +21,7 @@ namespace Osblow.App
         public void OnExitBtn()
         {
             Globals.SceneSingleton<ContextManager>().Pop();
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
         #endregion
 

@@ -72,6 +72,7 @@ namespace Osblow.App
         {
             base.Begin(lastState);
             Globals.SceneSingleton<GameMng>().IsGaming = false;
+            Globals.SceneSingleton<GameMng>().GameStart = false;
             Globals.SceneSingleton<GameMng>().ClearAll();
             Globals.SceneSingleton<DataMng>().ClearAll();
         }
@@ -89,16 +90,29 @@ namespace Osblow.App
 
         public GameState(StateMng parent) : base(parent) { }
 
+
+        private GameModeBase m_mode;
         public override void Begin(StateType lastState)
         {
             base.Begin(lastState);
 
+            GameObject obj = new GameObject("GameMode");
+            m_mode = obj.AddComponent<GameModeBase>();
+            m_mode.Init();
+
             Globals.SceneSingleton<GameMng>().IsGaming = true;
+            Globals.SceneSingleton<GameMng>().GameStart = false;
             Globals.SceneSingleton<Osblow.Game.SocketNetworkMng>();
 
-            GameObject obj = new GameObject("GameMode");
-            GameModeBase mode = obj.AddComponent<GameModeBase>();
-            mode.Init();
+            
+        }
+
+        public override void End(StateType nextState)
+        {
+            base.End(nextState);
+
+            m_mode.Clear();
+            GameObject.Destroy(m_mode.gameObject);
         }
     }
 
@@ -118,7 +132,9 @@ namespace Osblow.App
         {
             base.Begin(lastState);
             Globals.SceneSingleton<GameMng>().IsGaming = false;
+            Globals.SceneSingleton<GameMng>().GameStart = false;
             Globals.SceneSingleton<AsyncInvokeMng>().ClearAll();
+            //Osblow.Util.MsgMng.RemoveAll();
         }
     }
 }

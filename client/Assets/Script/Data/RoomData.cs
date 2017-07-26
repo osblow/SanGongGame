@@ -20,3 +20,10 @@ public class RoomData : DataBase
     // 服务返回
     public uint RoomId = 0;
 }
+
+public class LobbyRoomData : DataBase
+{
+    public uint RoomNumber = 0;
+    public uint TotalRound = 0;
+    public string UserCount = "";
+}

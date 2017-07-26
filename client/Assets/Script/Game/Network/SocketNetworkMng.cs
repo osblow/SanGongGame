@@ -58,6 +58,14 @@ namespace Osblow.Game
             m_hadlerDic.Add(Cmd.StartGameResponse, CmdHandler.StartGameResponse);
             m_hadlerDic.Add(Cmd.ServerBetOverResponse, CmdHandler.ServerBetOverResponse);
             m_hadlerDic.Add(Cmd.ServerToBankerResponse, CmdHandler.ServerToBankerResponse);
+            m_hadlerDic.Add(Cmd.StartGameNotice, CmdHandler.StartGameNotice);
+            m_hadlerDic.Add(Cmd.ReadyResultResponse, CmdHandler.ReadyResultResponse);
+        }
+
+
+        public void ForceClose()
+        {
+            m_client.ForceClose();
         }
 
         public void Handler(byte[] data)
@@ -68,10 +76,10 @@ namespace Osblow.Game
             }
 
 
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
                 Globals.SceneSingleton<ContextManager>().WebBlockUI(false);
-            };
+            });
 
             int foo = 0;
 
@@ -91,7 +99,12 @@ namespace Osblow.Game
                 {
                     int a = 0;
                 }
-                //Debug.LogFormat("socket: {0},,,,{1},,,{2}", data.Length, index + 4 + dataLen + 1, dataLen);
+                
+                //Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+                //{
+                //    Debug.LogFormat("socket: {0},,,,{1},,,{2}", data.Length, index + 4 + dataLen + 1, dataLen);
+                //};
+
                 if(index + 4 + dataLen + 1 > data.Length)
                 {
                     break;
@@ -118,11 +131,6 @@ namespace Osblow.Game
 
         public void Execute(short cmd, byte[] data, int index)
         {
-            if(cmd != 0x1004)
-            {
-                int a = 0;
-            }
-
             if (!m_hadlerDic.ContainsKey(cmd))
             {
                 return;
@@ -133,10 +141,28 @@ namespace Osblow.Game
 
 
 
+        //public Queue<byte[]> MessageQueue = new Queue<byte[]>();
         public void Send(byte[] data)
         {
+            //MessageQueue.Enqueue(data);
+
+            //Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+            //{
+            //    StartCoroutine(AutoSend(data));
+            //});
+
             m_client.Send(data);
         }
+
+        //IEnumerator AutoSend(byte[] data)
+        //{
+        //    while(MessageQueue.Count > 0)
+        //    {
+        //        m_client.Send(MessageQueue.Peek());
+
+        //        yield return new WaitForSeconds(3.5f);
+        //    }
+        //}
 
         private void OnDestroy()
         {
@@ -147,26 +173,47 @@ namespace Osblow.Game
 
             m_client.Close();
         }
-
+        
         private IEnumerator AutoReconnect()
         {
             while (true)
             {
-                yield return new WaitForSeconds(2);
+                yield return new WaitForSeconds(5);
 
                 if (!Globals.SceneSingleton<GameMng>().IsGaming)
                 {
+                    m_client.ForceClose();
                     Destroy(gameObject);
                     yield break;
                 }
 
                 if (!m_client.Connected)
                 {
+                    // 如果10次重连没有连接上，则退出到登录界面，将所有状态清空
+                    if(Globals.Instance.ReconnectTime < 0)
+                    {
+                        Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
+                        Globals.SceneSingleton<ContextManager>().Push(new LoginUIContext());
+
+                        Globals.SceneSingleton<DataMng>().ClearAll();
+                        Globals.SceneSingleton<GameMng>().ClearAll();
+                        Globals.SceneSingleton<SoundMng>().StopBackSound();
+                        Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
+
+                        Globals.Instance.SaveLog();
+
+                        Destroy(gameObject);
+                        yield break;
+                    }
+
+
                     Debug.Log("正在重新连接....");
-                    Globals.SceneSingleton<ContextManager>().WebBlockUI(true);
+                    Globals.SceneSingleton<ContextManager>().WebBlockUI(true, "正在重新连接...");
                     m_client.ForceClose();
                     m_client = new MyClient(Globals.Instance.Settings.SocketUrl,
                 Globals.Instance.Settings.SocketPort);
+
+                    --Globals.Instance.ReconnectTime;
                 }
                 else
                 {
@@ -227,7 +274,7 @@ namespace Osblow.Game
             {
                 return;
             }
-
+            
             // Begin sending the data to the remote device.     
             m_socket.BeginSend(data, 0, data.Length, 0, new AsyncCallback(SendCallback), m_socket);
         }
@@ -239,6 +286,13 @@ namespace Osblow.Game
                 Socket handler = (Socket)ar.AsyncState;
                 // Complete sending the data to the remote device.     
                 int bytesSent = handler.EndSend(ar);
+
+                //if (Globals.SceneSingleton<SocketNetworkMng>().MessageQueue.Count > 0)
+                //{
+                //    Globals.SceneSingleton<SocketNetworkMng>().MessageQueue.Dequeue();
+                //    //Debug.Log("已发送..消息队列还剩" +
+                //    //    Globals.SceneSingleton<SocketNetworkMng>().MessageQueue.Count + "条");
+                //}
                 //Debug.LogFormat("Sent {0} bytes to server.", bytesSent);
                 //NetworkMng.Instance.DebugStr = string.Format("Sent {0} bytes to server.", bytesSent);
             }
@@ -278,6 +332,7 @@ namespace Osblow.Game
 
                 if(client == null || !client.Connected)
                 {
+                    Debug.Log("<color=red>不想接收 了</color>");
                     return;
                 }
 
@@ -292,7 +347,8 @@ namespace Osblow.Game
                     Globals.SceneSingleton<SocketNetworkMng>().Handler(realData);
 
                     // Get new data.     
-                    client.BeginReceive(state.Buffer, 0, TCPState.BuffSize, 0, new AsyncCallback(ReceiveCallback), state);
+                    //client.BeginReceive(state.Buffer, 0, TCPState.BuffSize, 0, new AsyncCallback(ReceiveCallback), state);
+                    Receive();
                 }
             }
             catch (SocketException e)

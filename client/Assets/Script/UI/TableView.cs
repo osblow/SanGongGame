@@ -34,9 +34,11 @@ namespace Osblow.App
         public GameObject StartGameBtn;
         public GameObject SitDownBtn;
         public GameObject BankerBtn;
+        public GameObject CancelBankerBtn;
         public GameObject BetPanel;
         public GameObject CuopaiBtn;
         public GameObject ShowCardBtn;
+        public GameObject ReadyBtn;
 
         [Space]
         public GameObject EmojsPanel;
@@ -50,12 +52,18 @@ namespace Osblow.App
 
         [Space]
         public Text Clock;
+        public GameObject ClockBG;
+
+        [Space]
+        public GameObject Siding; // 旁观
+        public GameObject Waiting; // 等待下一局
         #endregion
 
         #region 场景事件
         public void OnMenuBtn()
         {
             ShowMenu();
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnExitBtn()
@@ -63,42 +71,51 @@ namespace Osblow.App
             CmdRequest.ExitRoomRequest();
             MenuPanelObj.SetActive(false);
             //Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnDismissBtn()
         {
             CmdRequest.DismissRoomRequest();
             MenuPanelObj.SetActive(false);
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnShareBtn()
         {
             MenuPanelObj.SetActive(false);
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
 
         public void StartGame()
         {
+            StartGameBtn.SetActive(false);
             //
             CmdRequest.StartGameRequest();
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
 
         public void OnCuoPai()
         {
             CuoPai();
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnShowCards()
         {
 			CmdRequest.SynchroniseCardsRequest ();
             //ShowCards();
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         private bool m_firstSit = true;
         public void OnSitDownBtn()
         {
             SitDownBtn.SetActive(false);
+            ReadyBtn.SetActive(false);
 
             TableData tableData = Globals.SceneSingleton<DataMng>().GetData<TableData>(DataType.Table);
             if (m_isOwner && tableData.CurRound == 0)
@@ -112,34 +129,70 @@ namespace Osblow.App
                 m_usersPanelList[i].ShowCards(false);
             }
 
+            // 添加判断，如果是游戏当中加入的，则显示等待下一局消息
+            if (tableData.SeatNum == 0 && tableData.IsGaming && m_firstSit)
+            {
+                Waiting.SetActive(true);
+            }
+
             if (!m_firstSit)
             {
-                Round.text = (++tableData.CurRound + 1) + "/" + tableData.TotalRound;
+                Round.text = tableData.CurRound + "/" + tableData.TotalRound;
                 m_firstSit = false;
             }
+
+            
 
             //ChaseOwnerBtn.SetActive(true);
             //StartCoroutine(TestCreateUsers());
             CmdRequest.ReadyRequest();
+
+            Globals.SceneSingleton<SoundMng>().PlayFrontSound("Audio/pdk/comm_ready");
         }
 
         public void OnBankeringBtn()
         {
             Debug.Log("3..");
             BankerBtn.SetActive(false);
-			CmdRequest.ClientBankerRequest ();
+            CancelBankerBtn.SetActive(false);
+            CmdRequest.ClientBankerRequest (true);
             //BetPanel.SetActive(true);
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
+        public void OnCancelBankeringBtn()
+        {
+            Debug.Log("6..");
+            BankerBtn.SetActive(false);
+            CancelBankerBtn.SetActive(false);
+            CmdRequest.ClientBankerRequest(false);
+            //BetPanel.SetActive(true);
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
+        }
+
+        private int m_betNum = 0; // 已下注的次数，第二次下注发送不同请求
         public void OnBetBtn(Text label)
         {
             int betScore = int.Parse(label.text);
             BetPanel.SetActive(false);
 
-			CmdRequest.ClientBetRequest ((uint)betScore);
+            if (m_betNum == 0)
+            {
+                CmdRequest.ClientBetRequest((uint)betScore);
+            }
+            else
+            {
+                CmdRequest.ClientBetAgainRequest((uint)betScore);
+            }
             // test
             //m_cardsPanel.ForEach((x) => { x.SetActive(true); });
             //Deal();
+
+            ++m_betNum;
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnShowUserInfo(int index)
@@ -148,6 +201,8 @@ namespace Osblow.App
             UserInfoUIContext context = new UserInfoUIContext();
             context.ThePlayerData = theData;
             Globals.SceneSingleton<ContextManager>().Push(context);
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnClickEmoj(int index)
@@ -155,11 +210,15 @@ namespace Osblow.App
             HideEmojPanel();
 
             CmdRequest.ClientExpressionRequest((uint)index);
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnTextMessage()
         {
             ShowEmojPanel();
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
         #endregion
 
@@ -222,9 +281,11 @@ namespace Osblow.App
         public void Deal()
         {
             m_usersPanelList.ForEach((x) => { x.DealAnimation(); });
-            UserPanels.ForEach((x) => { DealAnimation(x); });
+            //UserPanels.ForEach((x) => { DealAnimation(x); });
             //DealAnimation(UserPanels[0]);
         }
+
+
 
         void DealAnimation(GameObject userPanel)
         {
@@ -311,6 +372,10 @@ namespace Osblow.App
                 return;
             }
             m_isInitialized = true;
+            Globals.SceneSingleton<GameMng>().GameStart = true;
+
+            // sound
+            Globals.SceneSingleton<SoundMng>().PlayBackSound("Audio/pdk_bg_sound_001", true);
 
             TableData tableData = Globals.SceneSingleton<DataMng>().GetData<TableData>(DataType.Table);
             RoomData roomData = Globals.SceneSingleton<DataMng>().GetData<RoomData>(DataType.Room);
@@ -321,7 +386,7 @@ namespace Osblow.App
                 BaseScore.text = roomData.MaxPlayerCount.ToString();
             }
             RoomId.text = roomData.RoomId.ToString();
-            Round.text = (tableData.CurRound+1) + "/" + tableData.TotalRound;
+            Round.text = tableData.CurRound + "/" + tableData.TotalRound;
             // cards panel
             for(int i = 0; i < UserPanels.Count; i++)
             {
@@ -400,6 +465,7 @@ namespace Osblow.App
                 newBet.transform.SetParent(BetItemGrid.transform, false);
             }
 
+            
             //MsgMng.AddListener(MsgType.OtherPlayerEnter, OnOtherPlayerEnter);
             MsgMng.AddListener(MsgType.UI_AddPlayer, OnOtherPlayerEnter);
             MsgMng.AddListener(MsgType.UI_PlayerReady, OnPlayerReady);
@@ -416,6 +482,35 @@ namespace Osblow.App
             MsgMng.AddListener(MsgType.Compare, CompareCards);
             MsgMng.AddListener(MsgType.GameEnd, GameEnd);
             MsgMng.AddListener(MsgType.UpdateClock, OnUpdateClock);
+            MsgMng.AddListener(MsgType.StartGameBtnEnabled, OnStartBtnEnabled);
+            MsgMng.AddListener(MsgType.BankeringStatus, OnUpdateBankerState);
+            MsgMng.AddListener(MsgType.OnlineStatus, OnlineStatusChange);
+            MsgMng.AddListener(MsgType.ReConnected, Reconnected);
+
+            // 如果是游戏当中加入的，显示坐下按钮
+            if(tableData.SeatNum == 0 && tableData.IsGaming)
+            {
+                SitDownBtn.SetActive(true);
+            }
+
+            // 如果是旁观者，将所有操作按钮移到屏幕外
+            if (!tableData.IsReady)
+            {
+                SitDownBtn.transform.position = Vector3.one * 10000;
+                ReadyBtn.transform.position = Vector3.one * 10000;
+                StartGameBtn.transform.position = Vector3.one * 10000;
+                BetPanel.transform.position = Vector3.one * 10000;
+                Debug.Log("1..");
+                BankerBtn.transform.position = Vector3.one * 10000;
+                CancelBankerBtn.transform.position = Vector3.one * 10000;
+                CuopaiBtn.transform.position = Vector3.one * 10000;
+                ShowCardBtn.transform.position = Vector3.one * 10000;
+
+                transform.Find("TextMessage").position = Vector3.one * 10000;
+                transform.Find("VoiceMessage").position = Vector3.one * 10000;
+
+                Siding.SetActive(true);
+            }
         }
 
         public override void OnExit(BaseContext context)
@@ -439,6 +534,10 @@ namespace Osblow.App
             MsgMng.RemoveListener(MsgType.Compare, CompareCards);
             MsgMng.RemoveListener(MsgType.GameEnd, GameEnd);
             MsgMng.RemoveListener(MsgType.UpdateClock, OnUpdateClock);
+            MsgMng.RemoveListener(MsgType.StartGameBtnEnabled, OnStartBtnEnabled);
+            MsgMng.RemoveListener(MsgType.BankeringStatus, OnUpdateBankerState);
+            MsgMng.RemoveListener(MsgType.OnlineStatus, OnlineStatusChange);
+            MsgMng.RemoveListener(MsgType.ReConnected, Reconnected);
         }
 
         public override void OnPause(BaseContext context)
@@ -465,17 +564,18 @@ namespace Osblow.App
                 return;
             }
 
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            UserPanel theUserPanel = m_usersPanelList[m_curPlayerCount];
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
-                m_usersPanelList[m_curPlayerCount].Show(true);
-                m_usersPanelList[m_curPlayerCount].Reset(theData);
-                m_usersPanelDic.Add(theUUID, m_usersPanelList[m_curPlayerCount]);
-            };
+                theUserPanel.Show(true);
+                theUserPanel.Reset(theData);
+                m_usersPanelDic.Add(theUUID, theUserPanel);
+            });
         }
 
         void OnPlayerReady(Msg msg)
         {
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
                 string theUUID = msg.Get<string>(0);
 
@@ -489,7 +589,7 @@ namespace Osblow.App
                     return;
                 }
                 m_usersPanelDic[theUUID].SetReady(true);
-            };
+            });
         }
 
         void OnShowCards(Msg msg)
@@ -507,7 +607,7 @@ namespace Osblow.App
         
         void OnStartBet(Msg msg)
         {
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
                 for(int i = 0; i < m_usersPanelList.Count; i++)
                 {
@@ -516,16 +616,28 @@ namespace Osblow.App
 
                 Debug.Log("开始下注。。。。。。。。。。。。。。。。");
 
-                SitDownBtn.SetActive(false);
+                //CancelInvoke();
+                ReadyBtn.SetActive(false);
                 StartGameBtn.SetActive(false);
                 BetPanel.SetActive(true);
                 Debug.Log("1..");
                 BankerBtn.SetActive(false);
+                CancelBankerBtn.SetActive(false);
                 CuopaiBtn.SetActive(false);
                 ShowCardBtn.SetActive(false);
+                Waiting.SetActive(false);
 
                 m_usersPanelList.ForEach((x) => { x.ShowCards(false); });
-            };
+
+                TableData tableData = Globals.SceneSingleton<DataMng>().GetData<TableData>(DataType.Table);
+                //tableData.CurRound++;
+                Round.text = tableData.CurRound.ToString() + "/" + tableData.TotalRound;
+
+                if (msg.Get<int>(0) == 0)
+                {
+                    m_betNum = 0;
+                }
+            });
         }
 
         void OnPlayerBet(Msg msg)
@@ -533,7 +645,7 @@ namespace Osblow.App
             string theUUID = msg.Get<string>(0);
             uint thePoint = msg.Get<uint>(1);
 
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
 				//Debug.Log(m_usersPanelDic.Count);
                 m_usersPanelDic[theUUID].SetBet((int)thePoint);
@@ -551,7 +663,7 @@ namespace Osblow.App
                 //StartGameBtn.SetActive(false);
 
                 //m_usersPanelList.ForEach((x) => { x.ShowCards(false); });
-            };
+            });
         }
 
         void OnExpression(Msg msg)
@@ -559,19 +671,19 @@ namespace Osblow.App
             string uuid = msg.Get<string>(0);
             uint expressionId = msg.Get<uint>(1);
 
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
                 if (!m_usersPanelDic.ContainsKey(uuid))
                 {
                     return;
                 }
                 m_usersPanelDic[uuid].ShowMessage((int)expressionId);
-            };
+            });
         }
 
         void OnDealCards(Msg msg)
         {
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
                 for (int i = 0; i < m_usersPanelList.Count; i++)
                 {
@@ -582,54 +694,130 @@ namespace Osblow.App
                     }
                 }
 
+                // 音效
+
+
                 Debug.Log("开始发牌。。。。。。。。");
 
                 CuopaiBtn.SetActive(true);
                 ShowCardBtn.SetActive(true);
                 Debug.Log("2..");
                 BankerBtn.SetActive(false);
-                SitDownBtn.SetActive(false);
+                CancelBankerBtn.SetActive(false);
+                ReadyBtn.SetActive(false);
                 StartGameBtn.SetActive(false);
                 BetPanel.SetActive(false);
-            };
+
+                //if (m_bankerEffect != null)
+                //{
+                //    StopCoroutine(m_bankerEffect);
+                //}
+            });
         }
+
+        IEnumerator DealCardSound()
+        {
+            int loop = 20;
+            while((loop--) < 0)
+            {
+                yield return new WaitForSeconds(0.1f);
+                Globals.SceneSingleton<SoundMng>().PlayFrontSound("Audio/pdk/comm_deal_sound");
+            }
+        }
+
+
 
 		void OnStartBanker(Msg msg)
 		{
             Debug.Log("显示抢庄按钮");
 
-			Globals.SceneSingleton<AsyncInvokeMng> ().EventsToAct += delegate () {
+			Globals.SceneSingleton<AsyncInvokeMng> ().Events.Add(delegate () {
 				BankerBtn.SetActive (true);
+                CancelBankerBtn.SetActive(true);
                 BetPanel.SetActive(false);
-			};
+			});
 		}
+
+        Coroutine m_bankerEffect = null;
+        IEnumerator BankerEffect(string uuid)
+        {
+            List<UserPanel> bankeringUsers = new List<UserPanel>();
+            if(m_usersPanelList[0].IsBankering) bankeringUsers.Add(m_usersPanelList[0]);
+            for (int i = 1; i < m_usersPanelList.Count; i++)
+            {
+                if(m_usersPanelList[i].Data != null && m_usersPanelList[i].IsBankering)
+                {
+                    bankeringUsers.Add(m_usersPanelList[i]);
+                }
+            }
+
+            int index = 0;
+            while (bankeringUsers.Count > 1)
+            {
+                yield return new WaitForSeconds(0.3f);
+
+                for (int i = 0; i < bankeringUsers.Count; i++)
+                {
+                    bankeringUsers[i].SetBankerEffect(i == (index % bankeringUsers.Count));
+                }
+
+                ++index;
+
+                if(index / bankeringUsers.Count > 3)
+                {
+                    break;
+                }
+            }
+
+            //Debug.LogError(".............................");
+            m_usersPanelDic[uuid].SetBanker();
+        }
+
+
+
 
 		void OnShowTwoCardsAndBanker(Msg msg)
 		{
-			Globals.SceneSingleton<AsyncInvokeMng> ().EventsToAct += delegate () {
+			Globals.SceneSingleton<AsyncInvokeMng> ().Events.Add(delegate () {
 				uint[] cards = msg.Get<uint[]>(0);
 				ShowCards(cards);
 				BankerBtn.SetActive (true);
+                CancelBankerBtn.SetActive(true);
                 BetPanel.SetActive(false);
-			};
+			});
 		}
         
 
 		void OnBankering(Msg msg)
 		{	
-			Globals.SceneSingleton<AsyncInvokeMng> ().EventsToAct += delegate () {
-
+			Globals.SceneSingleton<AsyncInvokeMng> ().Events.Add(delegate () {
 				BankerBtn.SetActive(true);
+                CancelBankerBtn.SetActive(true);
                 BetPanel.SetActive(false);
-			};
+			});
 		}
 
 		void OnConfirmBanker(Msg msg)
 		{
-			Globals.SceneSingleton<AsyncInvokeMng> ().EventsToAct += delegate () {
+			Globals.SceneSingleton<AsyncInvokeMng> ().Events.Add(delegate () {
 				string uuid = msg.Get<string> (0);
-				m_usersPanelDic [uuid].SetBanker ();
-			};
+
+                if (!m_usersPanelDic.ContainsKey(uuid))
+                {
+                    return;
+                }
+
+                //if (m_bankerEffect != null)
+                //{
+                //    StopCoroutine(m_bankerEffect);
+                //}
+
+                if (m_bankerEffect != null)
+                {
+                    StopCoroutine(m_bankerEffect);
+                }
+                m_bankerEffect = StartCoroutine(BankerEffect(uuid));
+            });
 		}
 
 		bool hasEnd = false;
@@ -638,7 +826,7 @@ namespace Osblow.App
 			//if (hasEnd)
 			//	return;
 
-			Globals.SceneSingleton<AsyncInvokeMng> ().EventsToAct += delegate() {
+			Globals.SceneSingleton<AsyncInvokeMng> ().Events.Add(delegate() {
                 string theUUID = msg.Get<string>(2);
                 if(!m_usersPanelDic.ContainsKey(theUUID))
                 {
@@ -673,7 +861,7 @@ namespace Osblow.App
                 //m_usersPanelList[0].SetCardResult(playerdata.cardResult);
 
                 //Invoke("NextRound", 1.0f);
-            };
+            });
 
 			//hasEnd = true;
 				
@@ -683,9 +871,14 @@ namespace Osblow.App
         {
             List<ResultEffectData> eDatas = msg.Get<List<ResultEffectData>>(0);
             uint expireTime = msg.Get<uint>(1);
+            Dictionary<string, CompareSingleUser> userResults = msg.Get<Dictionary<string, CompareSingleUser>>(2);
 
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
+                Debug.Log("比大小中.....");
+
+                NextRound();
+
                 for (int i = 0; i < eDatas.Count; i++)
                 {
                     string fromId = eDatas[i].FromUser;
@@ -695,14 +888,22 @@ namespace Osblow.App
                     if (!m_usersPanelDic.ContainsKey(toId) || !m_usersPanelDic.ContainsKey(fromId))
                     {
                         Debug.Log("比大小中用户不存在");
+                        Globals.Instance.LogCallbackRequest("比大小中用户不存在"+ toId + " " + fromId);
                         continue;
                     }
 
-                    m_usersPanelDic[toId].ShowUpdatedScore(m_usersPanelDic[fromId], point);
+                    m_usersPanelDic[toId].ShowUpdatedScore(m_usersPanelDic[fromId]);
                 }
 
-                Invoke("NextRound", 1.0f);
-            };
+                foreach(KeyValuePair<string, CompareSingleUser> kval in userResults)
+                {
+                    m_usersPanelDic[kval.Key].ScoreTxt.text = kval.Value.Point.ToString();
+                    m_usersPanelDic[kval.Key].SetBet(0);
+                }
+                //Invoke("NextRound", 1.0f);
+
+                
+            });
         }
 
 		void NextRound()
@@ -717,22 +918,27 @@ namespace Osblow.App
 
             //Round.text = (++tableData.CurRound + 1) + "/" + tableData.TotalRound;
 
-			SitDownBtn.SetActive (true);
+            for (int i = 0; i < m_usersPanelList.Count; i++)
+            {
+                m_usersPanelList[i].SetBanker(false);
+            }
+
+            ReadyBtn.SetActive (true);
 		}
 
         void GameEnd(Msg msg)
         {
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
                 List<ResultUser> results = msg.Get<List<ResultUser>>(0);
 
                 GameResultUIContext context = new GameResultUIContext();
                 context.Results = results;
 
-                Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
+                
                 Globals.SceneSingleton<ContextManager>().Push(context);
                 Globals.SceneSingleton<StateMng>().ChangeState(StateType.GameResult);
-            };
+            });
         }
 
         bool m_timerStart = false;
@@ -741,18 +947,20 @@ namespace Osblow.App
         {
             uint sec = msg.Get<uint>(0);
 
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
                 m_timer = sec;
                 Clock.text = sec.ToString();
                 m_timerStart = true;
-            };
+            });
         }
 
+        private bool m_alarmVoice = true;
         private void Update()
         {
             if (!m_timerStart)
             {
+                m_alarmVoice = true;
                 return;
             }
 
@@ -768,11 +976,21 @@ namespace Osblow.App
                     Clock.transform.localScale = Vector3.one;
                     Clock.color = Color.black;
                 });
+
+                m_alarmVoice = true;
                 return;
             }
 
             m_timer -= Time.deltaTime;
             Clock.text = Mathf.CeilToInt(m_timer).ToString();
+
+
+            if(Mathf.Abs(m_timer - 4) < 0.1f && m_alarmVoice)
+            {
+                //Debug.LogError("asdfasdfasdfa");
+                Globals.SceneSingleton<SoundMng>().PlayFrontSound("Audio/pdk/comm_timeup_alarm");
+                m_alarmVoice = false;
+            }
         }
 
 
@@ -787,6 +1005,77 @@ namespace Osblow.App
             return false;
         }
 
+        void OnStartBtnEnabled(Msg msg)
+        {
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate () 
+            {
+                StartGameBtn.GetComponent<Button>().interactable = true;
+            });
+        }
+
+        void OnUpdateBankerState(Msg msg)
+        {
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+            {
+                string theUUID = msg.Get<string>(0);
+                if (!m_usersPanelDic.ContainsKey(theUUID))
+                {
+                    return;
+                }
+
+                m_usersPanelDic[theUUID].UpdateBankerState(msg.Get<bool>(1));
+            });
+        }
+
+        void OnlineStatusChange(Msg msg)
+        {
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+            {
+                string theUUID = msg.Get<string>(0);
+                if (!m_usersPanelDic.ContainsKey(theUUID))
+                {
+                    return;
+                }
+
+                bool isOnline = msg.Get<bool>(1);
+
+                m_usersPanelDic[theUUID].SetOnline(isOnline);
+            });
+        }
+
+        void Reconnected(Msg msg)
+        {
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+            {
+                TableData tableData = Globals.SceneSingleton<DataMng>().GetData<TableData>(DataType.Table);
+                uint curStep = tableData.RuleStep;
+                switch (curStep)
+                {
+                    case 0: // 准备中
+                        ReadyBtn.SetActive(true);
+                        break;
+                    case 1: // 下注中
+                        BetPanel.SetActive(true);
+                        break;
+                    case 2: // 抢庄中
+                        BankerBtn.SetActive(true);
+                        CancelBankerBtn.SetActive(true);
+                        break;
+
+                    case 3: // 已发牌再次下注
+                        BetPanel.SetActive(true);
+                        break;
+                    case 4: // 已发牌
+                        CuopaiBtn.SetActive(true);
+                        ShowCardBtn.SetActive(true);
+                        break;
+                    case 5: // 一局已结束
+                        ReadyBtn.SetActive(true);
+                        break;
+                }
+            });
+        }
+
         class UserPanel
         {
             public TablePlayerData Data;
@@ -797,8 +1086,13 @@ namespace Osblow.App
             public Text ScoreTxt { get { return m_score; } }
             private Text m_score;
 
+            private GameObject m_bgEffect;
+            private GameObject m_iconEffect;
+
+            private GameObject m_betRoot;
             private Text m_betNum;
             private Text m_betNumEffect;
+
             private Image m_bankerImg;
             private Image m_bankerImgEffect;
 
@@ -806,20 +1100,29 @@ namespace Osblow.App
 
             private Image m_offLineImg;
 
+            private GameObject m_cuoPaiZhong;
+
+            private GameObject m_cardResultBg;
             private Text m_cardResult;
 
             private SingleCard[] m_cards;
 
             private ShowMessage m_message;
 
+            private AutoFade m_bankerState;
+
 
             public UserPanel(GameObject objRoot)
             {
                 m_panelObj = objRoot;
                 m_name = objRoot.transform.Find("name").GetComponent<Text>();
-                m_icon = objRoot.transform.Find("icon").GetComponent<Image>();
+                m_icon = objRoot.transform.Find("icon_parent/icon").GetComponent<Image>();
                 m_score = objRoot.transform.Find("score").GetComponent<Text>();
 
+                m_bgEffect = objRoot.transform.Find("bgFx").gameObject;
+                m_iconEffect = objRoot.transform.Find("icon_fx").gameObject;
+
+                m_betRoot = objRoot.transform.Find("BetPanel").gameObject;
                 m_betNum = objRoot.transform.Find("BetPanel/bet").GetComponent<Text>();
                 m_betNumEffect = objRoot.transform.Find("BetPanel/betFx").GetComponent<Text>();
 
@@ -828,11 +1131,18 @@ namespace Osblow.App
 
                 m_readyImg = objRoot.transform.Find("readyImg").GetComponent<Image>();
 
+                m_cardResultBg = objRoot.transform.Find("cardResult_bg").gameObject;
                 m_cardResult = objRoot.transform.Find("cardResult").GetComponent<Text>();
 
                 m_message = objRoot.transform.Find("Message").GetComponent<ShowMessage>();
 
+                m_cuoPaiZhong = objRoot.transform.Find("CuoPaiZhong").gameObject;
+
                 m_cards = objRoot.GetComponentsInChildren<SingleCard>();
+
+                m_bankerState = objRoot.transform.Find("bankerState").GetComponent<AutoFade>();
+
+                m_offLineImg = objRoot.transform.Find("offline").GetComponent<Image>();
 
                 Reset();
             }
@@ -842,14 +1152,23 @@ namespace Osblow.App
                 m_name.text = "";
                 m_score.text = "0";
 
+                m_iconEffect.SetActive(false);
+                m_bgEffect.SetActive(false);
 
+                m_betRoot.SetActive(false);
                 m_betNum.text = "0";
                 m_betNumEffect.text = "0";
+
                 m_bankerImg.gameObject.SetActive(false);
                 m_bankerImgEffect.gameObject.SetActive(false);
 
                 m_readyImg.gameObject.SetActive(false);
                 m_cardResult.text = "";
+                m_cardResultBg.SetActive(false);
+
+                m_cuoPaiZhong.SetActive(false);
+
+                m_offLineImg.gameObject.SetActive(false);
 
                 for (int i = 0; i < m_cards.Length; i++)
                 {
@@ -880,7 +1199,11 @@ namespace Osblow.App
                 m_bankerImgEffect.gameObject.SetActive(false);
 
                 m_readyImg.gameObject.SetActive(false);
+
+                m_cardResultBg.SetActive(false);
                 m_cardResult.text = "";
+
+                m_cuoPaiZhong.SetActive(false);
 
                 for (int i = 0; i < m_cards.Length; i++)
                 {
@@ -911,6 +1234,8 @@ namespace Osblow.App
                 m_bankerImgEffect.gameObject.SetActive(false);
 
                 m_readyImg.gameObject.SetActive(false);
+
+                m_cardResultBg.SetActive(false);
                 m_cardResult.text = "";
 
                 for (int i = 0; i < m_cards.Length; i++)
@@ -926,10 +1251,19 @@ namespace Osblow.App
 
             public void SetBet(int num)
             {
+                if(num == 0)
+                {
+                    m_betNum.text = num.ToString();
+                }
+
+                m_betRoot.SetActive(true);
+
+                m_betNumEffect.gameObject.SetActive(true);
                 m_betNumEffect.text = num.ToString();
                 m_betNumEffect.transform.position = new Vector3(Screen.width / 2, Screen.height / 2, 0);
                 m_betNumEffect.transform.DOMove(m_betNum.transform.position, 0.6f).OnComplete(delegate () 
                 {
+                    m_betNumEffect.gameObject.SetActive(false);
                     m_betNumEffect.text = "";
                     m_betNum.text = num.ToString();
                 });
@@ -937,29 +1271,46 @@ namespace Osblow.App
 
             public void SetBanker()
             {
+                m_bgEffect.SetActive(true);
                 m_bankerImgEffect.gameObject.SetActive(true);
                 m_bankerImgEffect.transform.position = new Vector3(Screen.width / 2, Screen.height / 2, 0);
                 m_bankerImgEffect.transform.DOMove(m_bankerImg.transform.position, 0.6f).OnComplete(delegate ()
                 {
                     m_bankerImgEffect.gameObject.SetActive(false);
                     m_bankerImg.gameObject.SetActive(true);
+                    m_bgEffect.SetActive(false);
                 });
+            }
+
+            public void SetBanker(bool isShow)
+            {
+                m_bgEffect.SetActive(false);
+                m_bankerImgEffect.gameObject.SetActive(false);
+                m_bankerImg.gameObject.SetActive(false);
+            }
+
+            public void SetBankerEffect(bool isShow)
+            {
+                m_bgEffect.SetActive(isShow);
             }
 
             public void SetCardResult(string result)
             {
+                m_cardResultBg.SetActive(true);
+
                 m_cardResult.text = result;
                 m_cardResult.transform.localScale = Vector3.one * 5;
                 m_cardResult.transform.DOScale(Vector3.one, 1.0f).SetEase(Ease.InCubic);
 
                 m_cardResult.color = new Color(0, 0, 0, 0);
-                m_cardResult.DOColor(Color.white, 0.3f);
+                m_cardResult.DOColor(new Color(1.0f, 0.85f, 0, 1.0f), 0.3f);
 
                 m_cardResult.transform.DOPunchPosition(Vector3.up, 0.2f).SetDelay(1.0f);
             }
 
             public void SetReady(bool isReady)
             {
+                m_iconEffect.SetActive(isReady);
                 m_readyImg.gameObject.SetActive(isReady);
             }
 
@@ -988,7 +1339,12 @@ namespace Osblow.App
                 card3.transform.position = originPos;
                 card1.transform.DOMove(targetPos1, 0.7f);
                 card2.transform.DOMove(targetPos2, 0.7f).SetDelay(0.2f);
-                card3.transform.DOMove(targetPos3, 0.7f).SetDelay(0.4f);
+                card3.transform.DOMove(targetPos3, 0.7f).SetDelay(0.4f).OnComplete(()=> 
+                {
+                    m_cuoPaiZhong.SetActive(true);
+                });
+
+
             }
 
             public void ShowCards(uint[] cards)
@@ -998,6 +1354,8 @@ namespace Osblow.App
                     m_cards[i].SetNum(cards[i]);
                     m_cards[i].gameObject.SetActive(true);
                 }
+
+                m_cuoPaiZhong.SetActive(false);
             }
 
 			public void ShowCards(bool isShow)
@@ -1008,6 +1366,7 @@ namespace Osblow.App
 					m_cards [i].gameObject.SetActive (isShow);
 				}
 
+                m_cardResultBg.SetActive(false);
 				m_cardResult.text = "";
 
 			}
@@ -1017,23 +1376,46 @@ namespace Osblow.App
                 m_message.ShowExpression(index);
             }
 
-            public void ShowUpdatedScore(UserPanel from, uint point)
+            //public void SetScore(int point)
+            //{
+            //    m_score.text = point.ToString();
+            //}
+
+            public void ShowUpdatedScore(UserPanel from)
             {
                 Transform fromPos = from.ScoreTxt.transform;
 
-                int fromPoint = int.Parse(from.ScoreTxt.text) - (int)point;
-                int toPoint = int.Parse(m_score.text) + (int)point;
+                //int fromPoint = int.Parse(from.ScoreTxt.text) - (int)point;
+                //int toPoint = int.Parse(m_score.text) + (int)point;
 
-                Text scoreEffect = Instantiate(m_score);
-                scoreEffect.text = point.ToString();
-                scoreEffect.transform.position = fromPos.position;
+                Debug.Log("积分动画:" + from.m_name.text + " " + m_name.text);
 
-                scoreEffect.transform.DOMove(m_score.transform.position, 0.7f).OnComplete(delegate () 
+                List<GameObject> scoreEffects = new List<GameObject>();
+                for (int i = 0; i < 20; i++)
                 {
-                    from.ScoreTxt.text = fromPoint.ToString();
-                    m_score.text = toPoint.ToString();
-                    Destroy(scoreEffect);
+                    GameObject scoreEffect = Instantiate(Resources.Load("Prefab/UI/TableView/scoreFx") as GameObject);
+                    scoreEffect.transform.SetParent(m_panelObj.transform, false);
+                    scoreEffect.transform.position = fromPos.position + Vector3.right * Random.Range(-25, 25);
+                    scoreEffect.transform.DOMove(m_score.transform.position + Vector3.right * Random.Range(-25, 25), 0.5f).SetDelay(Random.Range(0f, 0.5f));
+                    scoreEffects.Add(scoreEffect);
+                }
+                
+                m_score.transform.DOScale(Vector3.one, 1.0f).OnComplete(delegate () 
+                {
+                    //from.ScoreTxt.text = fromPoint.ToString();
+                    //m_score.text = finalPoint.ToString();
+
+                    scoreEffects.ForEach((x) => { GameObject.Destroy(x); });
+                    scoreEffects.Clear();
                 });
+            }
+
+
+            public bool IsBankering = false;
+            public void UpdateBankerState(bool isBankering)
+            {
+                IsBankering = isBankering;
+                m_bankerState.SetState(isBankering ? 0 : 1);
             }
         }
 
@@ -1057,9 +1439,12 @@ namespace Osblow.App
 
 
 
+        private void LateUpdate()
+        {
+            ClockBG.SetActive(!(Clock.text.Length <= 0 || Clock.text == "0"));
+        }
 
 
-        
         private void OnEnable()
         {
             //UserPanel p = new UserPanel(UserPanels[0]);

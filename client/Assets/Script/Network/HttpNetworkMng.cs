@@ -8,6 +8,7 @@ using Osblow.App;
 public class HttpNetworkMng : MonoBehaviour 
 {
     private const string c_testUrl = "http://bbox.sansanbbox.com:6080/loginAction/login.do?unionId=0000000000";
+   
 
     struct SingleRequest
     {
@@ -16,7 +17,7 @@ public class HttpNetworkMng : MonoBehaviour
     }
     private List<SingleRequest> m_requestList = new List<SingleRequest>();
     private bool m_isWaiting = false;
-
+    
 
     public void Send(string url, WWWForm form, Action<byte[]> handler)
     {

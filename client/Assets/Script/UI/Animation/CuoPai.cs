@@ -16,7 +16,7 @@ public class CuoPai : MonoBehaviour
     bool m_isInAnimation = false;
 
     readonly Vector3 c_orginPos = new Vector3(-211.5f, -306.5f, 0);
-    readonly float c_targetScale = 0.247f;
+    readonly float c_targetScale = 0.318f;
 
     private void Awake()
     {
@@ -64,7 +64,7 @@ public class CuoPai : MonoBehaviour
     public void OnDragEnd()
     {
         if(Index >= 1 && m_recttrans.rotation.eulerAngles.z > 180 
-            && m_recttrans.rotation.eulerAngles.z < 344)
+            && m_recttrans.rotation.eulerAngles.z < 355.5f)
         {
             MsgMng.Dispatch(MsgType.UI_CuoPaiEnd);
         }
@@ -98,7 +98,7 @@ public class CuoPai : MonoBehaviour
         m_recttrans.DOMove(step1_pos, 0.3f);
 
         m_recttrans.DOScale(Vector3.one * c_targetScale, 0.4f).SetDelay(0.3f);
-        m_recttrans.DOMove(AnimTarget.position - new Vector3(40, 57, 0), 0.4f).SetDelay(0.3f).OnComplete(delegate() 
+        m_recttrans.DOMove(AnimTarget.position - new Vector3(52, 75, 0), 0.4f).SetDelay(0.3f).OnComplete(delegate() 
         {
             CmdRequest.SynchroniseCardsRequest();
         });

@@ -8,7 +8,7 @@ namespace Osblow.App
     public class CardMng : MonoBehaviour
     {
         private const string c_cardTexPath = "Texture/Cards/";
-        private List<Sprite> m_cardTextures = new List<Sprite>();
+        private List<Texture> m_cardTextures = new List<Texture>();
 
 
         // Use this for initialization
@@ -23,7 +23,7 @@ namespace Osblow.App
 
         }
 
-        public Sprite GetSprite(uint cardVal)
+        public Texture GetSprite(uint cardVal)
         {
             if (m_cardTextures.Count <= 0)
             {
@@ -39,7 +39,7 @@ namespace Osblow.App
             return m_cardTextures[(int)cardVal];
         }
 
-        public Sprite GetBackSprite()
+        public Texture GetBackSprite()
         {
             if (m_cardTextures.Count <= 0)
             {
@@ -53,11 +53,11 @@ namespace Osblow.App
         {
             for (int i = 1; i <= 54; i++)
             {
-                Sprite temp = Resources.Load<Sprite>(c_cardTexPath + i);
+                Texture temp = Resources.Load<Texture>(c_cardTexPath + i);
                 m_cardTextures.Add(temp);
             }
 
-            m_cardTextures.Add(Resources.Load<Sprite>(c_cardTexPath + "back"));
+            m_cardTextures.Add(Resources.Load<Texture>(c_cardTexPath + "back"));
         }
     }
 }

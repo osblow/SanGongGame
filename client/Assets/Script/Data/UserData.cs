@@ -14,9 +14,17 @@ public class UserData : DataBase
     public uint is_enter_room = 0;
     public double evaluate_score = 1;
     public uint user_diamond = 100;
+    public string notice_message = "";
 
     public List<uint> cards = new List<uint>() { 0,0,0 };
     public string cardResult = "";
 
     public uint socket_code = 0;
+}
+
+
+public class MessageData : DataBase
+{
+    public string NewsTitle = "";
+    public string News = "";
 }

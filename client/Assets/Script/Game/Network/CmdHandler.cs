@@ -17,7 +17,11 @@ public class CmdHandler
     {
         ServerRegisterResponse res = GetProtoInstance<ServerRegisterResponse>(data, index);
 
-        Debug.Log("注册成功");
+        //Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        //{
+        //    Debug.Log("注册成功");
+        //    Globals.Instance.LogCallbackResponse("注册成功");
+        //});
         MsgMng.Dispatch(MsgType.Registed);
         
         //Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player).socket_code = res.code;
@@ -45,7 +49,10 @@ public class CmdHandler
         ServerHeartbeatResponse res = GetProtoInstance<ServerHeartbeatResponse>(data, index);
         string serverTime = res.date_time;
 
-        //Debug.Log("Heartbeat....time= " + serverTime);
+        //Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        //{
+        //    Debug.Log("Heartbeat....time= " + serverTime);
+        //});
     }
 
     /// <summary>
@@ -59,6 +66,7 @@ public class CmdHandler
         if(code == 1) // 请求失败
         {
             Debug.Log("进入房间失败");
+            Globals.Instance.LogCallbackResponse("进入房间失败");
             return;
         }
 
@@ -102,14 +110,25 @@ public class CmdHandler
             tableData.Players.Add(temp);
         });
 
+        tableData.IsReady = res.is_reday;
+        tableData.IsGaming = res.is_game_ing;
+
         Globals.SceneSingleton<DataMng>().SetData(DataType.Table, tableData);
 
-        Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
         {
             Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
-        };
+        });
 
-        Debug.Log("成功进入房间， 房号： " + tableData.RoomId);
+
+        //Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        //{
+        //    Debug.Log("成功进入房间， 房号： " + tableData.RoomId);
+        //    Globals.Instance.LogCallbackResponse("成功进入房间， 房号： " + tableData.RoomId);
+        //});
+
+        // 清除重连计时
+        Globals.Instance.ReconnectTime = 10;
     }
 
     /// <summary>
@@ -119,6 +138,7 @@ public class CmdHandler
     public static void EnterRoomOtherResponse(byte[] data, int index)
     {
         Debug.Log("其它玩家进入");
+        Globals.Instance.LogCallbackResponse("其它玩家进入");
 
         EnterRoomOtherResponse res = GetProtoInstance<EnterRoomOtherResponse>(data, index);
         TablePlayerData playerData = new TablePlayerData();
@@ -142,7 +162,14 @@ public class CmdHandler
 
         Osblow.Util.MsgMng.Dispatch(Osblow.Util.MsgType.PlayerEnter, playerData.PlayerUUID, playerData);
 
-        Debug.Log("有玩家进入");
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("有玩家进入");
+        });
+
+
+        // 清除重连计时
+        Globals.Instance.ReconnectTime = 10;
     }
 
     /// <summary>
@@ -155,7 +182,11 @@ public class CmdHandler
 
         string thePlayerUUID = res.player_uuid;
 
-        Debug.Log("退出房间" + thePlayerUUID);
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("退出房间" + thePlayerUUID);
+            Globals.Instance.LogCallbackResponse("退出房间" + thePlayerUUID);
+        });
     }
 
     /// <summary>
@@ -167,14 +198,21 @@ public class CmdHandler
         ExitRoomResultResponse res = GetProtoInstance<ExitRoomResultResponse>(data, index);
         if (res.code == 0)
         {
-            Debug.Log("退出房间成功");
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+            {
+                Debug.Log("退出房间成功");
+                Globals.Instance.LogCallbackResponse("退出房间成功");
+            });
+
+
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
                 Globals.SceneSingleton<StateMng>().ChangeState(StateType.Lobby);
+                Globals.SceneSingleton<Osblow.Game.SocketNetworkMng>().ForceClose();
                 Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
                 Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
                 Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
-            };
+            });
         }
         else
         {
@@ -194,9 +232,27 @@ public class CmdHandler
         string theUUID = res.dismiss_uuid;
         uint expireTime = res.expire_seconds;
 
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            AlertUIContext context = new AlertUIContext();
+            context.HasCancel = true;
+            context.HasOK = true;
+            context.OKCallback += delegate ()
+            {
+                Osblow.Game.CmdRequest.PlayerVoteDismissRoomRequest(true);
+            };
 
+            context.CancelCallback += delegate ()
+            {
+                Osblow.Game.CmdRequest.PlayerVoteDismissRoomRequest(false);
+            };
+            Globals.SceneSingleton<ContextManager>().Push(context);
+        });
 
-        Debug.Log(theUUID + "解散了房间");
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log(theUUID + "解散了房间");
+        });
     }
 
     /// <summary>
@@ -210,7 +266,10 @@ public class CmdHandler
         string theUUID = res.play_uuid;
         bool isAgreeing = res.flag;
 
-        Debug.Log(theUUID + "投票" + isAgreeing);
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log(theUUID + "投票" + isAgreeing);
+        });
     }
 
     /// <summary>
@@ -223,14 +282,18 @@ public class CmdHandler
         if(res.code == 0)
         {
             // 成功
-            Debug.Log("成功解散");
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+            {
+                Debug.Log("成功解散");
+            });
 
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate ()
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
                 Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
                 Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
                 Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
-            };
+                Globals.SceneSingleton<StateMng>().ChangeState(StateType.Lobby);
+            });
         }
         else
         {
@@ -250,8 +313,24 @@ public class CmdHandler
         string theUUID = res.play_uuid;
         uint theSeat = res.seat;
 
-        MsgMng.Dispatch(MsgType.UI_PlayerReady, theUUID);
-        Debug.Log(theUUID + "已准备");
+        if(theSeat == 0)
+        {
+            
+        }
+        else
+        {
+            MsgMng.Dispatch(MsgType.UI_PlayerReady, theUUID);
+
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+            {
+                Debug.Log(theUUID + "已准备");
+                Globals.Instance.LogCallbackResponse(theUUID + "已准备");
+            });
+        }
+
+
+        // 清除重连计时
+        Globals.Instance.ReconnectTime = 10;
     }
 
     /// <summary>
@@ -260,7 +339,105 @@ public class CmdHandler
     /// <param name="data"></param>
     public static void ReconnectResponse(byte[] data, int index)
     {
-        Debug.Log("重连");
+        ReconnectResponse res = GetProtoInstance<ReconnectResponse>(data, index);
+        uint code = res.code;
+        if (code == 1) // 请求失败
+        {
+            Debug.Log("进入房间失败");
+            Globals.Instance.LogCallbackResponse("进入房间失败");
+
+            Globals.SceneSingleton<DataMng>().ClearAll();
+            Globals.SceneSingleton<GameMng>().ClearAll();
+            Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
+            Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
+            Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
+            return;
+        }
+
+        TableData tableData = new TableData();
+        tableData.RoomId = res.room_id;
+        tableData.OwnerUUId = res.owner_uuid;
+        tableData.ruleName = res.rule_name;
+        tableData.CurRound = res.current_round;
+        tableData.TotalRound = res.all_round;
+        tableData.IsSeated = res.is_seat;
+        tableData.SeatNum = res.seat;
+        tableData.TotalScore = res.total_score;
+        tableData.Icon = res.player_head_img;
+        tableData.NickName = res.player_nike_name;
+        tableData.UserIp = res.user_ip;
+        tableData.EvaluateScore = res.evaluate_score;
+        tableData.CanDismiss = res.is_dismiss;
+        tableData.PayRule = res.room_rules;
+
+        tableData.RuleStep = res.rule_step;
+        tableData.RuleOperation = res.rule_operation;
+        tableData.BetPoint = res.point;
+
+        tableData.Cards = new List<uint>();
+        res.card.ForEach((x) => 
+        {
+            tableData.Cards.Add(x.card);
+        });
+        tableData.CardFace = res.cardFace;
+        tableData.DismissRemainTime = res.remain_time;
+
+        tableData.BetPoints = new List<BetPointData>();
+        res.betPoints.ForEach((x) =>
+        {
+            BetPointData temp = new BetPointData();
+            temp.BetPoint = x.bet_points;
+            tableData.BetPoints.Add(temp);
+        });
+
+        tableData.Players = new List<TablePlayerData>();
+        res.player.ForEach((x) =>
+        {
+            TablePlayerData temp = new TablePlayerData();
+            temp.SeatNum = x.seat;
+            temp.PlayerUUID = x.player_uuid;
+            temp.AcountId = x.account_id;
+            temp.IsOnline = x.is_online;
+            temp.TotalScore = x.total_score;
+            temp.HeadImg = x.player_head_img;
+            temp.NickName = x.player_nike_name;
+            temp.UserIp = x.user_ip;
+            temp.EvaluateScore = x.evaluate_score;
+
+            temp.IsBanker = x.is_banker;
+            temp.RuleStep = x.rule_step;
+            temp.RuleOperation = x.rule_operation;
+            temp.BetPoint = x.point;
+            temp.Cards = new List<uint>();
+            x.card.ForEach((y) => 
+            {
+                temp.Cards.Add(y.card);
+            });
+            temp.CardFace = x.cardFace;
+
+
+
+            tableData.Players.Add(temp);
+        });
+
+        Globals.SceneSingleton<DataMng>().SetData(DataType.Table, tableData);
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
+        });
+
+        MsgMng.Dispatch(MsgType.ReConnected);
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("成功重连， 房号： " + tableData.RoomId);
+            Globals.Instance.LogCallbackResponse("成功重连， 房号： " + tableData.RoomId);
+        });
+
+
+        // 清除重连计时
+        Globals.Instance.ReconnectTime = 10;
     }
 
     /// <summary>
@@ -275,7 +452,12 @@ public class CmdHandler
         uint theSeat = res.seat;
         bool isOnline = res.status;
 
-        Debug.Log(theUUID + "玩家上线" + isOnline);
+        MsgMng.Dispatch(MsgType.OnlineStatus, theUUID, isOnline);
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log(theUUID + "玩家上线" + isOnline);
+        });
     }
 
     /// <summary>
@@ -291,7 +473,16 @@ public class CmdHandler
 
 
         MsgMng.Dispatch(MsgType.UI_Expression, uuid, expression_id);
-        Debug.Log("表情" + expression_id);
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("表情" + expression_id);
+        });
+
+
+
+        // 清除重连计时
+        Globals.Instance.ReconnectTime = 10;
     }
 
     /// <summary>
@@ -316,7 +507,11 @@ public class CmdHandler
         uint theSeat = res.seat;
         uint thePoint = res.bet_point;
 
-        Debug.Log(theUUID + "下注" + thePoint);
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log(theUUID + "下注" + thePoint);
+            Globals.Instance.LogCallbackResponse(theUUID + "下注" + thePoint);
+        });
         MsgMng.Dispatch(MsgType.UI_PlayerBet, theUUID, thePoint);
     }
 
@@ -336,7 +531,12 @@ public class CmdHandler
         MsgMng.Dispatch(MsgType.UpdateClock, expireTime);
 
 		MsgMng.Dispatch (MsgType.StartBanker);
-        Debug.Log("开始抢庄");
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("开始抢庄");
+            Globals.Instance.LogCallbackResponse("开始抢庄");
+        });
     }
 
     /// <summary>
@@ -353,7 +553,11 @@ public class CmdHandler
         MsgMng.Dispatch(MsgType.UpdateClock, expireTime);
 
         MsgMng.Dispatch (MsgType.ShowTwoCardsAndStartBanker, cards.ToArray());
-        Debug.Log("先发两张，然后抢庄");
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("先发两张，然后抢庄");
+        });
     }
 
     /// <summary>
@@ -365,10 +569,15 @@ public class CmdHandler
         ServerBetAgainResponse res = GetProtoInstance<ServerBetAgainResponse>(data, index);
         string theUUID = res.player_uuid;
         uint theSeat = res.seat;
-        uint betPoint = res.bet_point;
+        uint betPoint = res.bet_all_point;
 
         MsgMng.Dispatch(MsgType.UI_PlayerBet, theUUID, betPoint);
-        Debug.Log(theUUID + "再次下注" + betPoint);
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log(theUUID + "再次下注" + betPoint);
+        });
+
     }
 
     /// <summary>
@@ -391,13 +600,20 @@ public class CmdHandler
 
         if (nextBet)
         {
-            MsgMng.Dispatch(MsgType.UI_StartBet);
+            MsgMng.Dispatch(MsgType.UI_StartBet, 1);
         }
 
-        Debug.Log("抢庄结果");
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("抢庄结果");
+            Globals.Instance.LogCallbackResponse("抢庄结果");
+        });
+
+        // 清除重连计时
+        Globals.Instance.ReconnectTime = 10;
     }
 
-    static Dictionary<uint, string> s_cardResultDic = new Dictionary<uint, string>()
+    public static Dictionary<uint, string> s_cardResultDic = new Dictionary<uint, string>()
     {
         {0, "0点" },
         {1, "1点" },
@@ -442,7 +658,15 @@ public class CmdHandler
 
         MsgMng.Dispatch(MsgType.DealCards);
 
-        Debug.Log("结果" + s_cardResultDic[res.card_result]);
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("结果" + s_cardResultDic[res.card_result]);
+            Globals.Instance.LogCallbackResponse("发牌");
+        });
+
+
+        // 清除重连计时
+        Globals.Instance.ReconnectTime = 10;
     }
 
     /// <summary>
@@ -462,11 +686,28 @@ public class CmdHandler
 
         uint cardResult = res.card_face;
 
+        // 播放声音
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate () 
+        {
+            Globals.SceneSingleton<SoundMng>().PlayFrontSound("Audio/sangong/male/" + cardResult);
+        });
+
 		MsgMng.Dispatch (MsgType.SynchroniseCards, cards, s_cardResultDic [cardResult], theUUID);
 
-        Debug.Log("亮牌" + cardResult);
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("亮牌" + cardResult);
+            Globals.Instance.LogCallbackResponse("亮牌");
+        });
+
+
+        // 清除重连计时
+        Globals.Instance.ReconnectTime = 10;
     }
 
+
+
+    
     /// <summary>
     /// 比大小
     /// </summary>
@@ -484,11 +725,36 @@ public class CmdHandler
             results.Add(e);
         });
 
+        Dictionary<string, CompareSingleUser> userPoints = new Dictionary<string, CompareSingleUser>();
+        res.player_total_score.ForEach((x) =>
+        {
+            if (userPoints.ContainsKey(x.uuid))
+            {
+                return;
+            }
+
+
+            CompareSingleUser newUser = new CompareSingleUser();
+            newUser.Uuid = x.uuid;
+            newUser.Point = x.point;
+            
+            userPoints.Add(x.uuid, newUser);
+        });
+
         uint expireTime = res.expire_seconds;
         MsgMng.Dispatch(MsgType.UpdateClock, expireTime);
 
-        MsgMng.Dispatch(MsgType.Compare, results, expireTime);
-        Debug.Log("比大小" + res.result);
+        MsgMng.Dispatch(MsgType.Compare, results, expireTime, userPoints);
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("比大小" + res.result);
+            Globals.Instance.LogCallbackResponse("比大小");
+        });
+
+
+        // 清除重连计时
+        Globals.Instance.ReconnectTime = 10;
     }
 
     /// <summary>
@@ -506,8 +772,27 @@ public class CmdHandler
         uint expireTime = res.expire_seconds;
         MsgMng.Dispatch(MsgType.UpdateClock, expireTime);
         // 开始游戏，准备下注
-        Debug.Log("开始游戏，准备下注");
-        MsgMng.Dispatch(MsgType.UI_StartBet, expireTime);
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("开始游戏，准备下注");
+            Globals.Instance.LogCallbackResponse("开始游戏，准备下注");
+        });
+
+        MsgMng.Dispatch(MsgType.UI_StartBet, 0);
+
+        // 局数同步
+        TableData tData = Globals.SceneSingleton<DataMng>().GetData<TableData>(DataType.Table);
+        tData.CurRound = res.game_index;
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate () 
+        {
+            Globals.SceneSingleton<SoundMng>().PlayFrontSound("Audio/pdk/start");
+        });
+
+
+
+        // 清除重连计时
+        Globals.Instance.ReconnectTime = 10;
     }
 
     /// <summary>
@@ -546,11 +831,20 @@ public class CmdHandler
             results.Add(r);
         });
 
+        // 通知服务器已收到结算
+        Osblow.Game.CmdRequest.GameOverRequest();
+
         MsgMng.Dispatch(MsgType.GameEnd, results);
 
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("<color=green>结束啦！！！</green>");
+            Debug.Log("总结算" + res.allResult.Count);
+            Globals.Instance.LogCallbackResponse("总结算");
+        });
 
-        Debug.LogError("结束啦！！！");
-        Debug.Log("总结算" + res.allResult.Count);
+        // 清除重连计时
+        Globals.Instance.ReconnectTime = 10;
     }
 
     /// <summary>
@@ -561,7 +855,54 @@ public class CmdHandler
     {
         ServerToBankerResponse res = GetProtoInstance<ServerToBankerResponse>(data, index);
 
-        Debug.Log("抢庄 " + res.uuid);
+        bool isBankering = res.result;
+
+        MsgMng.Dispatch(MsgType.BankeringStatus, res.uuid, isBankering);
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("抢庄 " + res.uuid);
+            Globals.Instance.LogCallbackResponse("抢庄" + res.uuid);
+        });
+    }
+
+    /// <summary>
+    /// 服务端返回开始游戏
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="index"></param>
+    public static void StartGameNotice(byte[] data, int index)
+    {
+        StartGameNotice res = GetProtoInstance<StartGameNotice>(data, index);
+
+        MsgMng.Dispatch(MsgType.StartGameBtnEnabled);
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("通知开始游戏");
+            Globals.Instance.LogCallbackResponse("通知开始游戏");
+        });
+    }
+
+    public static void ReadyResultResponse(byte[] data, int index)
+    {
+        ReadyResultResponse res = GetProtoInstance<ReadyResultResponse>(data, index);
+
+        if (!res.is_seat)
+        {
+            Debug.Log("坐下失败");
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+            {
+                AlertUIContext context = new AlertUIContext();
+                context.Info = "您现在是旁观者，不能加入牌局";
+                Globals.SceneSingleton<ContextManager>().Push(context);
+            });
+        }
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+        {
+            Debug.Log("坐下请求的返回" + res.is_seat);
+        });
     }
 
     public static T GetProtoInstance<T>(byte[] data, int index)

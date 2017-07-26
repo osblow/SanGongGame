@@ -38,6 +38,8 @@ namespace Osblow.App
                 OKCallback.Invoke();
             }
             Pop();
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnCancelBtn()
@@ -48,6 +50,7 @@ namespace Osblow.App
             }
 
             Pop();
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
         #endregion
         private System.Action OKCallback;

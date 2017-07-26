@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Osblow.App;
 
 public class ShowMessage : MonoBehaviour 
 {
     private string m_emojResourcesPath = "Texture/";
     private Dictionary<int, string> m_textDic = new Dictionary<int, string>()
     {
-        {15, "快点吧，我等到花儿都谢了" },
-        {16, "我的网络有点差" },
-        {17, "别走，我们再战一局" },
-        {18, "哈哈，运气" },
-        {19, "要洗洗睡了" },
+        {15, "不要走，决战到天亮" },
+        {16, "一手牌烂到底" },
+        {17, "又断线了，郁闷" },
+        {18, "不要吵啦，认真玩游戏吧" },
+        {19, "大家好" },
     };
 
     public Text Txt;
@@ -34,6 +35,7 @@ public class ShowMessage : MonoBehaviour
             Emoj.gameObject.SetActive(false);
             Txtbg.SetActive(true);
             Txt.text = m_textDic[index];
+            Globals.SceneSingleton<SoundMng>().PlayFrontSound("Audio/fw/fw_female_" + (index - 15));
         }
 
         StartCoroutine(AutoHide());

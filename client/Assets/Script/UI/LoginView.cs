@@ -20,6 +20,8 @@ namespace Osblow.App
         {
             PlayerPrefs.SetString("username", UserInput.text);
             Login();
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
         #endregion
         void Login()

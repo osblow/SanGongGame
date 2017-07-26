@@ -30,18 +30,35 @@ namespace Osblow.App
             MsgMng.AddListener(MsgType.Registed, OnRegisted);
         }
 
+        public void Clear()
+        {
+
+            MsgMng.RemoveListener(MsgType.Connected, OnConnected);
+            MsgMng.RemoveListener(MsgType.Registed, OnRegisted);
+        }
+
         void OnConnected(Msg msg)
         {
-            CmdRequest.ClientRegisterRequest();
+            if (Globals.SceneSingleton<GameMng>().GameStart)
+            {
+                Debug.Log("掉线重连");
+                CmdRequest.ReconnectRequest();
+            }
+            else
+            {
+                CmdRequest.ClientRegisterRequest();
+            }
         }
+
+        private int iiii = 0;
 
         void OnRegisted(Msg msg)
         {
-            Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate
-            {
-                //Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
-            };
-
+            //Globals.SceneSingleton<AsyncInvokeMng>().EventsToAct += delegate
+            //{
+            //    //Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
+            //};
+            Debug.Log(iiii++);
             CmdRequest.EnterRoomRequest();
         }
 

@@ -25,10 +25,18 @@ namespace Osblow.App
         {
             Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
             Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
+
+            Globals.SceneSingleton<SoundMng>().StopBackSound();
+            Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
+
+            Globals.SceneSingleton<StateMng>().ChangeState(StateType.Lobby);
+
+            Globals.Instance.SaveLog();
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
         #endregion
-        
 
+        private List<GameObject> m_items = new List<GameObject>();
 
         public override void OnEnter(BaseContext context)
         {
@@ -43,12 +51,20 @@ namespace Osblow.App
 
                 newItem.transform.SetParent(GridRoot.transform, false);
                 newItem.SetActive(true);
+
+                m_items.Add(newItem);
             }
         }
 
         public override void OnExit(BaseContext context)
         {
             base.OnExit(context);
+            for (int i = 0; i < m_items.Count; i++)
+            {
+                Destroy(m_items[i]);
+            }
+
+            m_items.Clear();
         }
 
         public override void OnPause(BaseContext context)

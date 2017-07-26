@@ -45,5 +45,8 @@ namespace Osblow.App
         public static readonly UIType UserInfoDialog = new UIType("Prefab/UI/UserInfoDialog");
         
         public static readonly UIType AlertDialog = new UIType("Prefab/UI/AlertDialog");
+        public static readonly UIType HistoryDetail = new UIType("Prefab/UI/HistoryDetailedView");
+        public static readonly UIType ContactUsView = new UIType("Prefab/UI/ContactUsView");
+        public static readonly UIType RuleView = new UIType("Prefab/UI/RuleView");
     }
 }

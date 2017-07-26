@@ -27,7 +27,15 @@ namespace Osblow.App
         public List<BetPointData> BetPoints = null;
         public List<TablePlayerData> Players = null;
 
+        public uint RuleStep = 0;// 0：准备中   1：下注中  2： 抢庄中  3： 再次下注中 4：已发牌，载游戏中   5：一局已结束
+        public uint RuleOperation = 0; // 是否已操作
+        public uint BetPoint = 0;
+        public List<uint> Cards = null;
+        public uint CardFace = 0;
+        public uint DismissRemainTime = 0;
 
+        public bool IsReady = true; // 是否可以准备（为旁观者）
+        public bool IsGaming = false; // 当前牌桌状态是否为正在进行中
     }
 
     public class BetPointData: DataBase
@@ -46,6 +54,14 @@ namespace Osblow.App
         public string NickName = "";
         public string UserIp = "";
         public string EvaluateScore = "";
+
+        public bool IsSeated = false;
+        public bool IsBanker = false;
+        public uint RuleStep = 0;// 0：准备中   1：下注中  2： 抢庄中  3： 再次下注中 4：已发牌，载游戏中   5：一局已结束
+        public uint RuleOperation = 0; // 是否已操作
+        public uint BetPoint = 0;
+        public List<uint> Cards = null;
+        public uint CardFace = 0;
     }
 
     public class ResultEffectData : DataBase
@@ -62,5 +78,11 @@ namespace Osblow.App
         public string Name;
         public int Point;
         public uint WinCount;
+    }
+
+    public class CompareSingleUser
+    {
+        public string Uuid;
+        public int Point;
     }
 }

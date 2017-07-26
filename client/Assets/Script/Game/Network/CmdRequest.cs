@@ -21,6 +21,8 @@ namespace Osblow.Game
             request.uuid = playerdata.uuid;
 
             Serialize(Cmd.ClientRegisterRequest, request);
+
+            //Globals.Instance.LogCallbackRequest("注册");
         }
 
         /// <summary>
@@ -32,6 +34,8 @@ namespace Osblow.Game
 
             ClientHeartBeatRequest request = new com.sansanbbox.protobuf.ClientHeartBeatRequest();
             request.uuid = playerdata.uuid;
+
+            //Debug.Log("heart beat.... ");
 
             Serialize(Cmd.ClientHeartBeatRequest, request);
         }
@@ -49,6 +53,9 @@ namespace Osblow.Game
                 Globals.SceneSingleton<DataMng>().GetData<RoomData>(DataType.Room).RoomId;
 
             Serialize(Cmd.EnterRoomRequest, request);
+
+            //Debug.Log("请求进入房间");
+            //Globals.Instance.LogCallbackRequest("进入房间");
         }
 
         /// <summary>
@@ -62,6 +69,8 @@ namespace Osblow.Game
             request.uuid = playerdata.uuid;
 
             Serialize(Cmd.ExitRoomRequest, request);
+
+            Globals.Instance.LogCallbackRequest("退出房间");
         }
 
         /// <summary>
@@ -103,6 +112,10 @@ namespace Osblow.Game
             request.uuid = playerdata.uuid;
 
             Serialize(Cmd.ReadyRequest, request);
+
+            //Globals.Instance.LogCallbackRequest("准备");
+
+            //Debug.Log("准备");
         }
 
         /// <summary>
@@ -116,6 +129,8 @@ namespace Osblow.Game
             request.uuid = playerdata.uuid;
 
             Serialize(Cmd.ReconnectRequest, request);
+
+            Debug.Log("重连");
         }
 
         /// <summary>
@@ -130,10 +145,13 @@ namespace Osblow.Game
             request.uuid = playerdata.uuid;
             
             Serialize(Cmd.SynchroniseCardsRequest, request);
+
+            Debug.Log("亮牌");
+            Globals.Instance.LogCallbackRequest("亮牌");
         }
 
         /// <summary>
-        /// 亮牌请求
+        /// 表情请求
         /// </summary>
         /// <param name="expressionId"></param>
         public static void ClientExpressionRequest(uint expressionId)
@@ -168,6 +186,9 @@ namespace Osblow.Game
             request.bet_point = betPoint;
 
             Serialize(Cmd.ClientBetRequest, request);
+
+            Debug.Log("下注" + betPoint);
+            Globals.Instance.LogCallbackRequest("下注"+ betPoint);
         }
 
         /// <summary>
@@ -182,19 +203,24 @@ namespace Osblow.Game
             request.bet_point = betPoint;
 
             Serialize(Cmd.ClientBetAgainRequest, request);
+            Debug.Log("再次下注" + betPoint);
         }
 
         /// <summary>
         /// 抢庄
         /// </summary>
-        public static void ClientBankerRequest()
+        public static void ClientBankerRequest(bool isBankering)
         {
             UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
 
             ClientBankerRequest request = new com.sansanbbox.protobuf.ClientBankerRequest();
             request.uuid = playerdata.uuid;
+            request.banker = isBankering;
 
             Serialize(Cmd.ClientBankerRequest, request);
+
+            Globals.Instance.LogCallbackRequest("抢庄");
+
         }
 
         public static void StartGameRequest()
@@ -207,6 +233,24 @@ namespace Osblow.Game
             Debug.Log("请求开始游戏..");
 
             Serialize(Cmd.StartGameRequest, request);
+
+            Globals.Instance.LogCallbackRequest("请求开始游戏");
+        }
+
+        /// <summary>
+        /// 已出结算后，发送结束请求
+        /// </summary>
+        public static void GameOverRequest()
+        {
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            GameOverRequest request = new com.sansanbbox.protobuf.GameOverRequest();
+            request.uuid = playerdata.uuid;
+
+            Serialize(Cmd.GameOverRequest, request);
+
+            Debug.Log("请求结束游戏");
+            Globals.Instance.LogCallbackRequest("请求结束游戏");
         }
 
         static void Serialize(short cmd, ProtoBuf.IExtensible proto)

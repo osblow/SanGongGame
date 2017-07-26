@@ -8,6 +8,9 @@ namespace Osblow.App
 {
     public class HttpRequest
     {
+        private const string c_testUUID = "cf32ecbb64ba4daca59366d81b4ebaef";
+
+
         /// <summary>
         /// 登录请求
         /// </summary>
@@ -80,6 +83,169 @@ namespace Osblow.App
             form.AddField("maxPlayer", roomData.MaxPlayerCount);
 
             Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.CreateRoomWebResponse);
+        }
+
+        /// <summary>
+        /// 新闻请求
+        /// </summary>
+        public static void NewsRequest()
+        {
+            string url = Globals.Instance.Settings.WebUrlBase + "hallAction/newsResponse.do";
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            //test
+            url += "?uuid=" + playerdata.uuid;
+            /////////////////////
+
+            WWWForm form = new WWWForm();
+            form.AddField("uuid", playerdata.uuid);
+
+            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.NewsResponse);
+        }
+
+
+        /// <summary>
+        /// 邀请码展示请求
+        /// </summary>
+        public static void InviteCodeViewRequest()
+        {
+            string url = Globals.Instance.Settings.WebUrlBase + "hallAction/invitationRuleResponse.do";
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            //test
+            url += "?uuid=" + c_testUUID;// playerdata.uuid;
+            /////////////////////
+
+            WWWForm form = new WWWForm();
+            form.AddField("uuid", playerdata.uuid);
+
+            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.InviteCodeViewResponse);
+        }
+
+        /// <summary>
+        /// 绑定邀请码请求
+        /// </summary>
+        /// <param name="code"></param>
+        public static void BindInviteCodeRequest(string code)
+        {
+            string url = Globals.Instance.Settings.WebUrlBase + "hallAction/invitationResponse.do";
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            //test
+            url += "?uuid=" + playerdata.uuid;
+            url += "&invitationCode" + code;
+            /////////////////////
+
+            WWWForm form = new WWWForm();
+            form.AddField("uuid", playerdata.uuid);
+            form.AddField("invitationCode", code);
+
+            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.BindInviteCodeResponse);
+        }
+
+        /// <summary>
+        /// 战绩查询
+        /// </summary>
+        public static void GameRecordRequest()
+        {
+            string url = Globals.Instance.Settings.WebUrlBase + "hallAction/gameRecordResponse.do";
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            //test
+            url += "?uuid=" + c_testUUID;// playerdata.uuid;
+            /////////////////////
+
+            WWWForm form = new WWWForm();
+            form.AddField("uuid", playerdata.uuid);
+
+            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.GameRecordResponse);
+        }
+
+        /// <summary>
+        ///  单局查询请求
+        /// </summary>
+        /// <param name="roomId"></param>
+        public static void SmallGameRecordRequest(string roomId)
+        {
+            string url = Globals.Instance.Settings.WebUrlBase + "hallAction/gameRecordDetail.do";
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            //test
+            url += "?uuid=" + c_testUUID;// playerdata.uuid;
+            url += "&roomId=" + roomId;
+            /////////////////////
+
+            WWWForm form = new WWWForm();
+            form.AddField("uuid", playerdata.uuid);
+            form.AddField("roomId", roomId);
+
+            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.SmallGameRecordResponse);
+        }
+
+        /// <summary>
+        /// 客服信息查询请求
+        /// </summary>
+        public static void ContactUsRequest()
+        {
+            string url = Globals.Instance.Settings.WebUrlBase + "hallAction/customerResponse.do";
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            //test
+            url += "?uuid=" + playerdata.uuid;
+            /////////////////////
+
+            WWWForm form = new WWWForm();
+            form.AddField("uuid", playerdata.uuid);
+
+            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.ContactUsResponse);
+        }
+
+        /// <summary>
+        /// 充值记录查询 
+        /// </summary>
+        public static void RechargeRecordRequest()
+        {
+            string url = Globals.Instance.Settings.WebUrlBase + "hallAction/rechargeResponseList.do";
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            //test
+            url += "?uuid=" + "d569ede5fa314a949fa7c99ce78f7d5b";// playerdata.uuid;
+            /////////////////////
+
+            WWWForm form = new WWWForm();
+            form.AddField("uuid", playerdata.uuid);
+
+            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.RechargeRecordResponse);
+        }
+
+        public static void RuleRequest()
+        {
+            string url = Globals.Instance.Settings.WebUrlBase + "hallAction/gameRuleResponseList.do";
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            //test
+            url += "?uuid=" + playerdata.uuid;
+            /////////////////////
+
+            WWWForm form = new WWWForm();
+            form.AddField("uuid", playerdata.uuid);
+
+            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.RuleResponse);
+        }
+
+        public static void RoomListRequest()
+        {
+            string url = Globals.Instance.Settings.WebUrlBase + "hallAction/roomList.do";
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            //test
+            url += "?uuid=" + playerdata.uuid;
+            /////////////////////
+
+            WWWForm form = new WWWForm();
+            form.AddField("uuid", playerdata.uuid);
+
+            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.RoomListResponse);
         }
         #region 不一定用得到
         /*

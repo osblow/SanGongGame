@@ -10,6 +10,8 @@ public class GameMng : MonoBehaviour
     public Dictionary<string, TablePlayerData> UsersDic = new Dictionary<string, TablePlayerData>();
 
     public bool IsGaming = false;
+    public bool GameStart = false;
+
 
     private void Awake()
     {
@@ -24,6 +26,8 @@ public class GameMng : MonoBehaviour
 
         if (playerData.uuid == uuid || UsersDic.ContainsKey(uuid))
         {
+            Debug.Log("进来的用户已存在");
+
             return;
         }
 
@@ -36,5 +40,6 @@ public class GameMng : MonoBehaviour
     {
         Users.Clear();
         UsersDic.Clear();
+        //MsgMng.RemoveListener(MsgType.PlayerEnter, OnplayerEner);
     }
 }

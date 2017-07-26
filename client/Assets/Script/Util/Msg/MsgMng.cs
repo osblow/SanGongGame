@@ -45,6 +45,16 @@ namespace Osblow.Util
         GameEnd = 20, // 结束游戏
 
         UpdateClock = 21, // 开始计时器
+
+        StartGameBtnEnabled = 22, // 显示“开始游戏”按钮
+
+        BankeringStatus = 23, // 显示抢庄或不抢的状态
+
+        OnlineStatus = 24, // 玩家上线离线广播
+
+        ReConnected = 25, // 断线重连
+
+        RoomList = 26, // 大厅房间列表
     }
 
 
@@ -93,9 +103,24 @@ namespace Osblow.Util
             }
 
             Msg msg = new Msg();
-            msg.Params = args;
+            msg.Params = new object[args.Length];
+            Array.Copy(args, msg.Params, args.Length);
+            //msg.Params = args;
 
-            m_msgDic[type].Invoke(msg);
+            //m_msgDic[type].Invoke(msg);
+            Delegate[] invokeList = m_msgDic[type].GetInvocationList();
+            for (int i = invokeList.Length - 1; i >= 0; i--)
+            {
+                if(invokeList[i].Target == null)
+                {
+                    Debug.LogError("");
+                    m_msgDic[type] -= (Action<Msg>)invokeList[i];
+                    continue;
+                }
+
+                ((Action<Msg>)invokeList[i]).Invoke(msg);
+            }
+            
         }
 
         public void _removeListener(MsgType type, Action<Msg> listener)
@@ -106,6 +131,11 @@ namespace Osblow.Util
             }
 
             m_msgDic[type] -= listener;
+        }
+
+        public void _removeAll()
+        {
+            m_msgDic.Clear();
         }
 
 
@@ -126,7 +156,10 @@ namespace Osblow.Util
             Instance._removeListener(type, listener);
         }
 
-
+        public static void RemoveAll()
+        {
+            Instance._removeAll();
+        }
     }
 
 

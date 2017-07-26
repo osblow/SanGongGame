@@ -13,6 +13,7 @@ namespace Osblow.App
             Globals.SceneSingleton<UIManager>();
             Globals.SceneSingleton<ContextManager>();
             Globals.SceneSingleton<StateMng>();
+            Globals.SceneSingleton<SoundMng>();
 
             StartCoroutine(StartGame());
         }

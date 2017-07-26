@@ -298,6 +298,22 @@ namespace com.sansanbbox.protobuf
       get { return _player; }
     }
   
+    private bool _is_reday = default(bool);
+    [global::ProtoBuf.ProtoMember(18, IsRequired = false, Name=@"is_reday", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool is_reday
+    {
+      get { return _is_reday; }
+      set { _is_reday = value; }
+    }
+    private bool _is_game_ing = default(bool);
+    [global::ProtoBuf.ProtoMember(19, IsRequired = false, Name=@"is_game_ing", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool is_game_ing
+    {
+      get { return _is_game_ing; }
+      set { _is_game_ing = value; }
+    }
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Player")]
   public partial class Player : global::ProtoBuf.IExtensible
   {
@@ -1294,8 +1310,15 @@ namespace com.sansanbbox.protobuf
   {
     public ClientBankerRequest() {}
     
+    private bool _banker;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"banker", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public bool banker
+    {
+      get { return _banker; }
+      set { _banker = value; }
+    }
     private string _uuid;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"uuid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"uuid", DataFormat = global::ProtoBuf.DataFormat.Default)]
     public string uuid
     {
       get { return _uuid; }
@@ -1311,15 +1334,22 @@ namespace com.sansanbbox.protobuf
   {
     public ServerToBankerResponse() {}
     
+    private bool _result;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"result", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public bool result
+    {
+      get { return _result; }
+      set { _result = value; }
+    }
     private string _uuid;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"uuid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"uuid", DataFormat = global::ProtoBuf.DataFormat.Default)]
     public string uuid
     {
       get { return _uuid; }
       set { _uuid = value; }
     }
     private uint _banker_seat;
-    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"banker_seat", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"banker_seat", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     public uint banker_seat
     {
       get { return _banker_seat; }
@@ -1479,6 +1509,21 @@ namespace com.sansanbbox.protobuf
       get { return _expire_seconds; }
       set { _expire_seconds = value; }
     }
+    private readonly global::System.Collections.Generic.List<com.sansanbbox.protobuf.WinOrLoseResponse.PlayerTotalScore> _player_total_score = new global::System.Collections.Generic.List<com.sansanbbox.protobuf.WinOrLoseResponse.PlayerTotalScore>();
+    [global::ProtoBuf.ProtoMember(3, Name=@"player_total_score", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public global::System.Collections.Generic.List<com.sansanbbox.protobuf.WinOrLoseResponse.PlayerTotalScore> player_total_score
+    {
+      get { return _player_total_score; }
+    }
+  
+    private bool _is_reday = default(bool);
+    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"is_reday", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(default(bool))]
+    public bool is_reday
+    {
+      get { return _is_reday; }
+      set { _is_reday = value; }
+    }
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Result")]
   public partial class Result : global::ProtoBuf.IExtensible
   {
@@ -1501,6 +1546,40 @@ namespace com.sansanbbox.protobuf
     private uint _point;
     [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"point", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     public uint point
+    {
+      get { return _point; }
+      set { _point = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"PlayerTotalScore")]
+  public partial class PlayerTotalScore : global::ProtoBuf.IExtensible
+  {
+    public PlayerTotalScore() {}
+    
+    private string _uuid = "";
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"uuid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string uuid
+    {
+      get { return _uuid; }
+      set { _uuid = value; }
+    }
+    private uint _seat = default(uint);
+    [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"seat", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint seat
+    {
+      get { return _seat; }
+      set { _seat = value; }
+    }
+    private int _point = default(int);
+    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"point", DataFormat = global::ProtoBuf.DataFormat.ZigZag)]
+    [global::System.ComponentModel.DefaultValue(default(int))]
+    public int point
     {
       get { return _point; }
       set { _point = value; }
@@ -1614,6 +1693,14 @@ namespace com.sansanbbox.protobuf
       get { return _expire_seconds; }
       set { _expire_seconds = value; }
     }
+    private uint _game_index = default(uint);
+    [global::ProtoBuf.ProtoMember(3, IsRequired = false, Name=@"game_index", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint game_index
+    {
+      get { return _game_index; }
+      set { _game_index = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -1654,6 +1741,74 @@ namespace com.sansanbbox.protobuf
     {
       get { return _room_id; }
       set { _room_id = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"StartGameNotice")]
+  public partial class StartGameNotice : global::ProtoBuf.IExtensible
+  {
+    public StartGameNotice() {}
+    
+    private bool _isStart;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"isStart", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public bool isStart
+    {
+      get { return _isStart; }
+      set { _isStart = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"GameNoStartNotice")]
+  public partial class GameNoStartNotice : global::ProtoBuf.IExtensible
+  {
+    public GameNoStartNotice() {}
+    
+    private bool _is_no_Start;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"is_no_Start", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public bool is_no_Start
+    {
+      get { return _is_no_Start; }
+      set { _is_no_Start = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"ReadyResultResponse")]
+  public partial class ReadyResultResponse : global::ProtoBuf.IExtensible
+  {
+    public ReadyResultResponse() {}
+    
+    private bool _is_seat;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"is_seat", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public bool is_seat
+    {
+      get { return _is_seat; }
+      set { _is_seat = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"GameOverRequest")]
+  public partial class GameOverRequest : global::ProtoBuf.IExtensible
+  {
+    public GameOverRequest() {}
+    
+    private string _uuid;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"uuid", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public string uuid
+    {
+      get { return _uuid; }
+      set { _uuid = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)

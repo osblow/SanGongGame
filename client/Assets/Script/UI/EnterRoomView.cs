@@ -21,27 +21,42 @@ namespace Osblow.App
         public void OnExitBtn()
         {
             Globals.SceneSingleton<ContextManager>().Pop();
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnConfirmBtn()
         {
+            if (string.IsNullOrEmpty(m_roomId))
+            {
+                return;
+            }
+
             Globals.SceneSingleton<ContextManager>().WebBlockUI(true);
             HttpRequest.ExistRoomRequest(m_roomId);
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnClickNumber(int num)
         {
             SetNumber(num);
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnClickReset()
         {
             ResetNum();
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void OnDeleteOne()
         {
             DeleteOne();
+
+            Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
         #endregion
 
@@ -51,16 +66,21 @@ namespace Osblow.App
         string m_roomId = "";
         void SetNumber(int num)
         {
+            if(m_curNumIndex > c_maxNumCount)
+            {
+                return;
+            }
+
             ++m_curNumIndex;
-            if (m_curNumIndex > c_maxNumCount)
+            m_roomId += num.ToString();
+            Number.text += "  " + num.ToString();
+
+            if (m_curNumIndex >= c_maxNumCount)
             {
                 Globals.SceneSingleton<ContextManager>().WebBlockUI(true);
                 HttpRequest.ExistRoomRequest(m_roomId);
                 return;
             }
-
-            m_roomId += num.ToString();
-            Number.text += "  " + num.ToString();
         }
 
         void ResetNum()

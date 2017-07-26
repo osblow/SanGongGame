@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,7 +15,80 @@ namespace Osblow.App
         private void Awake()
         {
             s_instance = this;
+
+            //Application.logMessageReceived += LogCallback;
+
+            littlerbird.units.LogManager.openDebug(gameObject);
         }
+        
+        List<string> m_logLines = new List<string>();
+        void LogCallback(string logString, string stackTrace, LogType type)
+        {
+            if(type == LogType.Warning)
+            {
+                return;
+            }
+            
+            string newLog = System.DateTime.Now + "   " + logString;
+            m_logLines.Add(newLog);
+        }
+
+        public void LogCallbackResponse(string log)
+        {
+            string newLog = "response    " + System.DateTime.Now + "   " + log;
+            m_logLines.Add(newLog);
+        }
+
+        public void LogCallbackRequest(string log)
+        {
+            string newLog = "request:   " + System.DateTime.Now + "   " + log;
+            m_logLines.Add(newLog);
+        }
+
+        private const string c_fileName = "SangongLog.txt";
+        public void SaveLog()
+        {
+            string path = Application.persistentDataPath + "//" + c_fileName;
+
+            //文件流信息
+            StreamWriter sw;
+            FileInfo t = new FileInfo(path);
+            if (!t.Exists)
+            {
+                //如果此文件不存在则创建
+                sw = t.CreateText();
+            }
+            else
+            {
+                //如果此文件存在则打开
+                sw = t.AppendText();
+            }
+            //以行的形式写入信息
+            for (int i = 0; i < m_logLines.Count; i++)
+            {
+                sw.WriteLine(m_logLines[i]);
+            }
+
+            //关闭流
+            sw.Close();
+            //销毁流
+            sw.Dispose();
+            m_logLines.Clear();
+
+            AlertUIContext context = new AlertUIContext();
+            context.Info = "已保存日志文件到： " + path;
+            Globals.SceneSingleton<ContextManager>().Push(context);
+        }
+
+
+
+
+
+
+
+
+
+        public int ReconnectTime = 10;
 
 
         private static Dictionary<Type, MonoBehaviour> s_singletonDic 
@@ -41,7 +116,8 @@ namespace Osblow.App
                 return;
             }
 
-            //GameObject.Destroy(s_singletonDic[typeof(T)].gameObject);
+            GameObject.Destroy(s_singletonDic[typeof(T)].gameObject);
+            s_singletonDic[typeof(T)].StopAllCoroutines();
             s_singletonDic.Remove(typeof(T));
             
         }
@@ -66,8 +142,13 @@ namespace Osblow.App
 
     public class Settings
     {
-        public string WebUrlBase = "http://bbox.sansanbbox.com:6080/";//"http://183.61.146.92:81/sangong/";//"http://bbox.sansanbbox.com:6080/";
-        public string SocketUrl = "112.74.89.125";//"183.61.146.92";
+        //sangong.sansanbbox.com
+        //public string WebUrlBase = "http://bbox.sansanbbox.com:6080/";
+        //public string SocketUrl = "112.74.89.125";
+
+        public string WebUrlBase = "http://sangong.sansanbbox.com/sangong/";
+        public string SocketUrl = "120.77.245.34";
+
         public int SocketPort = 9876;
     }
 }
