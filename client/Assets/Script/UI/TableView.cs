@@ -276,11 +276,21 @@ namespace Osblow.App
         {
 			// set cards values
 			UserData playerData = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+            
+            for (int i = 0; i < CuoPaiController.transform.childCount; i++)
+            {
+			    if(i >= playerData.cards.Count)
+                {
+                    CuoPaiController.transform.GetChild(i).gameObject.SetActive(false);
 
-			for (int i = 0; i < CuoPaiController.transform.childCount; i++) {
-			
-				SingleCard card = CuoPaiController.transform.GetChild (i).GetComponent<SingleCard>();
-				card.SetNum (playerData.cards [i]);
+                    CuoPaiController.transform.GetChild(0).GetComponent<CuoPai>().AnimTarget =
+                        CuoPaiController.transform.GetChild(2).GetComponent<CuoPai>().AnimTarget;
+                    continue;
+                }
+
+                CuoPaiController.transform.GetChild(i).gameObject.SetActive(true);
+                SingleCard card = CuoPaiController.transform.GetChild (i).GetComponent<SingleCard>();
+				card.SetNum (playerData.cards [playerData.cards.Count - 1 - i]);
 			}
 
             CuoPaiController.SetActive(true);
@@ -410,6 +420,11 @@ namespace Osblow.App
             {
                 return;
             }
+
+
+            Debug.Log(gameObject.name);
+
+
             m_isInitialized = true;
             Globals.SceneSingleton<GameMng>().GameStart = true;
 
@@ -561,7 +576,7 @@ namespace Osblow.App
         public override void OnExit(BaseContext context)
         {
             base.OnExit(context);
-            Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
+            //Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
 
             //MsgMng.RemoveListener(MsgType.OtherPlayerEnter, OnOtherPlayerEnter);
             MsgMng.RemoveListener(MsgType.UI_AddPlayer, OnOtherPlayerEnter);
@@ -676,7 +691,11 @@ namespace Osblow.App
                 ShowCardBtn.SetActive(false);
                 Waiting.SetActive(false);
 
-                m_usersPanelList.ForEach((x) => { x.ShowCards(false); });
+                m_usersPanelList.ForEach((x) =>
+                {
+                    x.ShowCards(false);
+                    x.LastWinScore.gameObject.SetActive(false);
+                });
 
                 TableData tableData = Globals.SceneSingleton<DataMng>().GetData<TableData>(DataType.Table);
                 //tableData.CurRound++;
@@ -735,15 +754,19 @@ namespace Osblow.App
             Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
                 TableData tableData = Globals.SceneSingleton<DataMng>().GetData<TableData>(DataType.Table);
-                int mode = tableData.ruleType == 1 ? 2 : 1;
+                int mode = (int)tableData.ruleType;
 
                 for (int i = 0; i < m_usersPanelList.Count; i++)
                 {
                     if (m_usersPanelList[i].Data != null || i == 0)
                     {
-                        if (mode == 1)
+                        if (mode == 0)
                         {
                             m_usersPanelList[i].ShowCards(new uint[] { 54, 54, 54 });
+                        }
+                        else if(mode == 3)
+                        {
+                            m_usersPanelList[i].ShowCards(new uint[] { 54, 54, 200 });
                         }
                         else
                         {
@@ -956,6 +979,8 @@ namespace Osblow.App
 
                 foreach(KeyValuePair<string, CompareSingleUser> kval in userResults)
                 {
+                    m_usersPanelDic[kval.Key].LastWinScore.gameObject.SetActive(true);
+                    m_usersPanelDic[kval.Key].LastWinScore.text = (kval.Value.Point - int.Parse(m_usersPanelDic[kval.Key].ScoreTxt.text)).ToString();
                     m_usersPanelDic[kval.Key].ScoreTxt.text = kval.Value.Point.ToString();
                     m_usersPanelDic[kval.Key].SetBet(0);
                 }
@@ -1220,6 +1245,9 @@ namespace Osblow.App
 
             private GameObject m_voiceImg;
 
+            public Text LastWinScore { get { return m_lastWinScore; } }
+            private Text m_lastWinScore;
+
 
             public UserPanel(GameObject objRoot)
             {
@@ -1253,6 +1281,7 @@ namespace Osblow.App
 
                 m_offLineImg = objRoot.transform.Find("offline").GetComponent<Image>();
 
+                m_lastWinScore = objRoot.transform.Find("lastWinScore").GetComponent<Text>();
                 Reset();
             }
 
@@ -1278,6 +1307,8 @@ namespace Osblow.App
                 m_cuoPaiZhong.SetActive(false);
 
                 m_offLineImg.gameObject.SetActive(false);
+
+                m_lastWinScore.gameObject.SetActive(false);
 
                 for (int i = 0; i < m_cards.Length; i++)
                 {
@@ -1434,64 +1465,60 @@ namespace Osblow.App
             /// <param name="mode">1 发三张牌，2发一张牌</param>
             public void DealAnimation(int mode)
             {
+                Vector3 originPos = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+
                 GameObject card1 = m_cards[0].gameObject;
                 GameObject card2 = m_cards[1].gameObject;
 
-				card1.SetActive (true);
-				card2.SetActive (true);
+                card1.SetActive(true);
+                card2.SetActive(true);
 
-                Vector3 originPos = new Vector3(Screen.width / 2, Screen.height / 2, 0);
-                Vector3 targetPos1 = card1.transform.position;
-                Vector3 targetPos2 = card2.transform.position;
-
-                card1.transform.position = originPos;
-                card2.transform.position = originPos;
-                card1.transform.DOMove(targetPos1, 0.7f);
-
-
-                if (mode == 1)
+                if (mode != 1 && mode != 2)
                 {
+                    Vector3 targetPos1 = card1.transform.position;
+                    Vector3 targetPos2 = card2.transform.position;
+
+                    card1.transform.position = originPos;
+                    card2.transform.position = originPos;
+                    card1.transform.DOMove(targetPos1, 0.7f);
                     card2.transform.DOMove(targetPos2, 0.7f).SetDelay(0.2f);
+
                 }
-                else
+
+
+
+
+
+
+
+
+                if (mode != 3)
                 {
-                    card2.transform.DOMove(targetPos2, 0.7f).SetDelay(0.2f).OnComplete(delegate() 
+                    GameObject card3 = m_cards[2].gameObject;
+
+                    card3.SetActive(true);
+
+                    Vector3 targetPos3 = card3.transform.position;
+
+                    card3.transform.position = originPos;
+                    card3.transform.DOMove(targetPos3, 0.7f).SetDelay(0.4f).OnComplete(() =>
                     {
                         m_cuoPaiZhong.SetActive(true);
                     });
-                    return;
                 }
-
-
-
-
-
-
-
-
-
-
-
-                GameObject card3 = m_cards[2].gameObject;
-
-                card3.SetActive(true);
-
-                originPos = new Vector3(Screen.width / 2, Screen.height / 2, 0);
-                Vector3 targetPos3 = card3.transform.position;
-                
-                card3.transform.position = originPos;
-                card3.transform.DOMove(targetPos3, 0.7f).SetDelay(0.4f).OnComplete(() =>
-                {
-                    m_cuoPaiZhong.SetActive(true);
-                });
             }
 
             public void ShowCards(uint[] cards)
             {
                 for(int i = 0; i < cards.Length; i++)
                 {
-                    if(cards[i] > 54)
+                    if(cards[i] == 100)
                     {
+                        continue;
+                    }
+                    else if(cards[i] == 200)
+                    {
+                        m_cards[i].gameObject.SetActive(false);
                         continue;
                     }
 
@@ -1538,6 +1565,8 @@ namespace Osblow.App
                 //int toPoint = int.Parse(m_score.text) + (int)point;
 
                 Debug.Log("积分动画:" + from.m_name.text + " " + m_name.text);
+
+                Globals.SceneSingleton<SoundMng>().PlayFrontSound("Audio/gold");
 
                 List<GameObject> scoreEffects = new List<GameObject>();
                 for (int i = 0; i < 20; i++)

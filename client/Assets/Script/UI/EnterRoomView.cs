@@ -113,6 +113,7 @@ namespace Osblow.App
         public override void OnExit(BaseContext context)
         {
             base.OnExit(context);
+            ResetNum();
         }
 
         public override void OnPause(BaseContext context)

@@ -173,7 +173,11 @@ namespace Osblow.App
                 backSound.loop = false;
             }
             backSound.Stop();
+#if UNITY_IOS
+            backSound.volume = BackSoundVolume * 2f;
+#else
             backSound.volume = BackSoundVolume * 0.4f;
+#endif
             backSound.pitch = 1.0f;
             backSound.clip = ac;
             backSound.Play();

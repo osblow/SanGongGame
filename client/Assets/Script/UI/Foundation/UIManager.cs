@@ -65,6 +65,7 @@ namespace Osblow.App
             }
             _UIDict[uiType].name = "hello";
 
+            _UIDict[uiType].GetComponent<BaseView>().OnExit(null);
             GameObject.DestroyImmediate(_UIDict[uiType]);
             _UIDict.Remove(uiType);
         }

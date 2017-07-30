@@ -183,7 +183,7 @@ namespace Osblow.Game
                 if (!Globals.SceneSingleton<GameMng>().IsGaming)
                 {
                     m_client.ForceClose();
-                    Destroy(gameObject);
+                    //Destroy(gameObject);
                     yield break;
                 }
 
@@ -202,7 +202,7 @@ namespace Osblow.Game
 
                         Globals.Instance.SaveLog();
 
-                        Destroy(gameObject);
+                        //Destroy(gameObject);
                         yield break;
                     }
 
