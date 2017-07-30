@@ -67,6 +67,9 @@ public class CmdHandler
         {
             Debug.Log("进入房间失败");
             Globals.Instance.LogCallbackResponse("进入房间失败");
+
+            
+
             return;
         }
 
@@ -74,6 +77,7 @@ public class CmdHandler
         tableData.RoomId = res.room_id;
         tableData.OwnerUUId = res.owner_uuid;
         tableData.ruleName = res.rule_name;
+        tableData.ruleType = res.rule_type;
         tableData.CurRound = res.current_round;
         tableData.TotalRound = res.all_round;
         tableData.IsSeated = res.is_seat;
@@ -85,6 +89,7 @@ public class CmdHandler
         tableData.EvaluateScore = res.evaluate_score;
         tableData.CanDismiss = res.is_dismiss;
         tableData.PayRule = res.room_rules;
+        
 
         tableData.BetPoints = new List<BetPointData>();
         res.betPoints.ForEach((x) => 
@@ -118,6 +123,7 @@ public class CmdHandler
         Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
         {
             Globals.SceneSingleton<ContextManager>().Pop();
+            Globals.SceneSingleton<Osblow.Game.ChatSocketNetworkMng>();
             //Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
         });
 
@@ -492,7 +498,7 @@ public class CmdHandler
     /// <param name="data"></param>
     public static void AudioStreamBroadcast(byte[] data, int index)
     {
-        index += 2;
+        index += 4;
 
         // uuid
         short uuidLength = BitConverter.ToInt16(data, index);
@@ -503,14 +509,15 @@ public class CmdHandler
         // seat
         short seatLength = BitConverter.ToInt16(data, index);
         index += 2;
-        byte seat = data[index];
-        index += 1;
+        short seat = BitConverter.ToInt16(data, index);
+        index += 2;
 
         // voice
-        ushort audioLength = BitConverter.ToUInt16(data, index);
-        index += 2;
+        int audioLength = BitConverter.ToInt32(data, index);
+        index += 4;
         byte[] audioData = new byte[audioLength];
         Array.Copy(data, index, audioData, 0, audioLength);
+
         byte[] decompressedData = CompressUtil.Decompress(audioData);
 
         Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate () 
@@ -936,6 +943,26 @@ public class CmdHandler
         T t = default(T);
         ushort length = BitConverter.ToUInt16(data, index);
         index += 2;
+
+        using (MemoryStream ms = new MemoryStream())
+        {
+            //将消息写入流中
+            ms.Write(data, index, length);
+            //将流的位置归0
+            ms.Position = 0;
+            //使用工具反序列化对象
+            com.sangong.ProtobufSerializer serializer = new com.sangong.ProtobufSerializer();
+            t = (T)serializer.Deserialize(ms, null, typeof(T));
+        }
+
+        return t;
+    }
+
+    public static T GetProtoInstanceChat<T>(byte[] data, int index)
+    {
+        T t = default(T);
+        int length = BitConverter.ToInt32(data, index);
+        index += 4;
 
         using (MemoryStream ms = new MemoryStream())
         {

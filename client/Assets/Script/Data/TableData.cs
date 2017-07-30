@@ -13,6 +13,7 @@ namespace Osblow.App
         public uint RoomId = 0;
         public string OwnerUUId = "";
         public string ruleName = "";
+        public uint ruleType = 0;
         public uint CurRound = 0;
         public uint TotalRound = 0;
         public bool IsSeated = false;

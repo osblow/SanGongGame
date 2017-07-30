@@ -233,6 +233,7 @@ namespace Osblow.App
 
             m_voicePanel.Show(true);
             Globals.SceneSingleton<MicrophoneMng>().StartRecord(OnEndRecordingVoice);
+            Globals.SceneSingleton<SoundMng>().PauseBgSound();
         }
 
         public void OnEndVoice()
@@ -241,6 +242,7 @@ namespace Osblow.App
             m_voicePanel.Show(false);
 
             Globals.SceneSingleton<MicrophoneMng>().StopRecord(OnEndRecordingVoice);
+            Globals.SceneSingleton<SoundMng>().UnPauseBgSound();
         }
 
         public void OnFingerOutOfVoice()
@@ -249,6 +251,7 @@ namespace Osblow.App
             {
                 m_isRecordingVoice = false;
                 m_voicePanel.Show(false);
+                Globals.SceneSingleton<SoundMng>().UnPauseBgSound();
             }
         }
         #endregion
@@ -314,7 +317,9 @@ namespace Osblow.App
         /// </summary>
         public void Deal()
         {
-            m_usersPanelList.ForEach((x) => { x.DealAnimation(); });
+            RoomData roomData = Globals.SceneSingleton<DataMng>().GetData<RoomData>(DataType.Room);
+            int mode = roomData.RoomRuleType == 1 ? 2 : 1;
+            m_usersPanelList.ForEach((x) => { x.DealAnimation(mode); });
             //UserPanels.ForEach((x) => { DealAnimation(x); });
             //DealAnimation(UserPanels[0]);
         }
@@ -480,7 +485,7 @@ namespace Osblow.App
                 int j = i - mySeat;
                 j = j < 0 ? j + tableData.Players.Count : j;
                 TablePlayerData theData = tableData.Players[i];
-
+                ++m_curPlayerCount;
                 m_usersPanelList[j].Show(true);
                 m_usersPanelList[j].Reset(tableData.Players[i]);
 				m_usersPanelDic.Add (tableData.Players [i].PlayerUUID, m_usersPanelList [j]);
@@ -729,12 +734,22 @@ namespace Osblow.App
         {
             Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
+                TableData tableData = Globals.SceneSingleton<DataMng>().GetData<TableData>(DataType.Table);
+                int mode = tableData.ruleType == 1 ? 2 : 1;
+
                 for (int i = 0; i < m_usersPanelList.Count; i++)
                 {
                     if (m_usersPanelList[i].Data != null || i == 0)
                     {
-                        m_usersPanelList[i].ShowCards(new uint[] { 54, 54, 54 });
-                        m_usersPanelList[i].DealAnimation();
+                        if (mode == 1)
+                        {
+                            m_usersPanelList[i].ShowCards(new uint[] { 54, 54, 54 });
+                        }
+                        else
+                        {
+                            m_usersPanelList[i].ShowCards(new uint[] { 100, 100, 54 });
+                        }
+                        m_usersPanelList[i].DealAnimation(mode);
                     }
                 }
 
@@ -1413,38 +1428,73 @@ namespace Osblow.App
                 m_offLineImg.gameObject.SetActive(!isOnline);
             }
 
-            public void DealAnimation()
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="mode">1 发三张牌，2发一张牌</param>
+            public void DealAnimation(int mode)
             {
                 GameObject card1 = m_cards[0].gameObject;
                 GameObject card2 = m_cards[1].gameObject;
-                GameObject card3 = m_cards[2].gameObject;
 
 				card1.SetActive (true);
 				card2.SetActive (true);
-				card3.SetActive (true);
 
                 Vector3 originPos = new Vector3(Screen.width / 2, Screen.height / 2, 0);
                 Vector3 targetPos1 = card1.transform.position;
                 Vector3 targetPos2 = card2.transform.position;
-                Vector3 targetPos3 = card3.transform.position;
 
                 card1.transform.position = originPos;
                 card2.transform.position = originPos;
-                card3.transform.position = originPos;
                 card1.transform.DOMove(targetPos1, 0.7f);
-                card2.transform.DOMove(targetPos2, 0.7f).SetDelay(0.2f);
-                card3.transform.DOMove(targetPos3, 0.7f).SetDelay(0.4f).OnComplete(()=> 
+
+
+                if (mode == 1)
+                {
+                    card2.transform.DOMove(targetPos2, 0.7f).SetDelay(0.2f);
+                }
+                else
+                {
+                    card2.transform.DOMove(targetPos2, 0.7f).SetDelay(0.2f).OnComplete(delegate() 
+                    {
+                        m_cuoPaiZhong.SetActive(true);
+                    });
+                    return;
+                }
+
+
+
+
+
+
+
+
+
+
+
+                GameObject card3 = m_cards[2].gameObject;
+
+                card3.SetActive(true);
+
+                originPos = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+                Vector3 targetPos3 = card3.transform.position;
+                
+                card3.transform.position = originPos;
+                card3.transform.DOMove(targetPos3, 0.7f).SetDelay(0.4f).OnComplete(() =>
                 {
                     m_cuoPaiZhong.SetActive(true);
                 });
-
-
             }
 
             public void ShowCards(uint[] cards)
             {
                 for(int i = 0; i < cards.Length; i++)
                 {
+                    if(cards[i] > 54)
+                    {
+                        continue;
+                    }
+
                     m_cards[i].SetNum(cards[i]);
                     m_cards[i].gameObject.SetActive(true);
                 }

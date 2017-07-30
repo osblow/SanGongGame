@@ -233,7 +233,7 @@ namespace Osblow.App
             fs.bEnable = true;
         }
 
-        public void PlayFrontSound(byte[] data, string uuid, bool Isloop = false, float volume = 10.0f, float pitch = 1.0f)
+        public void PlayFrontSound(byte[] data, string uuid, bool Isloop = false, float volume = 30.0f, float pitch = 1.0f)
         {
             Debug.Log("语音消息");
 
@@ -276,6 +276,22 @@ namespace Osblow.App
             fs.bEnable = true;
 
             MsgMng.Dispatch(MsgType.ShowVoiceImg, uuid, ac.length);
+        }
+
+        public void PauseBgSound()
+        {
+            if(backSound != null)
+            {
+                backSound.Pause();
+            }
+        }
+
+        public void UnPauseBgSound()
+        {
+            if(backSound != null)
+            {
+                backSound.UnPause();
+            }
         }
 
         public void CloseSound(string SoundName)

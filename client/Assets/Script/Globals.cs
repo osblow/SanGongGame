@@ -150,6 +150,10 @@ namespace Osblow.App
         public string SocketUrl = "120.77.245.34";
 
         public int SocketPort = 9876;
+
+
+
+        public int ChatSocketPort = 9877;
     }
 }
 

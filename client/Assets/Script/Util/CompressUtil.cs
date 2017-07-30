@@ -31,7 +31,7 @@ public class CompressUtil
 
     public static short[] PreCompressAudio(float[] audioData)
     {
-        float multiplier = 1000000;
+        float multiplier = short.MaxValue;
         short[] result = new short[audioData.Length];
         for (int i = 0; i < audioData.Length; i++)
         {
@@ -43,7 +43,7 @@ public class CompressUtil
 
     public static float[] PreDecompressAudio(short[] audioData)
     {
-        float multiplier = 1000000;
+        float multiplier = short.MaxValue;
         float[] result = new float[audioData.Length];
         for (int i = 0; i < audioData.Length; i++)
         {

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class MicrophoneMng : MonoBehaviour
 {
-    public const int RECORD_RATE = 8000;
+    public const int RECORD_RATE = 16000;
 
 
     //private static string[] micArray = null; //录音设备列表

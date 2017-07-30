@@ -113,9 +113,9 @@ namespace Osblow.Game
 
             Serialize(Cmd.ReadyRequest, request);
 
-            //Globals.Instance.LogCallbackRequest("准备");
+            Globals.Instance.LogCallbackRequest("准备");
 
-            //Debug.Log("准备");
+            Debug.Log("准备");
         }
 
         /// <summary>
@@ -179,15 +179,16 @@ namespace Osblow.Game
             dataToSend.AddRange(BitConverter.GetBytes(uuidLength));
             dataToSend.AddRange(uuidData);
             // seat
-            short seatLength = 1;
+            short seatLength = 2;
             dataToSend.AddRange(BitConverter.GetBytes(seatLength));
-            dataToSend.Add(0);
+            short seat = 0;
+            dataToSend.AddRange(BitConverter.GetBytes(seat));
             // voice
-            ushort audioLength = (ushort)audioData.Length;
+            int audioLength = audioData.Length;
             dataToSend.AddRange(BitConverter.GetBytes(audioLength));
             dataToSend.AddRange(audioData);
 
-            Serialize(Cmd.AudioStreamUpload, dataToSend.ToArray());
+            SerializeChat(Cmd.AudioStreamUpload, dataToSend.ToArray());
             Debug.Log("发送语音消息" + " " + uuidLength + " " + seatLength + " " + audioLength);
         }
 
@@ -283,6 +284,36 @@ namespace Osblow.Game
             Globals.Instance.LogCallbackRequest("请求结束游戏");
         }
 
+        public static void RegistVoiceServer()
+        {
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+            ClientRegisterRequest request = new com.sansanbbox.protobuf.ClientRegisterRequest();
+            request.uuid = playerdata.uuid;
+
+            byte[] result;
+            //涉及格式转换，需要用到流，将二进制序列化到流中
+            using (MemoryStream ms = new MemoryStream())
+            {
+                //使用ProtoBuf工具的序列化方法
+                com.sangong.ProtobufSerializer serializer = new com.sangong.ProtobufSerializer();
+                serializer.Serialize(ms, request);
+                //定义二级制数组，保存序列化后的结果
+                result = new byte[ms.Length];
+                //将流的位置设为0，起始点
+                ms.Position = 0;
+                //将流中的内容读取到二进制数组中
+                ms.Read(result, 0, result.Length);
+            }
+
+            SerializeChat(Cmd.ClientRegisterRequest, result);
+            Debug.Log("注册语音服务");
+        }
+
+
+
+
+
         static void Serialize(short cmd, ProtoBuf.IExtensible proto)
         {
             byte[] result;
@@ -319,6 +350,31 @@ namespace Osblow.Game
             data.Add(tail);
 
             Osblow.App.Globals.SceneSingleton<SocketNetworkMng>().Send(data.ToArray());
+        }
+
+        static void SerializeChat(short cmd, byte[] sendData)
+        {
+            List<byte> data = new List<byte>();
+
+            byte head = 0x64;
+            int length = sendData.Length;
+            byte tail = 0x64;
+
+            data.Add(head);
+            data.AddRange(BitConverter.GetBytes(cmd));
+            data.AddRange(BitConverter.GetBytes(length));
+            data.AddRange(sendData);
+            data.Add(tail);
+
+
+            //System.Text.StringBuilder builder = new System.Text.StringBuilder();
+            //for (int i = 0; i < data.Count; i++)
+            //{
+            //    builder.Append(data[i]).Append(" ");
+            //}
+            //Debug.Log(builder.ToString());
+
+            Osblow.App.Globals.SceneSingleton<ChatSocketNetworkMng>().Send(data.ToArray());
         }
     }
 }

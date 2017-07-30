@@ -11,55 +11,24 @@ using Osblow.Util;
 
 namespace Osblow.Game
 {
-    public class SocketNetworkMng : MonoBehaviour
+    public class ChatSocketNetworkMng : MonoBehaviour
     {
         private Dictionary<short, Action<byte[], int>> m_hadlerDic = new Dictionary<short, Action<byte[], int>>();
 
         
-        private MyClient m_client;
+        private MyChatClient m_client;
 
         private void Awake()
         {
-            m_client = new MyClient(Globals.Instance.Settings.SocketUrl, 
-                Globals.Instance.Settings.SocketPort);
+            m_client = new MyChatClient(Globals.Instance.Settings.SocketUrl,
+                Globals.Instance.Settings.ChatSocketPort);
 
             StartCoroutine(AutoReconnect());
 
 
-
-            m_hadlerDic.Add(Cmd.ServerRegisterResponse, CmdHandler.ServerRegisterResponse);
-            m_hadlerDic.Add(Cmd.ServerHeartbeatResponse, CmdHandler.ServerHeartbeatResponse);
-            m_hadlerDic.Add(Cmd.EnterRoomResponse, CmdHandler.EnterRoomResponse);
-            m_hadlerDic.Add(Cmd.EnterRoomOtherResponse, CmdHandler.EnterRoomOtherResponse);
-            m_hadlerDic.Add(Cmd.ExitRoomToOtherResponse, CmdHandler.ExitRoomToOtherResponse);
-            m_hadlerDic.Add(Cmd.ExitRoomResultResponse, CmdHandler.ExitRoomResultResponse);
-            m_hadlerDic.Add(Cmd.DismissRoomToOtherResponse, CmdHandler.DismissRoomToOtherResponse);
-            m_hadlerDic.Add(Cmd.PlayerVoteDismissRoomResponse, CmdHandler.PlayerVoteDismissRoomResponse);
-            m_hadlerDic.Add(Cmd.DismissRoomResultResponse, CmdHandler.DismissRoomResultResponse);
-            m_hadlerDic.Add(Cmd.ReadyResponse, CmdHandler.ReadyResponse);
-            m_hadlerDic.Add(Cmd.ReconnectResponse, CmdHandler.ReconnectResponse);
-            m_hadlerDic.Add(Cmd.OnlineStatusResponse, CmdHandler.OnlineStatusResponse);
-            m_hadlerDic.Add(Cmd.SynchroniseExpressionResponse, CmdHandler.SynchroniseExpressionResponse);
-            //m_hadlerDic.Add(Cmd.AudioStreamBroadcast, CmdHandler.AudioStreamBroadcast);
-            m_hadlerDic.Add(Cmd.ServerBetResponse, CmdHandler.ServerBetResponse);
-            m_hadlerDic.Add(Cmd.ServerBankerNotice1Response, CmdHandler.ServerBankerNotice1Response);
-            m_hadlerDic.Add(Cmd.ServerBankerNotice2Response, CmdHandler.ServerBankerNotice2Response);
-            m_hadlerDic.Add(Cmd.ServerBetAgainResponse, CmdHandler.ServerBetAgainResponse);
-            m_hadlerDic.Add(Cmd.ServerBankerResponse, CmdHandler.ServerBankerResponse);
-            m_hadlerDic.Add(Cmd.ServerCardsResponse, CmdHandler.ServerCardsResponse);
-            m_hadlerDic.Add(Cmd.SynchroniseCardsResponse, CmdHandler.SynchroniseCardsResponse);
-            m_hadlerDic.Add(Cmd.WinOrLoseResponse, CmdHandler.WinOrLoseResponse);
-            m_hadlerDic.Add(Cmd.UserAllResult, CmdHandler.UserAllResult);
-            /*
-             * public static short StartGameResponse = 0x1037;
-        public static short ServerBetOverResponse = 0x1038;
-        public static short ServerToBankerResponse = 0x1039;
-             */
-            m_hadlerDic.Add(Cmd.StartGameResponse, CmdHandler.StartGameResponse);
-            m_hadlerDic.Add(Cmd.ServerBetOverResponse, CmdHandler.ServerBetOverResponse);
-            m_hadlerDic.Add(Cmd.ServerToBankerResponse, CmdHandler.ServerToBankerResponse);
-            m_hadlerDic.Add(Cmd.StartGameNotice, CmdHandler.StartGameNotice);
-            m_hadlerDic.Add(Cmd.ReadyResultResponse, CmdHandler.ReadyResultResponse);
+            
+            m_hadlerDic.Add(Cmd.AudioStreamBroadcast, CmdHandler.AudioStreamBroadcast);
+            
         }
 
 
@@ -76,10 +45,10 @@ namespace Osblow.Game
             }
 
 
-            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
-            {
-                Globals.SceneSingleton<ContextManager>().WebBlockUI(false);
-            });
+            //Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+            //{
+            //    Globals.SceneSingleton<ContextManager>().WebBlockUI(false);
+            //});
 
             int foo = 0;
 
@@ -93,7 +62,7 @@ namespace Osblow.Game
                     return;
                 }
                 index += 1;
-                ushort dataLen = BitConverter.ToUInt16(data, index + 2);
+                int dataLen = BitConverter.ToInt32(data, index + 2);
 
                 if (foo >= 1)
                 {
@@ -105,7 +74,7 @@ namespace Osblow.Game
                 //    Debug.LogFormat("socket: {0},,,,{1},,,{2}", data.Length, index + 4 + dataLen + 1, dataLen);
                 //};
 
-                if(index + 4 + dataLen + 1 > data.Length)
+                if(index + 6 + dataLen + 1 > data.Length)
                 {
                     break;
                 }
@@ -116,7 +85,7 @@ namespace Osblow.Game
                 index += 2;
                 Execute(cmd, data, index);
 
-                index += (2 + dataLen + 1);
+                index += (4 + dataLen + 1);
                 if(index >= data.Length)
                 {
                     break;
@@ -190,35 +159,35 @@ namespace Osblow.Game
                 if (!m_client.Connected)
                 {
                     // 如果10次重连没有连接上，则退出到登录界面，将所有状态清空
-                    if(Globals.Instance.ReconnectTime < 0)
-                    {
-                        Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
-                        Globals.SceneSingleton<ContextManager>().Push(new LoginUIContext());
+                    //if(Globals.Instance.ReconnectTime < 0)
+                    //{
+                    //    Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
+                    //    Globals.SceneSingleton<ContextManager>().Push(new LoginUIContext());
 
-                        Globals.SceneSingleton<DataMng>().ClearAll();
-                        Globals.SceneSingleton<GameMng>().ClearAll();
-                        Globals.SceneSingleton<SoundMng>().StopBackSound();
-                        Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
+                    //    Globals.SceneSingleton<DataMng>().ClearAll();
+                    //    Globals.SceneSingleton<GameMng>().ClearAll();
+                    //    Globals.SceneSingleton<SoundMng>().StopBackSound();
+                    //    Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
 
-                        Globals.Instance.SaveLog();
+                    //    Globals.Instance.SaveLog();
 
-                        Destroy(gameObject);
-                        yield break;
-                    }
+                    //    Destroy(gameObject);
+                    //    yield break;
+                    //}
 
 
-                    Debug.Log("正在重新连接....");
-                    Globals.SceneSingleton<ContextManager>().WebBlockUI(true, "正在重新连接...");
+                    Debug.Log("正在重新连接语音服务器....");
+                    Globals.SceneSingleton<ContextManager>().WebBlockUI(true, "正在连接语音服务器...");
                     m_client.ForceClose();
-                    m_client = new MyClient(Globals.Instance.Settings.SocketUrl,
-                Globals.Instance.Settings.SocketPort);
+                    m_client = new MyChatClient(Globals.Instance.Settings.SocketUrl,
+                Globals.Instance.Settings.ChatSocketPort);
 
-                    --Globals.Instance.ReconnectTime;
+                    //--Globals.Instance.ReconnectTime;
                 }
                 else
                 {
                     //Debug.Log(Time.time);
-                    CmdRequest.ClientHeartBeatRequest();
+                    //CmdRequest.ClientHeartBeatRequest();
                 }
             }
         }
@@ -227,23 +196,31 @@ namespace Osblow.Game
 
 
 
-    class MyClient
+    class MyChatClient
     {
         public bool Connected { get { return m_socket != null && m_socket.Connected; } }
 
-        private Socket m_socket;
+        private string m_address;
+        private int m_port;
 
-        public MyClient(string addr, int port)
+        private Socket m_socket;
+        private System.Threading.Thread m_socketThread;
+
+        public MyChatClient(string addr, int port)
         {
-            Connect(addr, port);
+            m_address = addr;
+            m_port = port;
+
+            //m_socketThread = new System.Threading.Thread(Connect);
+            Connect();
         }
 
-        void Connect(string addr, int port)
+        void Connect()
         {
             m_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPAddress ip = IPAddress.Parse(addr);
-            IPEndPoint iep = new IPEndPoint(ip, port);
-            Debug.Log(port);
+            IPAddress ip = IPAddress.Parse(m_address);
+            IPEndPoint iep = new IPEndPoint(ip, m_port);
+            Debug.Log(m_port);
             m_socket.BeginConnect(iep, new AsyncCallback(Connect), m_socket);
         }
 
@@ -255,8 +232,9 @@ namespace Osblow.Game
                 client.EndConnect(iar);
                 Receive();
 
-                Debug.Log("已连接");
-                MsgMng.Dispatch(MsgType.Connected);
+                Debug.Log("已连接语音服务器");
+                //MsgMng.Dispatch(MsgType.Connected);
+                CmdRequest.RegistVoiceServer();
             }
             catch (Exception e)
             {
@@ -293,7 +271,7 @@ namespace Osblow.Game
                 //    //Debug.Log("已发送..消息队列还剩" +
                 //    //    Globals.SceneSingleton<SocketNetworkMng>().MessageQueue.Count + "条");
                 //}
-                //Debug.LogFormat("Sent {0} bytes to server.", bytesSent);
+                Debug.LogFormat("Sent {0} bytes voice to server.", bytesSent);
                 //NetworkMng.Instance.DebugStr = string.Format("Sent {0} bytes to server.", bytesSent);
             }
             catch (SocketException e)
@@ -323,7 +301,7 @@ namespace Osblow.Game
         }
 
 
-        //MyBuffer m_buffer = new MyBuffer();
+        MyBuffer m_buffer = new MyBuffer();
         private void ReceiveCallback(IAsyncResult ar)
         {
             try
@@ -342,40 +320,36 @@ namespace Osblow.Game
                 // Read data from the remote device.     
                 int bytesRead = client.EndReceive(ar);
 
-                //Debug.Log("get from server, length = " + bytesRead);
+                Debug.Log("get from chat server, length = " + bytesRead);
                 if (bytesRead > 0)
                 {
 
                     byte[] realData = new byte[bytesRead];
                     Array.Copy(state.Buffer, realData, bytesRead);
 
-                    Globals.SceneSingleton<SocketNetworkMng>().Handler(realData);
-
                     // 拼接数据包
-                    //if (m_buffer.TargetLength < 0)
-                    //{
-                    //    m_buffer.Init(realData);
+                    if (m_buffer.TargetLength < 0)
+                    {
+                        m_buffer.Init(realData);
 
-                    //    if (m_buffer.CheckComplete())
-                    //    {
-                    //        Globals.SceneSingleton<SocketNetworkMng>().Handler(m_buffer.Buffer.ToArray());
+                        if (m_buffer.CheckComplete())
+                        {
+                            Globals.SceneSingleton<ChatSocketNetworkMng>().Handler(m_buffer.Buffer.ToArray());
 
-                    //        m_buffer.Clear();
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    if (m_buffer.CheckComplete())
-                    //    {
-                    //        Globals.SceneSingleton<SocketNetworkMng>().Handler(m_buffer.Buffer.ToArray());
+                            m_buffer.Clear();
+                        }
+                    }
+                    else
+                    {
+                        m_buffer.Buffer.AddRange(realData);
 
-                    //        m_buffer.Clear();
-                    //    }
-                    //    else
-                    //    {
-                    //        m_buffer.Buffer.AddRange(realData);
-                    //    }
-                    //}
+                        if (m_buffer.CheckComplete())
+                        {
+                            Globals.SceneSingleton<ChatSocketNetworkMng>().Handler(m_buffer.Buffer.ToArray());
+
+                            m_buffer.Clear();
+                        }
+                    }
                     Receive();
                     
                 }
@@ -396,66 +370,51 @@ namespace Osblow.Game
         {
             m_socket.Shutdown(SocketShutdown.Both);
             m_socket.Close();
+            //m_socketThread.Abort();
         }
 
         public void ForceClose()
         {
             m_socket.Close();
+            //m_socketThread.Abort();
         }
 
 
 
-        //class MyBuffer
-        //{
-        //    public List<byte> Buffer = new List<byte>();
-        //    public int TargetLength = -1;
+        class MyBuffer
+        {
+            public List<byte> Buffer = new List<byte>();
+            public int TargetLength = -1;
 
             
-        //    public void Init(byte[] data)
-        //    {
-        //        TargetLength = BitConverter.ToUInt16(data, 3);
-        //        Buffer.AddRange(data);
-        //    }
+            public void Init(byte[] data)
+            {
+                TargetLength = BitConverter.ToInt32(data, 3);
+                Buffer.AddRange(data);
+            }
 
-        //    public void Clear()
-        //    {
-        //        Buffer.Clear();
-        //        TargetLength = -1;
-        //    }
+            public void Clear()
+            {
+                Buffer.Clear();
+                TargetLength = -1;
+            }
 
-        //    /// <summary>
-        //    /// 检查数据包完整性
-        //    /// </summary>
-        //    /// <param name=""></param>
-        //    /// <returns></returns>
-        //    public bool CheckComplete()
-        //    {
-        //        //Debug.LogFormat("targetLength:{0}, standardSize:{1}, realSize:{2}", TargetLength, 5 + TargetLength + 1, Buffer.Count);
-        //        if(TargetLength > 0 && 5 + TargetLength + 1 > Buffer.Count)
-        //        {
-        //            return false;
-        //        }
+            /// <summary>
+            /// 检查数据包完整性
+            /// </summary>
+            /// <param name=""></param>
+            /// <returns></returns>
+            public bool CheckComplete()
+            {
+                Debug.LogFormat("targetLength:{0}, standardSize:{1}, realSize:{2}", TargetLength, 7 + TargetLength + 1, Buffer.Count);
+                if(TargetLength > 0 && 7 + TargetLength + 1 > Buffer.Count)
+                {
+                    return false;
+                }
 
-        //        return true;
-        //    }
-        //}
-    }
-
-    public class TCPState
-    {
-        public const int BuffSize = 65536;
-        public byte[] Buffer = new byte[65536];
-
-        private Socket socket = null;
-
-        public Socket Socket
-        {
-            get { return socket; }
-        }
-
-        public TCPState(Socket socket)
-        {
-            this.socket = socket;
+                return true;
+            }
         }
     }
+    
 }
