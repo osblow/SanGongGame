@@ -168,9 +168,39 @@ namespace Osblow.Game
         /// <summary>
         /// 上传语音
         /// </summary>
-        public static void AudioStreamUpload()
+        public static void AudioStreamUpload(byte[] audioData)
         {
-            // 需要ID
+            UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+            
+            List<byte> dataToSend = new List<byte>();
+            // uuid
+            byte[] uuidData = System.Text.Encoding.ASCII.GetBytes(playerdata.uuid);
+            short uuidLength = (short)uuidData.Length;
+            dataToSend.AddRange(BitConverter.GetBytes(uuidLength));
+            dataToSend.AddRange(uuidData);
+            // seat
+            short seatLength = 1;
+            dataToSend.AddRange(BitConverter.GetBytes(seatLength));
+            dataToSend.Add(0);
+            // voice
+            ushort audioLength = (ushort)audioData.Length;
+            dataToSend.AddRange(BitConverter.GetBytes(audioLength));
+            dataToSend.AddRange(audioData);
+
+            Serialize(Cmd.AudioStreamUpload, dataToSend.ToArray());
+            Debug.Log("发送语音消息" + " " + uuidLength + " " + seatLength + " " + audioLength);
+        }
+
+        private static byte[] GetBytesFromString(string content)
+        {
+            List<byte> data = new List<byte>();
+            char[] charArray = content.ToCharArray();
+            for (int i = 0; i < charArray.Length; i++)
+            {
+                data.AddRange(BitConverter.GetBytes(charArray[i]));
+            }
+
+            return data.ToArray();
         }
 
         /// <summary>
@@ -260,7 +290,8 @@ namespace Osblow.Game
             using (MemoryStream ms = new MemoryStream())
             {
                 //使用ProtoBuf工具的序列化方法
-                ProtoBuf.Serializer.Serialize(ms, proto);
+                com.sangong.ProtobufSerializer serializer = new com.sangong.ProtobufSerializer();
+                serializer.Serialize(ms, proto);
                 //定义二级制数组，保存序列化后的结果
                 result = new byte[ms.Length];
                 //将流的位置设为0，起始点
@@ -269,17 +300,22 @@ namespace Osblow.Game
                 ms.Read(result, 0, result.Length);
             }
 
+            Serialize(cmd, result);
+        }
 
+        static void Serialize(short cmd, byte[] sendData)
+        {
             List<byte> data = new List<byte>();
 
             byte head = 0x64;
-            short length = (short)result.Length;
+            short lengths = (short)sendData.Length;
+            ushort length = (ushort)sendData.Length;
             byte tail = 0x64;
 
             data.Add(head);
             data.AddRange(BitConverter.GetBytes(cmd));
             data.AddRange(BitConverter.GetBytes(length));
-            data.AddRange(result);
+            data.AddRange(sendData);
             data.Add(tail);
 
             Osblow.App.Globals.SceneSingleton<SocketNetworkMng>().Send(data.ToArray());

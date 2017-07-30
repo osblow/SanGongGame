@@ -26,6 +26,7 @@ public class GameMng : MonoBehaviour
 
         if (playerData.uuid == uuid || UsersDic.ContainsKey(uuid))
         {
+            MsgMng.Dispatch(MsgType.ShowMessageBtn);
             Debug.Log("进来的用户已存在");
 
             return;

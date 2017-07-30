@@ -365,7 +365,8 @@ namespace Osblow.App
                 //将流的位置归0
                 ms.Position = 0;
                 //使用工具反序列化对象
-                t = ProtoBuf.Serializer.Deserialize<T>(ms);
+                com.sangong.ProtobufSerializer serializer = new com.sangong.ProtobufSerializer();
+                t = (T)serializer.Deserialize(ms, null, typeof(T));
             }
 
             return t;

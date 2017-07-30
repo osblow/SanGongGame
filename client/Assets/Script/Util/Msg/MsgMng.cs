@@ -55,6 +55,10 @@ namespace Osblow.Util
         ReConnected = 25, // 断线重连
 
         RoomList = 26, // 大厅房间列表
+
+        ShowVoiceImg = 27, // 显示声音图标
+
+        ShowMessageBtn = 28, // 显示消息发送按钮
     }
 
 

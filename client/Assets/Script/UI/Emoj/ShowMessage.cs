@@ -19,6 +19,7 @@ public class ShowMessage : MonoBehaviour
     public Text Txt;
     public Image Emoj;
     public GameObject Txtbg;
+    public GameObject VoiceImg;
 
 
 	public void ShowExpression(int index)
@@ -38,22 +39,46 @@ public class ShowMessage : MonoBehaviour
             Globals.SceneSingleton<SoundMng>().PlayFrontSound("Audio/fw/fw_female_" + (index - 15));
         }
 
-        StartCoroutine(AutoHide());
+        AutoHide();
     }
 
-    IEnumerator AutoHide()
+    void AutoHide()
     {
-        yield return new WaitForSeconds(1.0f);
-        Hide();
+        if (null != m_hideLaterCoroutine)
+        {
+            StopCoroutine(m_hideLaterCoroutine);
+        }
+
+        m_hideLaterCoroutine = StartCoroutine(HideLater(1.0f));
     }
 
     public void Hide()
     {
         Emoj.gameObject.SetActive(false);
         Txtbg.SetActive(false);
+        VoiceImg.SetActive(false);
         Txt.text = "";
     }
 
+
+    public void ShowVoice(float time)
+    {
+        VoiceImg.SetActive(true);
+
+        if(null != m_hideLaterCoroutine)
+        {
+            StopCoroutine(m_hideLaterCoroutine);
+        }
+
+        m_hideLaterCoroutine = StartCoroutine(HideLater(time));
+    }
+
+    private Coroutine m_hideLaterCoroutine;
+    IEnumerator HideLater(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        Hide();
+    }
 
     private void Awake()
     {

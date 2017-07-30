@@ -104,7 +104,12 @@ namespace Osblow.App
             Globals.SceneSingleton<GameMng>().GameStart = false;
             Globals.SceneSingleton<Osblow.Game.SocketNetworkMng>();
 
-            
+            GameLoadingUIContext context = new GameLoadingUIContext();
+            context.ProgressEndCallback += delegate ()
+            {
+                Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
+            };
+            Globals.SceneSingleton<ContextManager>().Push(context);
         }
 
         public override void End(StateType nextState)

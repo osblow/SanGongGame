@@ -57,6 +57,10 @@ namespace Osblow.App
         [Space]
         public GameObject Siding; // 旁观
         public GameObject Waiting; // 等待下一局
+
+        public GameObject VoicePanelObj;
+        public Button TextMessageBtn;
+        public Button VoiceMessageBtn;
         #endregion
 
         #region 场景事件
@@ -220,6 +224,33 @@ namespace Osblow.App
 
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
+
+
+
+        public void OnBeginVoice()
+        {
+            m_isRecordingVoice = true;
+
+            m_voicePanel.Show(true);
+            Globals.SceneSingleton<MicrophoneMng>().StartRecord(OnEndRecordingVoice);
+        }
+
+        public void OnEndVoice()
+        {
+            m_isRecordingVoice = false;
+            m_voicePanel.Show(false);
+
+            Globals.SceneSingleton<MicrophoneMng>().StopRecord(OnEndRecordingVoice);
+        }
+
+        public void OnFingerOutOfVoice()
+        {
+            if (m_isRecordingVoice)
+            {
+                m_isRecordingVoice = false;
+                m_voicePanel.Show(false);
+            }
+        }
         #endregion
 
         private List<UserPanel> m_usersPanelList = new List<UserPanel>();
@@ -228,6 +259,9 @@ namespace Osblow.App
         private bool m_isOwner = false;
         private bool m_isEmojHidden = true;
         private bool m_isInitialized = false;
+
+        private VoicePanel m_voicePanel;
+        private bool m_isRecordingVoice = false;
 
         void ShowMenu()
         {
@@ -426,8 +460,10 @@ namespace Osblow.App
             if (tableData.OwnerUUId == playerData.uuid)
             {
                 m_isOwner = true;
+                StartGameBtn.SetActive(true);
             }
             SitDownBtn.SetActive(true);
+            
 
             int mySeat = -1;
             for (int i = 0; i < tableData.Players.Count; i++)
@@ -451,6 +487,8 @@ namespace Osblow.App
             }
 
             CuoPaiController.SetActive(false);
+
+            m_voicePanel = new VoicePanel(VoicePanelObj);
 
             // bet points panel
             //string betPrefabPath = "UI/TableView/Bet";
@@ -486,9 +524,11 @@ namespace Osblow.App
             MsgMng.AddListener(MsgType.BankeringStatus, OnUpdateBankerState);
             MsgMng.AddListener(MsgType.OnlineStatus, OnlineStatusChange);
             MsgMng.AddListener(MsgType.ReConnected, Reconnected);
+            MsgMng.AddListener(MsgType.ShowVoiceImg, ShowVoiceImg);
+            MsgMng.AddListener(MsgType.ShowMessageBtn, ShowMessageBtn);
 
             // 如果是游戏当中加入的，显示坐下按钮
-            if(tableData.SeatNum == 0 && tableData.IsGaming)
+            if (tableData.SeatNum == 0 && tableData.IsGaming)
             {
                 SitDownBtn.SetActive(true);
             }
@@ -538,6 +578,8 @@ namespace Osblow.App
             MsgMng.RemoveListener(MsgType.BankeringStatus, OnUpdateBankerState);
             MsgMng.RemoveListener(MsgType.OnlineStatus, OnlineStatusChange);
             MsgMng.RemoveListener(MsgType.ReConnected, Reconnected);
+            MsgMng.RemoveListener(MsgType.ShowVoiceImg, ShowVoiceImg);
+            MsgMng.RemoveListener(MsgType.ShowMessageBtn, ShowMessageBtn);
         }
 
         public override void OnPause(BaseContext context)
@@ -582,6 +624,8 @@ namespace Osblow.App
                 if (theUUID == Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player).uuid)
                 {
                     //StartGameBtn.SetActive(true);
+                    TextMessageBtn.interactable = true;
+                    VoiceMessageBtn.interactable = true;
                 }
 
                 if (!m_usersPanelDic.ContainsKey(theUUID))
@@ -1076,6 +1120,54 @@ namespace Osblow.App
             });
         }
 
+        void OnEndRecordingVoice(AudioClip clip)
+        {
+            float[] sampleData = new float[clip.samples];
+            clip.GetData(sampleData, 0);
+
+            short[] preCompressedData = CompressUtil.PreCompressAudio(sampleData);
+
+            List<byte> byteData = new List<byte>();
+            for (int i = 0; i < preCompressedData.Length; i++)
+            {
+                byteData.AddRange(System.BitConverter.GetBytes(preCompressedData[i]));
+            }
+
+            List<byte> testByteData = new List<byte>();
+            for (int i = 0; i < sampleData.Length; i++)
+            {
+                testByteData.AddRange(System.BitConverter.GetBytes(sampleData[i]));
+            }
+
+            byte[] testCompressData = CompressUtil.Compress(testByteData.ToArray());
+
+            byte[] compressedData = CompressUtil.Compress(byteData.ToArray());
+            
+            CmdRequest.AudioStreamUpload(compressedData);
+        }
+
+        void ShowVoiceImg(Msg msg)
+        {
+            string uuid = msg.Get<string>(0);
+            float time = msg.Get<float>(1);
+
+            if (m_usersPanelDic.ContainsKey(uuid))
+            {
+                m_usersPanelDic[uuid].ShowVoice(time);
+            }
+        }
+
+        void ShowMessageBtn(Msg msg)
+        {
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate () 
+            {
+                TextMessageBtn.interactable = true;
+                VoiceMessageBtn.interactable = true;
+            });
+        }
+
+
+
         class UserPanel
         {
             public TablePlayerData Data;
@@ -1110,6 +1202,8 @@ namespace Osblow.App
             private ShowMessage m_message;
 
             private AutoFade m_bankerState;
+
+            private GameObject m_voiceImg;
 
 
             public UserPanel(GameObject objRoot)
@@ -1376,6 +1470,11 @@ namespace Osblow.App
                 m_message.ShowExpression(index);
             }
 
+            public void ShowVoice(float time)
+            {
+                m_message.ShowVoice(time);
+            }
+
             //public void SetScore(int point)
             //{
             //    m_score.text = point.ToString();
@@ -1420,7 +1519,34 @@ namespace Osblow.App
         }
 
 
+        class VoicePanel
+        {
+            public GameObject RootObj;
+            private VoiceTimerAnim m_timerAnim;
 
+
+            public VoicePanel(GameObject obj)
+            {
+                RootObj = obj;
+
+                Init();
+            }
+
+            void Init()
+            {
+                m_timerAnim = RootObj.transform.Find("outline").GetComponent<VoiceTimerAnim>();
+            }
+
+            public void Show(bool isShow)
+            {
+                RootObj.SetActive(isShow);
+
+                if (isShow)
+                {
+                    m_timerAnim.StartAnim();
+                }
+            }
+        }
 
 
 

@@ -27,7 +27,7 @@ namespace Osblow.App
         void Login()
         {
             //Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
-            Globals.SceneSingleton<ContextManager>().WebBlockUI(true);
+            Globals.SceneSingleton<ContextManager>().WebBlockUI(true, "正在登录...");
             HttpRequest.LoginRequest();
         }
 

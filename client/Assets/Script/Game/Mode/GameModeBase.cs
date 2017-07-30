@@ -50,7 +50,7 @@ namespace Osblow.App
             }
         }
 
-        private int iiii = 0;
+        //private int iiii = 0;
 
         void OnRegisted(Msg msg)
         {
@@ -58,7 +58,7 @@ namespace Osblow.App
             //{
             //    //Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
             //};
-            Debug.Log(iiii++);
+            //Debug.Log(iiii++);
             CmdRequest.EnterRoomRequest();
         }
 

@@ -117,7 +117,8 @@ public class CmdHandler
 
         Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
         {
-            Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
+            Globals.SceneSingleton<ContextManager>().Pop();
+            //Globals.SceneSingleton<ContextManager>().Push(new TableUIContext());
         });
 
 
@@ -491,9 +492,34 @@ public class CmdHandler
     /// <param name="data"></param>
     public static void AudioStreamBroadcast(byte[] data, int index)
     {
-        // 需要ID
+        index += 2;
 
+        // uuid
+        short uuidLength = BitConverter.ToInt16(data, index);
+        index += 2;
+        string uuid = System.Text.Encoding.ASCII.GetString(data, index, uuidLength);
+        index += uuidLength;
+
+        // seat
+        short seatLength = BitConverter.ToInt16(data, index);
+        index += 2;
+        byte seat = data[index];
+        index += 1;
+
+        // voice
+        ushort audioLength = BitConverter.ToUInt16(data, index);
+        index += 2;
+        byte[] audioData = new byte[audioLength];
+        Array.Copy(data, index, audioData, 0, audioLength);
+        byte[] decompressedData = CompressUtil.Decompress(audioData);
+
+        Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate () 
+        {
+            Debug.Log("接收语音消息，长度：" + decompressedData.Length);
+            Globals.SceneSingleton<SoundMng>().PlayFrontSound(decompressedData, uuid);
+        });
     }
+    
 
     /// <summary>
     /// 下注广播
@@ -908,7 +934,7 @@ public class CmdHandler
     public static T GetProtoInstance<T>(byte[] data, int index)
     {
         T t = default(T);
-        short length = BitConverter.ToInt16(data, index);
+        ushort length = BitConverter.ToUInt16(data, index);
         index += 2;
 
         using (MemoryStream ms = new MemoryStream())
@@ -918,7 +944,8 @@ public class CmdHandler
             //将流的位置归0
             ms.Position = 0;
             //使用工具反序列化对象
-            t = ProtoBuf.Serializer.Deserialize<T>(ms);
+            com.sangong.ProtobufSerializer serializer = new com.sangong.ProtobufSerializer();
+            t = (T)serializer.Deserialize(ms, null, typeof(T));
         }
 
         return t;

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Osblow.Util;
 
 
 namespace Osblow.App
@@ -230,6 +231,51 @@ namespace Osblow.App
             fs.startTime = Time.time;
             fs.playTime = ac.length;
             fs.bEnable = true;
+        }
+
+        public void PlayFrontSound(byte[] data, string uuid, bool Isloop = false, float volume = 10.0f, float pitch = 1.0f)
+        {
+            Debug.Log("语音消息");
+
+            volume *= FrontSoundVolume;
+            FrontSound fs = GetUseFrontSound();
+            if (fs == null)
+            {
+                Debug.Log("aaaaaaaaaaaa");
+                return;
+            }
+
+            short[] samples = new short[data.Length / 2];
+            for (int i = 0; i < samples.Length; i++)
+            {
+                samples[i] = System.BitConverter.ToInt16(data, i * 2);
+            }
+
+            float[] finalSamples = CompressUtil.PreDecompressAudio(samples);
+
+            AudioClip ac = AudioClip.Create("newVoiceMsg", samples.Length, 1, MicrophoneMng.RECORD_RATE, false);
+            
+            ac.SetData(finalSamples, 0);
+            
+            fs.aS.enabled = true;
+            fs.aS.pitch = pitch;
+            if (!Isloop)
+            {//一次
+                fs.aS.PlayOneShot(ac, volume);
+                fs.aS.loop = Isloop;
+            }
+            else
+            {//多次
+                fs.aS.loop = Isloop;
+                fs.aS.clip = ac;
+                fs.aS.volume = volume;
+                fs.aS.Play();
+            }
+            fs.startTime = Time.time;
+            fs.playTime = ac.length;
+            fs.bEnable = true;
+
+            MsgMng.Dispatch(MsgType.ShowVoiceImg, uuid, ac.length);
         }
 
         public void CloseSound(string SoundName)

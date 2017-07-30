@@ -48,5 +48,7 @@ namespace Osblow.App
         public static readonly UIType HistoryDetail = new UIType("Prefab/UI/HistoryDetailedView");
         public static readonly UIType ContactUsView = new UIType("Prefab/UI/ContactUsView");
         public static readonly UIType RuleView = new UIType("Prefab/UI/RuleView");
+
+        public static readonly UIType GameLoadingView = new UIType("Prefab/UI/GameLoadingView");
     }
 }

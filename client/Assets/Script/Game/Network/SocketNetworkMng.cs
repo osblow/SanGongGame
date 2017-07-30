@@ -93,7 +93,7 @@ namespace Osblow.Game
                     return;
                 }
                 index += 1;
-                short dataLen = BitConverter.ToInt16(data, index + 2);
+                ushort dataLen = BitConverter.ToUInt16(data, index + 2);
 
                 if (foo >= 1)
                 {
@@ -178,7 +178,7 @@ namespace Osblow.Game
         {
             while (true)
             {
-                yield return new WaitForSeconds(5);
+                yield return new WaitForSeconds(1);// 5);
 
                 if (!Globals.SceneSingleton<GameMng>().IsGaming)
                 {
@@ -293,7 +293,7 @@ namespace Osblow.Game
                 //    //Debug.Log("已发送..消息队列还剩" +
                 //    //    Globals.SceneSingleton<SocketNetworkMng>().MessageQueue.Count + "条");
                 //}
-                //Debug.LogFormat("Sent {0} bytes to server.", bytesSent);
+                Debug.LogFormat("Sent {0} bytes to server.", bytesSent);
                 //NetworkMng.Instance.DebugStr = string.Format("Sent {0} bytes to server.", bytesSent);
             }
             catch (SocketException e)
@@ -321,6 +321,9 @@ namespace Osblow.Game
                 Debug.LogError(e.ToString());
             }
         }
+
+
+        MyBuffer m_buffer = new MyBuffer();
         private void ReceiveCallback(IAsyncResult ar)
         {
             try
@@ -342,13 +345,37 @@ namespace Osblow.Game
                 //Debug.Log("get from server, length = " + bytesRead);
                 if (bytesRead > 0)
                 {
+
                     byte[] realData = new byte[bytesRead];
                     Array.Copy(state.Buffer, realData, bytesRead);
-                    Globals.SceneSingleton<SocketNetworkMng>().Handler(realData);
 
-                    // Get new data.     
-                    //client.BeginReceive(state.Buffer, 0, TCPState.BuffSize, 0, new AsyncCallback(ReceiveCallback), state);
+                    // 拼接数据包
+                    if (m_buffer.TargetLength < 0)
+                    {
+                        m_buffer.Init(realData);
+
+                        if (m_buffer.CheckComplete())
+                        {
+                            Globals.SceneSingleton<SocketNetworkMng>().Handler(m_buffer.Buffer.ToArray());
+
+                            m_buffer.Clear();
+                        }
+                    }
+                    else
+                    {
+                        if (m_buffer.CheckComplete())
+                        {
+                            Globals.SceneSingleton<SocketNetworkMng>().Handler(m_buffer.Buffer.ToArray());
+
+                            m_buffer.Clear();
+                        }
+                        else
+                        {
+                            m_buffer.Buffer.AddRange(realData);
+                        }
+                    }
                     Receive();
+                    
                 }
             }
             catch (SocketException e)
@@ -361,6 +388,8 @@ namespace Osblow.Game
             }
         }
 
+        
+
         public void Close()
         {
             m_socket.Shutdown(SocketShutdown.Both);
@@ -371,12 +400,49 @@ namespace Osblow.Game
         {
             m_socket.Close();
         }
+
+
+
+        class MyBuffer
+        {
+            public List<byte> Buffer = new List<byte>();
+            public int TargetLength = -1;
+
+            
+            public void Init(byte[] data)
+            {
+                TargetLength = BitConverter.ToUInt16(data, 3);
+                Buffer.AddRange(data);
+            }
+
+            public void Clear()
+            {
+                Buffer.Clear();
+                TargetLength = -1;
+            }
+
+            /// <summary>
+            /// 检查数据包完整性
+            /// </summary>
+            /// <param name=""></param>
+            /// <returns></returns>
+            public bool CheckComplete()
+            {
+                //Debug.LogFormat("targetLength:{0}, standardSize:{1}, realSize:{2}", TargetLength, 5 + TargetLength + 1, Buffer.Count);
+                if(TargetLength > 0 && 5 + TargetLength + 1 > Buffer.Count)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+        }
     }
 
     public class TCPState
     {
-        public const int BuffSize = 4096;
-        public byte[] Buffer = new byte[4096];
+        public const int BuffSize = 65536;
+        public byte[] Buffer = new byte[65536];
 
         private Socket socket = null;
 
