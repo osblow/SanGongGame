@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Osblow.Util;
 
 
 namespace Osblow.App
@@ -33,6 +34,8 @@ namespace Osblow.App
 
         public void OnClickPayBtn()
         {
+            Clear();
+
             PayPanel.SetActive(true);
             RecordPanel.SetActive(false);
 
@@ -49,28 +52,35 @@ namespace Osblow.App
             PayTabBtn.Set(0);
             RecordTabBtn.Set(1);
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
+
+            HttpRequest.RechargeRecordRequest();
         }
         #endregion
         private const string c_itemPath = "Prefab/UI/PayView/RawContent";
+
+        private void OnRecieveRecord(Msg msg)
+        {
+            List<RechargeData> records = msg.Get<List<RechargeData>>(0);
+            for (int i = 0; i < records.Count; i++)
+            {
+                GameObject newItem = Instantiate(Resources.Load(c_itemPath) as GameObject);
+                newItem.transform.SetParent(RecordRoot, false);
+
+                new RawContent(newItem, records[i]);
+            }
+        }
 
 
         public override void OnEnter(BaseContext context)
         {
             base.OnEnter(context);
-
-            PayUIContext theContent = context as PayUIContext;
-            for (int i = 0; i < theContent.Records.Count; i++)
-            {
-                GameObject newItem = Instantiate(Resources.Load(c_itemPath) as GameObject);
-                newItem.transform.SetParent(RecordRoot, false);
-
-                new RawContent(newItem, theContent.Records[i]);
-            }
+            MsgMng.AddListener(MsgType.OnRecievePayRecord, OnRecieveRecord);
         }
 
         public override void OnExit(BaseContext context)
         {
             base.OnExit(context);
+            MsgMng.RemoveListener(MsgType.OnRecievePayRecord, OnRecieveRecord);
             Clear();
         }
 

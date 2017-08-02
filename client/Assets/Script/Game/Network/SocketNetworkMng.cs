@@ -59,6 +59,7 @@ namespace Osblow.Game
             m_hadlerDic.Add(Cmd.ServerBetOverResponse, CmdHandler.ServerBetOverResponse);
             m_hadlerDic.Add(Cmd.ServerToBankerResponse, CmdHandler.ServerToBankerResponse);
             m_hadlerDic.Add(Cmd.StartGameNotice, CmdHandler.StartGameNotice);
+            m_hadlerDic.Add(Cmd.GameNoStartNotice, CmdHandler.GameNoStartNotice);
             m_hadlerDic.Add(Cmd.ReadyResultResponse, CmdHandler.ReadyResultResponse);
         }
 
@@ -333,7 +334,8 @@ namespace Osblow.Game
                 TCPState state = (TCPState)ar.AsyncState;
                 Socket client = state.Socket;
 
-                if(client == null || !client.Connected)
+                if(client == null || !client.Connected ||
+                    !Globals.SceneSingleton<GameMng>().IsGaming)
                 {
                     Debug.Log("<color=red>不想接收 了</color>");
                     return;

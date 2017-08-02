@@ -18,6 +18,8 @@ namespace Osblow.App
 
             //Application.logMessageReceived += LogCallback;
 
+            Application.targetFrameRate = 45;
+
             littlerbird.units.LogManager.openDebug(gameObject);
         }
         

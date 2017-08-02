@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Osblow.Util;
 
 
 namespace Osblow.App
@@ -27,25 +28,29 @@ namespace Osblow.App
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
         #endregion
-        
+        private void OnRecieveRecords(Msg msg)
+        {
+            GameRecords records = msg.Get<GameRecords>(0);
+
+            for (int i = 0; i < records.Records.Count; i++)
+            {
+                GameObject newItem = Instantiate(Resources.Load("Prefab/UI/HistoryView/RoundItem") as GameObject);
+                newItem.transform.SetParent(GridRoot, false);
+                RoundPanel singlePanel = new RoundPanel(newItem, records.Records[i]);
+            }
+        }
 
 
         public override void OnEnter(BaseContext context)
         {
             base.OnEnter(context);
-
-            HistoryUIContext theContext = context as HistoryUIContext;
-            for(int i=0; i < theContext.Records.Records.Count; i++)
-            {
-                GameObject newItem = Instantiate(Resources.Load("Prefab/UI/HistoryView/RoundItem") as GameObject);
-                newItem.transform.SetParent(GridRoot, false);
-                RoundPanel singlePanel = new RoundPanel(newItem, theContext.Records.Records[i]);
-            }
+            MsgMng.AddListener(MsgType.OnRecieveHistory, OnRecieveRecords);
         }
 
         public override void OnExit(BaseContext context)
         {
             base.OnExit(context);
+            MsgMng.RemoveListener(MsgType.OnRecieveHistory, OnRecieveRecords);
             Clear();
         }
 
@@ -139,6 +144,7 @@ namespace Osblow.App
             void OnClickDetail()
             {
                 Globals.SceneSingleton<ContextManager>().WebBlockUI(true);
+                Globals.SceneSingleton<ContextManager>().Push(new HistoryDetailUIContext());
                 HttpRequest.SmallGameRecordRequest(m_record.RoomId.ToString());
             }
 

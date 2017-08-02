@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Osblow.Game;
+using Osblow.Util;
 
 
 namespace Osblow.App
@@ -29,16 +30,9 @@ namespace Osblow.App
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
         #endregion
-
-        private HistoryDetailAnim m_anim = null;
-        private const string c_itemRootPath = "Prefab/UI/HistoryView/roundItem1";
-        private Text[] m_totalScores;
-
-        public override void OnEnter(BaseContext context)
+        private void OnRecieveRecords(Msg msg)
         {
-            base.OnEnter(context);
-            HistoryDetailUIContext theContest = context as HistoryDetailUIContext;
-            SmallGameRecord data = theContest.Data;
+            SmallGameRecord data = msg.Get<SmallGameRecord>(0);
 
             // 表头
             int i;
@@ -48,18 +42,18 @@ namespace Osblow.App
                 NamesRoot.GetChild(i).gameObject.SetActive(true);
                 NamesRoot.GetChild(i).GetComponent<Text>().text = name;
             }
-            for(int j = i; j < NamesRoot.childCount; j++)
+            for (int j = i; j < NamesRoot.childCount; j++)
             {
-                
+
                 NamesRoot.GetChild(j).gameObject.SetActive(false);
             }
 
             // 表
-            if(data.SingleRecords.Count <= 0)
+            if (data.SingleRecords.Count <= 0)
             {
                 return;
             }
-            
+
             int[] totalPoints = new int[data.SingleRecords[0].Players.Count];
             List<GameObject> items = new List<GameObject>();
             for (i = 0; i < data.SingleRecords.Count; i++)
@@ -103,9 +97,23 @@ namespace Osblow.App
             ////////////////////////////////////////////////
         }
 
+
+
+
+        private HistoryDetailAnim m_anim = null;
+        private const string c_itemRootPath = "Prefab/UI/HistoryView/roundItem1";
+        private Text[] m_totalScores;
+
+        public override void OnEnter(BaseContext context)
+        {
+            base.OnEnter(context);
+            MsgMng.AddListener(MsgType.OnRecieveHistoryDetail, OnRecieveRecords);
+        }
+
         public override void OnExit(BaseContext context)
         {
             base.OnExit(context);
+            MsgMng.RemoveListener(MsgType.OnRecieveHistoryDetail, OnRecieveRecords);
             Clear();
         }
 

@@ -59,6 +59,12 @@ namespace Osblow.App
                     Globals.SceneSingleton<StateMng>().ChangeState(StateType.Game);
                 });
             }
+            else
+            {
+                AlertUIContext context = new AlertUIContext();
+                context.Info = res.message;
+                Globals.SceneSingleton<ContextManager>().Push(context);
+            }
         }
 
         /// <summary>
@@ -96,9 +102,8 @@ namespace Osblow.App
             lobbyData.NewsTitle = res.rule_title;
             lobbyData.News = res.news_message;
 
-            MessageUIContext context = new MessageUIContext();
-            context.Data = lobbyData;
-            Globals.SceneSingleton<ContextManager>().Push(context);
+            MsgMng.Dispatch(MsgType.OnRecieveMessage, lobbyData);
+            
             Debug.Log("收到新闻：" + lobbyData.News);
         }
 
@@ -109,13 +114,10 @@ namespace Osblow.App
         public static void InviteCodeViewResponse(byte[] data)
         {
             InvitationRuleResponse res = GetProtoInstance<InvitationRuleResponse>(data);
+            
+            MsgMng.Dispatch(MsgType.OnRecieveInviteCode, res.code == 0, res.invitation_code, res.invitation_rule_message);
 
-            InviteCodeUIContext context = new InviteCodeUIContext();
-            context.Binded = res.code == 0;
-            context.Notice = res.invitation_rule_message;
-            context.BindedCode = res.invitation_code;
-
-            Globals.SceneSingleton<ContextManager>().Push(context);
+            
             Debug.Log("进入邀请码界面");
         }
 
@@ -140,7 +142,6 @@ namespace Osblow.App
             context.HasOK = true;
 
             Globals.SceneSingleton<ContextManager>().Push(context);
-
         }
 
         /// <summary>
@@ -198,10 +199,7 @@ namespace Osblow.App
                 record.Records.Add(theRecord);
             });
 
-
-            HistoryUIContext context = new HistoryUIContext();
-            context.Records = record;
-            Globals.SceneSingleton<ContextManager>().Push(context);
+            MsgMng.Dispatch(MsgType.OnRecieveHistory, record);
         }
 
         /// <summary>
@@ -252,11 +250,10 @@ namespace Osblow.App
             });
 
             //MsgMng.Dispatch(MsgType.LobbySingleGameRecord, record);
-            HistoryDetailUIContext context = new HistoryDetailUIContext();
-            context.Data = record;
-            Globals.SceneSingleton<ContextManager>().Push(context);
+            MsgMng.Dispatch(MsgType.OnRecieveHistoryDetail, record);
+            
 
-            Debug.Log("收到详细战绩");
+            Debug.Log("收到详细战绩, 局数：" + res.user_game_recode.Count);
         }
 
         /// <summary>
@@ -276,9 +273,7 @@ namespace Osblow.App
                 contactDatas.Add(theData);
             });
 
-            ContactUsUIContext context = new ContactUsUIContext();
-            context.Datas = contactDatas;
-            Globals.SceneSingleton<ContextManager>().Push(context);
+            MsgMng.Dispatch(MsgType.OnRecieveContactUsMessage, contactDatas);
             Debug.Log("客服信息返回");
         }
 
@@ -302,9 +297,7 @@ namespace Osblow.App
                 rechargeDatas.Add(theData);
             });
 
-            PayUIContext context = new PayUIContext();
-            context.Records = rechargeDatas;
-            Globals.SceneSingleton<ContextManager>().Push(context);
+            MsgMng.Dispatch(MsgType.OnRecievePayRecord, rechargeDatas);
         }
 
         /// <summary>
@@ -325,10 +318,8 @@ namespace Osblow.App
                 rules.Add(theData);    
             });
 
-            RuleUIContext context = new RuleUIContext();
-            context.Datas = rules;
-            Globals.SceneSingleton<ContextManager>().Push(context);
-
+            MsgMng.Dispatch(MsgType.OnRecieveRules, rules);
+            
             Debug.Log("收到规则。。");
         }
 

@@ -59,6 +59,20 @@ namespace Osblow.Util
         ShowVoiceImg = 27, // 显示声音图标
 
         ShowMessageBtn = 28, // 显示消息发送按钮
+
+        OnRecieveMessage = 29, // 接收到新闻消息
+
+        OnRecieveInviteCode = 30, // 接收到邀请码界面消息
+
+        OnRecieveHistory = 31, // 接收到战绩
+
+        OnRecieveHistoryDetail = 32, // 接收到战绩详细
+
+        OnRecieveContactUsMessage = 33, // 接收到客服消息
+
+        OnRecievePayRecord = 34, // 接收到充值记录
+
+        OnRecieveRules = 35, // 接收到规则信息
     }
 
 

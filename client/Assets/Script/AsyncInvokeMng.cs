@@ -39,7 +39,7 @@ public class AsyncInvokeMng : MonoBehaviour
 
         if (Events.Count > 0) Events.Clear();
         m_gcTimer += Time.deltaTime;
-        if(m_gcTimer > 5)
+        if(m_gcTimer > 15)
         {
             GC.Collect();
             m_gcTimer = 0;

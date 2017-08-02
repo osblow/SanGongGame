@@ -45,14 +45,15 @@ namespace Osblow.App
         public void InviteCodeBtn()
         {
             //ShowInviteCodeDialog();
+            Globals.SceneSingleton<ContextManager>().Push(new InviteCodeUIContext());
             HttpRequest.InviteCodeViewRequest();
-
+            
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
         public void HistoryBtn()
         {
-            //Globals.SceneSingleton<ContextManager>().Push(new HistoryUIContext());
+            Globals.SceneSingleton<ContextManager>().Push(new HistoryUIContext());
             HttpRequest.GameRecordRequest();
 
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
@@ -65,6 +66,7 @@ namespace Osblow.App
             //context.Info = "服务器正忙，请稍后再试..";
             //Globals.SceneSingleton<ContextManager>().Push(context);
 
+            Globals.SceneSingleton<ContextManager>().Push(new MessageUIContext());
             HttpRequest.NewsRequest();
             Globals.SceneSingleton<ContextManager>().WebBlockUI(true);
 
@@ -89,6 +91,7 @@ namespace Osblow.App
 
         public void RuleBtn()
         {
+            Globals.SceneSingleton<ContextManager>().Push(new RuleUIContext());
             HttpRequest.RuleRequest();
             MorePanel.SetActive(false);
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
@@ -96,6 +99,7 @@ namespace Osblow.App
 
         public void ContactUsBtn()
         {
+            Globals.SceneSingleton<ContextManager>().Push(new ContactUsUIContext());
             HttpRequest.ContactUsRequest();
             MorePanel.SetActive(false);
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
@@ -133,9 +137,8 @@ namespace Osblow.App
 
         public void PayBtn()
         {
-            //Globals.SceneSingleton<ContextManager>().Push(new PayUIContext());
-            HttpRequest.RechargeRecordRequest();
-
+            Globals.SceneSingleton<ContextManager>().Push(new PayUIContext());
+            
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 

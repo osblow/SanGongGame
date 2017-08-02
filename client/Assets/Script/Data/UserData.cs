@@ -20,6 +20,9 @@ public class UserData : DataBase
     public string cardResult = "";
 
     public uint socket_code = 0;
+
+    // 主要针对旁观者模式，记录有效玩家，其它的玩家均不发牌
+    public List<string> validUUIDs = new List<string>();
 }
 
 

@@ -98,7 +98,7 @@ public class CuoPai : MonoBehaviour
         m_recttrans.DOMove(step1_pos, 0.3f);
 
         m_recttrans.DOScale(Vector3.one * c_targetScale, 0.4f).SetDelay(0.3f);
-        m_recttrans.DOMove(AnimTarget.position - new Vector3(52, 75, 0), 0.4f).SetDelay(0.3f).OnComplete(delegate() 
+        m_recttrans.DOMove(AnimTarget.position, 0.4f).SetDelay(0.3f).OnComplete(delegate() 
         {
             CmdRequest.SynchroniseCardsRequest();
         });

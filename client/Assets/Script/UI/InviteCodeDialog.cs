@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Osblow.Util;
 
 
 namespace Osblow.App
@@ -22,6 +23,30 @@ namespace Osblow.App
         public InputField CodeInput;
         public Button ConfirmBtn;
         #endregion
+        private void OnRecieveInviteCode(Msg msg)
+        {
+            bool binded = msg.Get<bool>(0);
+            uint bindedCode = msg.Get<uint>(1);
+            string notice = msg.Get<string>(2);
+
+            if (binded)
+            {
+                CodeInput.text = bindedCode.ToString();
+                CodeInput.GetComponent<Image>().color = Color.yellow;
+                CodeInput.enabled = false;
+                ConfirmBtn.interactable = false;
+            }
+            else
+            {
+                CodeInput.text = "";
+                CodeInput.GetComponent<Image>().color = Color.white;
+                CodeInput.enabled = true;
+                ConfirmBtn.interactable = true;
+            }
+
+            NoticeTxt.text = notice;
+        }
+
 
         #region 场景事件
         public void OnExitBtn()
@@ -42,29 +67,14 @@ namespace Osblow.App
 
         public override void OnEnter(BaseContext context)
         {
-            InviteCodeUIContext theContext = context as InviteCodeUIContext;
-            if (theContext.Binded)
-            {
-                CodeInput.text = theContext.BindedCode.ToString();
-                CodeInput.GetComponent<Image>().color = Color.yellow;
-                CodeInput.enabled = false;
-                ConfirmBtn.interactable = false;
-            }
-            else
-            {
-                CodeInput.text = "";
-                CodeInput.GetComponent<Image>().color = Color.white;
-                CodeInput.enabled = true;
-                ConfirmBtn.interactable = true;
-            }
-
-            NoticeTxt.text = theContext.Notice;
             base.OnEnter(context);
+            MsgMng.AddListener(MsgType.OnRecieveInviteCode, OnRecieveInviteCode);
         }
 
         public override void OnExit(BaseContext context)
         {
             base.OnExit(context);
+            MsgMng.RemoveListener(MsgType.OnRecieveInviteCode, OnRecieveInviteCode);
         }
 
         public override void OnPause(BaseContext context)

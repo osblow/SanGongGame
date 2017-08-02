@@ -113,7 +113,7 @@ namespace Osblow.App
             UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
 
             //test
-            url += "?uuid=" + c_testUUID;// playerdata.uuid;
+            url += "?uuid=" + playerdata.uuid;
             /////////////////////
 
             WWWForm form = new WWWForm();
@@ -152,7 +152,7 @@ namespace Osblow.App
             UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
 
             //test
-            url += "?uuid=" + c_testUUID;// playerdata.uuid;
+            url += "?uuid=" + playerdata.uuid;
             /////////////////////
 
             WWWForm form = new WWWForm();
@@ -171,7 +171,7 @@ namespace Osblow.App
             UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
 
             //test
-            url += "?uuid=" + c_testUUID;// playerdata.uuid;
+            url += "?uuid=" + playerdata.uuid;
             url += "&roomId=" + roomId;
             /////////////////////
 
@@ -209,7 +209,7 @@ namespace Osblow.App
             UserData playerdata = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
 
             //test
-            url += "?uuid=" + "d569ede5fa314a949fa7c99ce78f7d5b";// playerdata.uuid;
+            url += "?uuid=" + playerdata.uuid;
             /////////////////////
 
             WWWForm form = new WWWForm();

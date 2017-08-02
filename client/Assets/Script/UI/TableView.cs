@@ -42,6 +42,8 @@ namespace Osblow.App
 
         [Space]
         public GameObject EmojsPanel;
+        public Transform EmojsPosOut;
+        public Transform EmojsPosIn;
 
         [Space]
         public GameObject CuoPaiController;
@@ -370,14 +372,14 @@ namespace Osblow.App
         {
             get
             {
-                return new Vector3(Screen.width + 218, 376, 0);
+                return EmojsPosOut.position;
             }
         }
         private Vector3 m_emojShowPos
         {
             get
             {
-                return new Vector3(Screen.width - 218, 376, 0);
+                return EmojsPosIn.position;
             }
         }
         void ShowEmojPanel()
@@ -626,6 +628,11 @@ namespace Osblow.App
                 return;
             }
 
+            if (m_usersPanelDic.ContainsKey(theUUID))
+            {
+                return;
+            }
+
             UserPanel theUserPanel = m_usersPanelList[m_curPlayerCount];
             Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
@@ -756,23 +763,35 @@ namespace Osblow.App
                 TableData tableData = Globals.SceneSingleton<DataMng>().GetData<TableData>(DataType.Table);
                 int mode = (int)tableData.ruleType;
 
-                for (int i = 0; i < m_usersPanelList.Count; i++)
+                UserData playerData = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+
+
+
+                foreach(KeyValuePair<string, UserPanel> kval in m_usersPanelDic)
+                //for (int i = 0; i < m_usersPanelList.Count; i++)
                 {
-                    if (m_usersPanelList[i].Data != null || i == 0)
+                    string theId = kval.Key;
+                    if (!playerData.validUUIDs.Contains(theId))
+                    {
+                        continue;
+                    }
+
+                    UserPanel thePanel = kval.Value;
+                    //if (thePanel.Data != null || i == 0)
                     {
                         if (mode == 0)
                         {
-                            m_usersPanelList[i].ShowCards(new uint[] { 54, 54, 54 });
+                            thePanel.ShowCards(new uint[] { 54, 54, 54 });
                         }
                         else if(mode == 3)
                         {
-                            m_usersPanelList[i].ShowCards(new uint[] { 54, 54, 200 });
+                            thePanel.ShowCards(new uint[] { 54, 54, 200 });
                         }
                         else
                         {
-                            m_usersPanelList[i].ShowCards(new uint[] { 100, 100, 54 });
+                            thePanel.ShowCards(new uint[] { 100, 100, 54 });
                         }
-                        m_usersPanelList[i].DealAnimation(mode);
+                        thePanel.DealAnimation(mode);
                     }
                 }
 
@@ -959,7 +978,11 @@ namespace Osblow.App
             {
                 Debug.Log("比大小中.....");
 
-                NextRound();
+                bool showReadyBtn = msg.Get<bool>(3);
+                if (showReadyBtn)
+                {
+                    NextRound();
+                }
 
                 for (int i = 0; i < eDatas.Count; i++)
                 {

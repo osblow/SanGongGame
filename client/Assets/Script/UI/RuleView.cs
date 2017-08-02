@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Osblow.Util;
 
 
 namespace Osblow.App
@@ -28,21 +29,23 @@ namespace Osblow.App
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
         #endregion
-
+        private void OnRecieveMessage(Msg msg)
+        {
+            List<RuleData> datas = msg.Get<List<RuleData>>(0);
+            ContentTxt.text = GetFullString(datas);
+        }
 
 
         public override void OnEnter(BaseContext context)
         {
             base.OnEnter(context);
-
-            RuleUIContext theContext = context as RuleUIContext;
-
-            ContentTxt.text = GetFullString(theContext.Datas);
+            MsgMng.AddListener(MsgType.OnRecieveRules, OnRecieveMessage);
         }
 
         public override void OnExit(BaseContext context)
         {
             base.OnExit(context);
+            MsgMng.RemoveListener(MsgType.OnRecieveRules, OnRecieveMessage);
         }
 
         public override void OnPause(BaseContext context)

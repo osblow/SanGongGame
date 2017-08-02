@@ -239,11 +239,18 @@ public class CmdHandler
         string theUUID = res.dismiss_uuid;
         uint expireTime = res.expire_seconds;
 
+        if (!Globals.SceneSingleton<GameMng>().UsersDic.ContainsKey(theUUID))
+        {
+            return;
+        }
+
         Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
         {
             AlertUIContext context = new AlertUIContext();
             context.HasCancel = true;
             context.HasOK = true;
+            string theUser = Globals.SceneSingleton<GameMng>().UsersDic[theUUID].NickName;
+            context.Info = theUser + "申请解散房间";
             context.OKCallback += delegate ()
             {
                 Osblow.Game.CmdRequest.PlayerVoteDismissRoomRequest(true);
@@ -258,6 +265,7 @@ public class CmdHandler
 
         Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
         {
+            
             Debug.Log(theUUID + "解散了房间");
         });
     }
@@ -304,6 +312,12 @@ public class CmdHandler
         }
         else
         {
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
+            {
+                AlertUIContext context = new AlertUIContext();
+                context.Info = res.message;
+                Globals.SceneSingleton<ContextManager>().Push(context);
+            });
             // 失败
             Debug.Log("解散失败");
         }
@@ -579,6 +593,11 @@ public class CmdHandler
     public static void ServerBankerNotice2Response(byte[] data, int index)
     {
         ServerBankerNotice2Response res = GetProtoInstance<ServerBankerNotice2Response>(data, index);
+        if (!res.code)
+        {
+            return;
+        }
+
         List<uint> cards = new List<uint>();
         res.card.ForEach((x) => { cards.Add(x.card); });
 
@@ -620,6 +639,10 @@ public class CmdHandler
     public static void ServerBankerResponse(byte[] data, int index)
     {
         ServerBankerResponse res = GetProtoInstance<ServerBankerResponse>(data, index);
+        if (!res.code)
+        {
+            return;
+        }
 
         bool hasOwner = res.is_banker;
         string ownerUUID = res.banker_uuid;
@@ -669,6 +692,11 @@ public class CmdHandler
     public static void ServerCardsResponse(byte[] data, int index)
     {
         ServerCardsResponse res = GetProtoInstance<ServerCardsResponse>(data, index);
+        if (!res.code)
+        {
+            return;
+        }
+
         List<uint> cards = new List<uint>();
         res.card.ForEach((x) => { cards.Add(x.card); });
 
@@ -682,10 +710,20 @@ public class CmdHandler
          * 0:0点	 1: 1点   	2:2点 	3: 3点 	 4:4点   	 5: 5点   	6:6点	7: 7点  	8:8点  	 9:9点    	10：混三公  	11：小三公 	 12：大三公 
          */
 
+
         UserData playerData = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
         playerData.cards = cards;
         playerData.cardResult = s_cardResultDic[res.card_result];
-        
+
+        playerData.validUUIDs.Clear();
+        res.effectiveUuid.ForEach((x) =>
+        {
+            Debug.Log(x.uuid);
+            playerData.validUUIDs.Add(x.uuid);
+        });
+
+        Debug.Log("有效玩家个数" + res.effectiveUuid.Count);
+
         uint expireTime = res.expire_seconds;
         MsgMng.Dispatch(MsgType.UpdateClock, expireTime);
 
@@ -748,6 +786,7 @@ public class CmdHandler
     public static void WinOrLoseResponse(byte[] data, int index)
     {
         WinOrLoseResponse res = GetProtoInstance<WinOrLoseResponse>(data, index);
+
         List<ResultEffectData> results = new List<ResultEffectData>();
         res.result.ForEach((x) => 
         {
@@ -777,7 +816,7 @@ public class CmdHandler
         uint expireTime = res.expire_seconds;
         MsgMng.Dispatch(MsgType.UpdateClock, expireTime);
 
-        MsgMng.Dispatch(MsgType.Compare, results, expireTime, userPoints);
+        MsgMng.Dispatch(MsgType.Compare, results, expireTime, userPoints, res.is_reday);
 
         Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
         {
@@ -908,13 +947,31 @@ public class CmdHandler
     {
         StartGameNotice res = GetProtoInstance<StartGameNotice>(data, index);
 
-        MsgMng.Dispatch(MsgType.StartGameBtnEnabled);
+        if (res.isStart)
+        {
+            MsgMng.Dispatch(MsgType.StartGameBtnEnabled);
+        }
 
         Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
         {
             Debug.Log("通知开始游戏");
             Globals.Instance.LogCallbackResponse("通知开始游戏");
         });
+    }
+
+    public static void GameNoStartNotice(byte[] data, int index)
+    {
+        GameNoStartNotice res = GetProtoInstance<GameNoStartNotice>(data, index);
+
+        if (res.is_no_Start)
+        {
+            Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate () 
+            {
+                AlertUIContext context = new AlertUIContext();
+                context.Info = "游戏15分钟未开始，已自动解散";
+                Globals.SceneSingleton<ContextManager>().Push(context);
+            });
+        }
     }
 
     public static void ReadyResultResponse(byte[] data, int index)

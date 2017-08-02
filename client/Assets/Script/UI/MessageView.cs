@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Osblow.Util;
 
 
 namespace Osblow.App
@@ -9,8 +10,6 @@ namespace Osblow.App
     public class MessageUIContext : BaseContext
     {
         public MessageUIContext() : base(UIType.MessageView) { }
-
-        public MessageData Data;
     }
 
     public class MessageView : BaseView
@@ -27,21 +26,25 @@ namespace Osblow.App
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
         #endregion
+        private void OnReceiveMessage(Msg msg)
+        {
+            MessageData lobbyData = msg.Get<MessageData>(0);
 
+            Title.text = lobbyData.NewsTitle;
+            ContentTxt.text = lobbyData.News;
+        }
 
 
         public override void OnEnter(BaseContext context)
         {
-            MessageUIContext theContext = context as MessageUIContext;
-            Title.text = theContext.Data.NewsTitle;
-            ContentTxt.text = theContext.Data.News;
-
             base.OnEnter(context);
+            MsgMng.AddListener(MsgType.OnRecieveMessage, OnReceiveMessage);
         }
 
         public override void OnExit(BaseContext context)
         {
             base.OnExit(context);
+            MsgMng.RemoveListener(MsgType.OnRecieveMessage, OnReceiveMessage);
         }
 
         public override void OnPause(BaseContext context)
