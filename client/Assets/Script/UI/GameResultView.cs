@@ -24,9 +24,10 @@ namespace Osblow.App
         public void OnExitBtn()
         {
             Globals.SceneSingleton<UIManager>().DestroySingleUI(UIType.TableView);
+            Globals.SceneSingleton<ContextManager>().Pop();
             Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
 
-            Globals.SceneSingleton<SoundMng>().StopBackSound();
+            //Globals.SceneSingleton<SoundMng>().StopBackSound();
             Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
 
             Globals.SceneSingleton<StateMng>().ChangeState(StateType.Lobby);
@@ -43,6 +44,9 @@ namespace Osblow.App
             base.OnEnter(context);
 
             GameResultUIContext theContext = context as GameResultUIContext;
+
+            Debug.Log("game results count: " + theContext.Results.Count);
+
             for (int i = 0; i < theContext.Results.Count; i++)
             {
                 GameObject newItem = Instantiate(ItemTpl);
@@ -59,6 +63,8 @@ namespace Osblow.App
         public override void OnExit(BaseContext context)
         {
             base.OnExit(context);
+
+            Debug.Log("clear game results");
             for (int i = 0; i < m_items.Count; i++)
             {
                 Destroy(m_items[i]);

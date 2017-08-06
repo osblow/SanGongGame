@@ -15,6 +15,7 @@ public class UserData : DataBase
     public double evaluate_score = 1;
     public uint user_diamond = 100;
     public string notice_message = "";
+    public uint sex = 1;// 1男，2女
 
     public List<uint> cards = new List<uint>() { 0,0,0 };
     public string cardResult = "";

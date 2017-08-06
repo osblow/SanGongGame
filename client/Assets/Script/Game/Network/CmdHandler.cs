@@ -89,7 +89,9 @@ public class CmdHandler
         tableData.EvaluateScore = res.evaluate_score;
         tableData.CanDismiss = res.is_dismiss;
         tableData.PayRule = res.room_rules;
-        
+
+        UserData player = Globals.SceneSingleton<DataMng>().GetData<UserData>(DataType.Player);
+        player.sex = res.sex;
 
         tableData.BetPoints = new List<BetPointData>();
         res.betPoints.ForEach((x) => 
@@ -112,7 +114,9 @@ public class CmdHandler
             temp.NickName = x.player_nike_name;
             temp.UserIp = x.user_ip;
             temp.EvaluateScore = x.evaluate_score;
+            temp.Sex = x.sex;
             tableData.Players.Add(temp);
+            
         });
 
         tableData.IsReady = res.is_reday;
@@ -949,7 +953,7 @@ public class CmdHandler
 
         if (res.isStart)
         {
-            MsgMng.Dispatch(MsgType.StartGameBtnEnabled);
+            MsgMng.Dispatch(MsgType.StartGameBtnEnabled, true);
         }
 
         Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
@@ -983,9 +987,25 @@ public class CmdHandler
             Debug.Log("坐下失败");
             Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate ()
             {
-                AlertUIContext context = new AlertUIContext();
-                context.Info = "您现在是旁观者，不能加入牌局";
-                Globals.SceneSingleton<ContextManager>().Push(context);
+                if (res.is_blance)
+                {
+                    AlertUIContext context = new AlertUIContext();
+                    context.Info = "您现在是旁观者，不能加入牌局";
+                    Globals.SceneSingleton<ContextManager>().Push(context);
+                }
+                else
+                {
+                    AlertUIContext context = new AlertUIContext();
+                    context.Info = "您的余额不足，请前往充值";
+                    context.HasOK = true;
+                    context.HasCancel = true;
+                    context.OKCallback = delegate ()
+                    {
+                        Debug.Log("结束游戏，跳到充值界面");
+                    };
+                    context.OkBtnLabel = "去充值";
+                    Globals.SceneSingleton<ContextManager>().Push(context);
+                }
             });
         }
 
@@ -993,6 +1013,13 @@ public class CmdHandler
         {
             Debug.Log("坐下请求的返回" + res.is_seat);
         });
+    }
+
+    public static void ExistNoStartGame(byte[] data, int index)
+    {
+        ExistNoStartGame res = GetProtoInstance<ExistNoStartGame>(data, index);
+
+        MsgMng.Dispatch(MsgType.StartGameBtnEnabled, false);
     }
 
     public static T GetProtoInstance<T>(byte[] data, int index)
@@ -1014,6 +1041,7 @@ public class CmdHandler
 
         return t;
     }
+
 
     public static T GetProtoInstanceChat<T>(byte[] data, int index)
     {

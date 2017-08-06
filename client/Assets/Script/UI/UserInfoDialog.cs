@@ -19,6 +19,10 @@ namespace Osblow.App
         public Image Icon;
         public Text Name;
         public Text IP;
+        public Text Round;
+        public Text ID;
+        public GameObject Male;
+        public GameObject Female;
         public GameObject[] Stars;
         #endregion
 
@@ -39,6 +43,10 @@ namespace Osblow.App
             UserInfoUIContext theContent = context as UserInfoUIContext;
             Name.text = theContent.ThePlayerData.NickName;
             IP.text = theContent.ThePlayerData.UserIp;
+            //Round.text = theContent.ThePlayerData.EvaluateScore;
+            ID.text = theContent.ThePlayerData.AcountId.ToString();
+            Male.SetActive(theContent.ThePlayerData.Sex == 1);
+            Female.SetActive(theContent.ThePlayerData.Sex != 1);
             for(int i = 0; i < Stars.Length; i++)
             {
                 Stars[i].SetActive(i < theContent.ThePlayerData.EvaluateScore.Length);

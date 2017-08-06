@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 namespace Osblow.App
 {
     public class HttpRequest
@@ -16,18 +17,35 @@ namespace Osblow.App
         /// </summary>
         public static void LoginRequest()
         {
-            string username = PlayerPrefs.GetString("username");
             string url = Globals.Instance.Settings.WebUrlBase + "loginAction/login.do";
 
+
+
+#if UNITY_EDITOR
+            WWWForm form = new WWWForm();
+#else
+            url = Globals.Instance.Settings.WebUrlBase + "loginAction/authorizedLogin.do";
+            string auth = PlayerPrefs.GetString("username");
+            AuthData data = JsonParser.GetAuthInfoFromResponse(auth);
             // test
-            //url += "?unionId=" + username;
+            url += "?nickName=" + data.nickname;
+            url += "&unionId=" + data.unionid;
+            url += "&headImg=" + data.headimgurl;
+            url += "&sex=" + data.sex;
+            url += "&cityName=" + data.city;
+            url += "&provincName=" + data.province;
             ///////////
 
             WWWForm form = new WWWForm();
-            //form.AddField("unionId", username);
+            form.AddField("unionId", data.unionid);
+            form.AddField("nickName", data.nickname);
+            form.AddField("headImg", data.headimgurl);
+            form.AddField("sex", data.sex);
+            form.AddField("cityName", data.city);
+            form.AddField("provincName", data.province);
             //form.headers["Content-Type"] = "application/x-www-form-urlencoded";
-            
-            Globals.SceneSingleton<HttpNetworkMng>().Send(url, form, HttpHandler.LoginResponse);
+#endif
+            Globals.SceneSingleton<HttpNetworkMng>().Send(System.Uri.EscapeUriString(url), form, HttpHandler.LoginResponse);
         }
 
         /// <summary>

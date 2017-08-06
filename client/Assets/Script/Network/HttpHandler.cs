@@ -19,6 +19,18 @@ namespace Osblow.App
         {
             LoginResponse res = GetProtoInstance<LoginResponse>(data);
 
+#if UNITY_EDITOR
+#else
+            if(res.code == 1)
+            {
+                Debug.Log("登录失败");
+
+                PlayerPrefs.DeleteKey("username");
+                LoginView.DoLogin();
+                return;
+            }
+#endif
+
             UserData userData = new UserData();
             userData.uuid = res.uuid;
             userData.user_nick_name = res.user_nick_name;
@@ -31,6 +43,7 @@ namespace Osblow.App
             userData.evaluate_score = res.evaluate_score;
             userData.user_diamond = res.user_diamond;
             userData.notice_message = res.notice_message;
+
 
             Globals.SceneSingleton<DataMng>().SetData(DataType.Player, userData);
 
@@ -75,11 +88,31 @@ namespace Osblow.App
         {
             CreateRoomWebResponse res = GetProtoInstance<CreateRoomWebResponse>(data);
 
-            //if(res.code == 1)
-            //{
-            //    UnityEngine.Debug.Log("创建房间失败");
-            //    return;
-            //}
+            if (res.code == 1)
+            {
+                UnityEngine.Debug.Log("创建房间失败");
+
+                AlertUIContext context = new AlertUIContext();
+                context.Info = res.message;
+                Globals.SceneSingleton<ContextManager>().Push(context);
+                return;
+            }
+            else if(res.code == 2)
+            {
+                UnityEngine.Debug.Log("余额不足");
+                AlertUIContext context = new AlertUIContext();
+                context.Info = res.message;
+                context.HasOK = true;
+                context.HasCancel = true;
+                context.OKCallback = delegate ()
+                {
+                    Debug.Log("结束游戏，跳到充值界面");
+                    Globals.SceneSingleton<ContextManager>().Push(new PayUIContext());
+                };
+                context.OkBtnLabel = "去充值";
+                Globals.SceneSingleton<ContextManager>().Push(context);
+                return;
+            }
 
             //Debug.Log("创建房间成功， 房间号" + res.room_id);
             Globals.SceneSingleton<DataMng>().GetData<RoomData>(DataType.Room).RoomId = res.room_id;

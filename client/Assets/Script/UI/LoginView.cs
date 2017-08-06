@@ -24,11 +24,35 @@ namespace Osblow.App
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
         #endregion
+
+        public static void DoLogin()
+        {
+#if UNITY_EDITOR
+            HttpRequest.LoginRequest();
+#elif UNITY_ANDROID
+            if (PlayerPrefs.HasKey("username") && PlayerPrefs.GetString("username") != null
+                && PlayerPrefs.GetString("username").Length > 0)
+            {
+                Debug.Log("已有用户id，直接登录" + PlayerPrefs.GetString("username"));
+                HttpRequest.LoginRequest();
+            }
+            else
+            {
+                AndroidJavaClass jc = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+                AndroidJavaObject jo = jc.GetStatic<AndroidJavaObject>("currentActivity");//获取到当前的activity
+                                                                                          //jo.Call("RegistWXApi");   //第一个是方法名  第二个是参数
+                jo.Call("weiLogin");
+            }
+#endif
+        }
+
+
         void Login()
         {
             //Globals.SceneSingleton<ContextManager>().Push(new LobbyUIContext());
             Globals.SceneSingleton<ContextManager>().WebBlockUI(true, "正在登录...");
-            HttpRequest.LoginRequest();
+
+            DoLogin();
         }
 
 
@@ -40,6 +64,8 @@ namespace Osblow.App
             {
                 UserInput.text = PlayerPrefs.GetString("username");
             }
+
+            WeixinHandler.RequestRoomNumber();
         }
 
         public override void OnExit(BaseContext context)

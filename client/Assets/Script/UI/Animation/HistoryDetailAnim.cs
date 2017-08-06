@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HistoryDetailAnim : MonoBehaviour 
 {
@@ -102,7 +103,15 @@ public class HistoryDetailAnim : MonoBehaviour
             return;
         }
 
+        StartCoroutine(LateInit());
+	}
+
+    IEnumerator LateInit()
+    {
+        yield return null;
+
         m_topItemPos = Items[0].transform.localPosition;
+        //Items[0].transform.parent.GetComponent<GridLayoutGroup>().enabled = false;
         for (int i = 0; i < Items.Count; i++)
         {
             if (i >= m_savedAnimState.Count)
@@ -114,7 +123,7 @@ public class HistoryDetailAnim : MonoBehaviour
                 m_savedAnimState[i] = true;
             }
         }
-	}
+    }
 	
 	// Update is called once per frame
 	void Update () 

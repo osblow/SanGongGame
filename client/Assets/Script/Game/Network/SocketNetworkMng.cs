@@ -61,6 +61,7 @@ namespace Osblow.Game
             m_hadlerDic.Add(Cmd.StartGameNotice, CmdHandler.StartGameNotice);
             m_hadlerDic.Add(Cmd.GameNoStartNotice, CmdHandler.GameNoStartNotice);
             m_hadlerDic.Add(Cmd.ReadyResultResponse, CmdHandler.ReadyResultResponse);
+            m_hadlerDic.Add(Cmd.ExistNoStartGame, CmdHandler.ExistNoStartGame);
         }
 
 
@@ -198,7 +199,7 @@ namespace Osblow.Game
 
                         Globals.SceneSingleton<DataMng>().ClearAll();
                         Globals.SceneSingleton<GameMng>().ClearAll();
-                        Globals.SceneSingleton<SoundMng>().StopBackSound();
+                        //Globals.SceneSingleton<SoundMng>().StopBackSound();
                         Globals.RemoveSceneSingleton<Osblow.Game.SocketNetworkMng>();
 
                         Globals.Instance.SaveLog();

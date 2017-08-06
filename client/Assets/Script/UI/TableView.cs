@@ -1116,7 +1116,17 @@ namespace Osblow.App
         {
             Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate () 
             {
-                StartGameBtn.GetComponent<Button>().interactable = true;
+                bool canStart = msg.Get<bool>(0);
+
+                if (canStart)
+                {
+                    StartGameBtn.GetComponent<Button>().interactable = true;
+                }
+                else
+                {
+                    StartGameBtn.gameObject.SetActive(true);
+                    StartGameBtn.GetComponent<Button>().interactable = false;
+                }
             });
         }
 

@@ -23,6 +23,16 @@ namespace Osblow.App
             Globals.SceneSingleton<ContextManager>().Pop();
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
+
+        public void OnShareToFriendBtn()
+        {
+            WeixinHandler.ShareToFriend("啊哟啊哟", "http://www.baidu.com", "测试测试测试");
+        }
+
+        public void OnShareToTimelineBtn()
+        {
+            WeixinHandler.ShareToTimeline("啊哟啊哟", "http://www.baidu.com", "测试测试测试");
+        }
         #endregion
 
 

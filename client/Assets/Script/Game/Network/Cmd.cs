@@ -51,5 +51,6 @@ namespace Osblow.Game
         public static short GameNoStartNotice = 0x1043;
         public static short ReadyResultResponse = 0x1044;
         public static short GameOverRequest = 0x1045;
+        public static short ExistNoStartGame = 0x1046;
     }
 }

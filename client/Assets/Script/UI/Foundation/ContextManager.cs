@@ -60,8 +60,12 @@ namespace Osblow.App
             if (_contextStack.Count != 0)
             {
                 BaseContext lastContext = _contextStack.Peek();
-                BaseView curView = Globals.SceneSingleton<UIManager>().GetSingleUI(lastContext.ViewType).GetComponent<BaseView>();
-                curView.OnResume(lastContext);
+                GameObject curViewObj = Globals.SceneSingleton<UIManager>().GetSingleUI(lastContext.ViewType);
+                if (curViewObj != null)
+                {
+                    BaseView curView = curViewObj.GetComponent<BaseView>();
+                    curView.OnResume(lastContext);
+                }
             }
         }
 
@@ -76,6 +80,8 @@ namespace Osblow.App
         
         public void WebBlockUI(bool isBlock, string info = "正在加载...")
         {
+            //Debug.Log("aaaa");
+
             BaseContext curContext = PeekOrNull();
             if (isBlock)
             {

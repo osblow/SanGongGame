@@ -55,6 +55,7 @@ namespace Osblow.App
         public string NickName = "";
         public string UserIp = "";
         public string EvaluateScore = "";
+        public uint Sex = 1; // 1男，2女
 
         public bool IsSeated = false;
         public bool IsBanker = false;

@@ -143,14 +143,14 @@ namespace Osblow.App
 
             void OnClickDetail()
             {
-                Globals.SceneSingleton<ContextManager>().WebBlockUI(true);
                 Globals.SceneSingleton<ContextManager>().Push(new HistoryDetailUIContext());
                 HttpRequest.SmallGameRecordRequest(m_record.RoomId.ToString());
+                Globals.SceneSingleton<ContextManager>().WebBlockUI(true);
             }
 
             void OnClickShare()
             {
-
+                
             }
         }
 

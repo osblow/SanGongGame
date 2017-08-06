@@ -52,6 +52,12 @@ namespace Osblow.App
             MusicBtn.interactable = false;
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
+
+        public void OnChangeLogin()
+        {
+            PlayerPrefs.SetString("username", "");
+            Globals.SceneSingleton<ContextManager>().Push(new LoginUIContext());
+        }
         #endregion
 
 

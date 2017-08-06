@@ -14,6 +14,8 @@ namespace Osblow.App
         public bool HasOK = false;
         public System.Action CancelCallback;
         public System.Action OKCallback;
+        public string OkBtnLabel = "确认";
+        public string CancelBtnLabel = "取消";
     }
 
     public class AlertDialog : BaseView
@@ -76,6 +78,9 @@ namespace Osblow.App
 
             OKCallback = theContext.OKCallback;
             CancelCallback = theContext.CancelCallback;
+
+            //OKButton.GetComponentInChildren<Text>().text = theContext.OkBtnLabel;
+            //CancelButton.GetComponentInChildren<Text>().text = theContext.CancelBtnLabel;
         }
 
         public override void OnExit(BaseContext context)

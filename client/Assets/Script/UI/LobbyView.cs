@@ -75,11 +75,8 @@ namespace Osblow.App
 
         public void ShareBtn()
         {
-            //Globals.SceneSingleton<ContextManager>().Push(new ShareUIContext());
-            AlertUIContext context = new AlertUIContext();
-            context.Info = "服务器正忙，请稍后再试..";
-            Globals.SceneSingleton<ContextManager>().Push(context);
-
+            Globals.SceneSingleton<ContextManager>().Push(new ShareUIContext());
+            
             Globals.SceneSingleton<SoundMng>().PlayCommonButtonSound();
         }
 
@@ -171,6 +168,19 @@ namespace Osblow.App
         public override void OnEnter(BaseContext context)
         {
             base.OnEnter(context);
+
+
+            // 查询房间号，如果有房间号，则直接进入
+            if(Globals.Instance.RoomNumber != null && Globals.Instance.RoomNumber.Length > 0 && Globals.Instance.RoomNumber.Length <= 6)
+            {
+                HttpRequest.ExistRoomRequest(Globals.Instance.RoomNumber);
+                return;
+            }
+
+
+
+
+
             LobbyUIContext lobbyContext = context as LobbyUIContext;
             UserData user = lobbyContext.UserData;
             if (user == null)
@@ -246,11 +256,16 @@ namespace Osblow.App
                 newItem.transform.Find("round").GetComponent<Text>().text = data[i].TotalRound.ToString();
                 newItem.transform.Find("userCount").GetComponent<Text>().text = data[i].UserCount;
 
+                string shareUrl = "sangong://sangong/openwith?room=" + data[i].RoomNumber;
+                newItem.transform.Find("InviteBtn").GetComponent<Button>().onClick.AddListener(
+                    () => WeixinHandler.ShareToFriend("邀请加入", shareUrl, "测试测试测试"));
+
                 int curIndex = i;
                 newItem.transform.Find("Button").GetComponent<Button>()
                     .onClick.AddListener(() => OnClickInvite(data[curIndex].RoomNumber));
             }
         }
+
 
         void Clear()
         {

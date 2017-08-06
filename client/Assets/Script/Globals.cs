@@ -88,7 +88,7 @@ namespace Osblow.App
 
 
 
-
+        public string RoomNumber = "";
 
         public int ReconnectTime = 10;
 
@@ -139,6 +139,34 @@ namespace Osblow.App
             yield return www;
             if (getTextureCallback != null)
                 getTextureCallback.Invoke(www.texture);
+        }
+
+
+
+
+
+        public void OnRecvWxId(string response)
+        {
+            Debug.Log(response);
+            //Debug.Log(JsonParser.GetUnionIdFromResponse(response));
+
+            PlayerPrefs.SetString("username", response);
+
+            HttpRequest.LoginRequest();
+        }
+
+        
+        public void test(string code)
+        {
+            //Globals.SceneSingleton<AsyncInvokeMng>().Events.Add(delegate () 
+            //{
+            //    Debug.Log("token: " + code);
+            //});
+        }
+
+        public void dddd(string str)
+        {
+            //Debug.Log("test : " + str);
         }
     }
 
